@@ -70,7 +70,7 @@ function ShiftsPage() {
       const { data, error } = await supabase.rpc("close_shift", {
         _shift_id: shiftId,
         _closing_cash: Number(closingCash) || 0,
-        _note: note || null,
+        _note: note || undefined,
       });
       if (error) throw error;
       return data as { expected_cash: number; difference: number };

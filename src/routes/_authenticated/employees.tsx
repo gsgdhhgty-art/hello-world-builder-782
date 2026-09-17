@@ -135,7 +135,7 @@ function EmployeesPage() {
   const update = useMutation({
     mutationFn: async (payload: {
       id: string;
-      role?: string;
+      role?: (typeof ROLE_OPTIONS)[number];
       branch_id?: string | null;
       custom_role_id?: string | null;
       is_active?: boolean;

@@ -64,7 +64,7 @@ function InventoryPage() {
     queryFn: async () => {
       const { data, error } = await supabase.from("warehouses").select("id, name").order("name");
       if (error) throw error;
-      if (data?.length && !warehouseId) setWarehouseId(data[0].id);
+      if (data?.length && !warehouseId) setWarehouseId(data[0]!.id);
       return data ?? [];
     },
   });

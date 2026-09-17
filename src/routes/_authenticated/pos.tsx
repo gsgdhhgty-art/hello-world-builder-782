@@ -221,7 +221,8 @@ function PosPage() {
       const idx = prev.findIndex((l) => l.product.id === p.id);
       if (idx === -1) return [...prev, { product: p, quantity: 1, discount: 0 }];
       const next = [...prev];
-      next[idx] = { ...next[idx], quantity: next[idx].quantity + 1 };
+      const line = next[idx]!;
+      next[idx] = { ...line, quantity: line.quantity + 1 };
       return next;
     });
   }
