@@ -18,6 +18,8 @@ import {
   Wallet,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { OfflineProvider } from "@/hooks/useOffline";
+import { SyncBadge } from "@/components/SyncBadge";
 import { Button } from "@/components/ui/button";
 import { ROLE_LABELS } from "@/lib/format";
 import { cn } from "@/lib/utils";
