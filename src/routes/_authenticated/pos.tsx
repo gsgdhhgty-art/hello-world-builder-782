@@ -57,6 +57,7 @@ interface CartLine {
 
 function PosPage() {
   const { org, profile, can, session } = useAuth();
+  const { online, pending } = useOffline();
   const qc = useQueryClient();
   const currency = org?.currency ?? "SAR";
 
