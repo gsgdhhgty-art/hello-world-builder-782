@@ -477,12 +477,34 @@ function PosPage() {
             <div className="font-bold">الفاتورة الحالية</div>
             <div className="text-xs text-muted-foreground">{profile?.full_name}</div>
           </div>
-          {cart.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={() => setCart([])}>
-              <Trash2 className="size-4" /> تفريغ
-            </Button>
-          )}
+          <div className="flex items-center gap-1">
+            {cart.length > 0 && (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => void holdOrder()}>
+                  <PauseCircle className="size-4" /> تعليق
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setCart([])}>
+                  <Trash2 className="size-4" /> تفريغ
+                </Button>
+              </>
+            )}
+          </div>
         </div>
+
+        {(heldQuery.data ?? []).length > 0 && (
+          <div className="space-y-1 border-b bg-secondary/50 p-3">
+            <div className="text-xs font-bold text-muted-foreground">طلبات معلقة</div>
+            {(heldQuery.data ?? []).map((o) => (
+              <div key={o.id} className="flex items-center justify-between gap-2 text-xs">
+                <span className="truncate">{o.label}</span>
+                <Button size="sm" variant="outline" onClick={() => void resumeOrder(o)}>
+                  <PlayCircle className="size-3.5" /> استئناف
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
 
         <div className="min-h-32 flex-1 space-y-2 overflow-y-auto p-3">
           {cart.map((l) => (
