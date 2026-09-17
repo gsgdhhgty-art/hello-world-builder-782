@@ -113,15 +113,16 @@ function PurchasesPage() {
 
   const products = useQuery({
     queryKey: ["products-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, name, unit, reorder_level, track_stock")
-        .eq("is_active", true)
-        .order("name");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () =>
+      localFirst("products", async () => {
+        const { data, error } = await supabase
+          .from("products")
+          .select("id, name, unit, reorder_level, track_stock")
+          .eq("is_active", true)
+          .order("name");
+        if (error) throw error;
+        return data ?? [];
+      }),
   });
 
   const receive = useMutation({
