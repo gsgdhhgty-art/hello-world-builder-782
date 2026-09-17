@@ -132,6 +132,7 @@ function AppShellInner() {
           })}
         </nav>
         <div className="border-t border-sidebar-border p-3 text-sm">
+          <SyncBadge className="mb-2" />
           <div className="truncate font-semibold">{profile.full_name}</div>
           <div className="text-xs opacity-70">{ROLE_LABELS[profile.role] ?? profile.role}</div>
           <Button
