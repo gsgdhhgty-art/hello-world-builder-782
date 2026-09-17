@@ -19,6 +19,13 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { dateTime, money } from "@/lib/format";
+import {
+  closeLocalShift,
+  enqueue,
+  isNetworkFailure,
+  isOnline,
+  REQUEST_TIMEOUT_MS,
+} from "@/lib/offline/sync";
 
 export const Route = createFileRoute("/_authenticated/shifts")({
   head: () => ({
@@ -69,18 +76,44 @@ function ShiftsPage() {
 
   const close = useMutation({
     mutationFn: async (shiftId: string) => {
-      const { data, error } = await supabase.rpc("close_shift", {
-        _shift_id: shiftId,
-        _closing_cash: Number(closingCash) || 0,
-        ...(note ? { _note: note } : {}),
-      });
-      if (error) throw error;
-      return data as { expected_cash: number; difference: number };
+      const cash = Number(closingCash) || 0;
+
+      // بدون إنترنت: نغلق محليًا ونضع الإغلاق في قائمة المزامنة
+      async function closeOffline() {
+        await closeLocalShift(shiftId, cash, note || null);
+        const txn = crypto.randomUUID();
+        await enqueue(
+          "shift_close",
+          "UPDATE",
+          { closing_cash: cash, note: note || null, client_txn_id: txn },
+          { entity_id: shiftId, idempotency_key: txn },
+        );
+        return null;
+      }
+
+      if (!isOnline()) return closeOffline();
+      try {
+        const { data, error } = await supabase
+          .rpc("close_shift", {
+            _shift_id: shiftId,
+            _closing_cash: cash,
+            ...(note ? { _note: note } : {}),
+          })
+          .abortSignal(AbortSignal.timeout(REQUEST_TIMEOUT_MS));
+        if (error) throw error;
+        return data as { expected_cash: number; difference: number };
+      } catch (e) {
+        const message = e instanceof Error ? e.message : "";
+        if (isNetworkFailure(message)) return closeOffline();
+        throw e;
+      }
     },
     onSuccess: (data) => {
-      toast.success(
-        `تم إغلاق الوردية — المتوقع ${money(data.expected_cash, currency)} والفرق ${money(data.difference, currency)}`,
-      );
+      if (!data) toast.success("تم إغلاق الوردية محليًا — سترسل تلقائيًا عند عودة الإنترنت");
+      else
+        toast.success(
+          `تم إغلاق الوردية — المتوقع ${money(data.expected_cash, currency)} والفرق ${money(data.difference, currency)}`,
+        );
       setClosingCash("");
       setNote("");
       void qc.invalidateQueries({ queryKey: ["shifts"] });
