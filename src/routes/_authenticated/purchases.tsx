@@ -94,6 +94,21 @@ function PurchasesPage() {
       }),
   });
 
+  const warehouses = useQuery({
+    queryKey: ["warehouses"],
+    queryFn: async () => {
+      const data = await localFirst("warehouses", async () => {
+        const { data, error } = await supabase.from("warehouses").select("id, name").order("name");
+        if (error) throw error;
+        return data ?? [];
+      });
+      if (data.length && !warehouseId) setWarehouseId(data[0]!.id);
+      return data;
+    },
+  });
+
+
+
 
 
   const products = useQuery({
