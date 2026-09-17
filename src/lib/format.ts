@@ -32,7 +32,9 @@ export const PAYMENT_LABELS: Record<string, string> = {
   CASH: "نقدًا",
   CARD: "شبكة / بطاقة",
   TRANSFER: "تحويل",
+  WALLET: "محفظة",
   CREDIT: "آجل",
+  MIXED: "دفع مختلط",
 };
 
 export const PERMISSION_LIST: { key: string; label: string }[] = [

@@ -113,6 +113,11 @@ function isConflict(message: string): boolean {
     "cart is empty",
     "invalid payment method",
     "credit sale requires a customer",
+    "return quantity exceeds sold quantity",
+    "invalid sale item",
+    "sale not found",
+    "no register configured",
+    "invalid return quantity",
   ].some((m) => message.includes(m));
 }
 
@@ -137,6 +142,30 @@ async function runOp(op: SyncOp): Promise<void> {
         sync_status: "SYNCED",
       });
     }
+    return;
+  }
+  if (op.entity === "shift_open") {
+    const p = op.payload as {
+      opening_cash: number;
+      register_id: string | null;
+      client_txn_id: string;
+    };
+    const args: { _opening_cash: number; _client_txn_id: string; _register_id?: string } = {
+      _opening_cash: p.opening_cash,
+      _client_txn_id: p.client_txn_id,
+    };
+    if (p.register_id) args._register_id = p.register_id;
+    const { error } = await supabase.rpc("open_shift", args);
+    if (error) throw new Error(error.message);
+    return;
+  }
+  if (op.entity === "return") {
+    const p = op.payload as { sale_id: string; items: unknown; reason?: string };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const args: any = { _sale_id: p.sale_id, _items: p.items };
+    if (p.reason) args._reason = p.reason;
+    const { error } = await supabase.rpc("create_return", args);
+    if (error) throw new Error(error.message);
     return;
   }
   if (op.entity === "customer") {
