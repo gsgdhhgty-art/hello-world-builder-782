@@ -107,10 +107,6 @@ function PurchasesPage() {
     },
   });
 
-
-
-
-
   const products = useQuery({
     queryKey: ["products-lite"],
     queryFn: () =>

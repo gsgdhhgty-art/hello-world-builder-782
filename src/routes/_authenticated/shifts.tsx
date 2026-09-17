@@ -53,13 +53,13 @@ function ShiftsPage() {
     queryKey: ["shifts"],
     queryFn: () =>
       localFirst("shifts", async () => {
-      const { data, error } = await supabase
-        .from("shifts")
-        .select(
-          "id, user_id, opening_cash, closing_cash, expected_cash, status, opened_at, closed_at, note",
-        )
-        .order("opened_at", { ascending: false })
-        .limit(100);
+        const { data, error } = await supabase
+          .from("shifts")
+          .select(
+            "id, user_id, opening_cash, closing_cash, expected_cash, status, opened_at, closed_at, note",
+          )
+          .order("opened_at", { ascending: false })
+          .limit(100);
         if (error) throw error;
         return data ?? [];
       }),
