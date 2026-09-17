@@ -344,12 +344,6 @@ function PosPage() {
 
   const checkout = useMutation({
     mutationFn: async (payments: PaymentLine[]) => {
-      const dbg = (m: string) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const w = window as any;
-        w.__DBG = [...(w.__DBG ?? []), m];
-      };
-      dbg("start:" + String(isOnline()));
       const clientTxnId = crypto.randomUUID();
       const localCreatedAt = new Date().toISOString();
       const payload = {
@@ -393,7 +387,6 @@ function PosPage() {
       };
 
       async function saveOffline(): Promise<ReceiptData> {
-        dbg("saveOffline");
         const paid = Math.min(paidNonCredit, grandTotal);
         const invoice = `OFF-${localCreatedAt.slice(0, 10).replace(/-/g, "")}-${clientTxnId
           .slice(0, 4)
@@ -439,10 +432,7 @@ function PosPage() {
         };
       }
 
-      if (!isOnline()) {
-        dbg("offlinebranch");
-        return saveOffline();
-      }
+      if (!isOnline()) return saveOffline();
 
       try {
         const { data, error } = await supabase
@@ -473,7 +463,6 @@ function PosPage() {
         } satisfies ReceiptData;
       } catch (e) {
         const message = e instanceof Error ? e.message : "";
-        dbg("err:" + message.slice(0, 80));
         if (isNetworkFailure(message)) return saveOffline();
         throw e;
       }
