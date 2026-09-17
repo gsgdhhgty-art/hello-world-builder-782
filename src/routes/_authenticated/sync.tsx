@@ -32,6 +32,7 @@ const ENTITY_LABELS: Record<string, string> = {
   customer: "عميل",
   expense: "مصروف",
   shift_open: "فتح وردية",
+  shift_close: "إغلاق وردية",
   return: "مرتجع",
   purchase: "فاتورة مشتريات",
 };

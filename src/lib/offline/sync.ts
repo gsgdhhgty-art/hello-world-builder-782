@@ -24,6 +24,16 @@ export function isOnline(): boolean {
   return typeof navigator === "undefined" ? true : navigator.onLine;
 }
 
+/** مهلة قصيرة للطلبات: بعدها نُكمل العملية محليًا ونزامنها لاحقًا. */
+export const REQUEST_TIMEOUT_MS = 7000;
+
+/** يعتبر الخطأ انقطاعًا في الشبكة (وليس رفضًا من الخادم). */
+export function isNetworkFailure(message: string): boolean {
+  return (
+    /fetch|network|timeout|abort|signal|Failed to fetch|NetworkError/i.test(message) || !isOnline()
+  );
+}
+
 export async function pullAll(): Promise<void> {
   if (!hasLocalDb()) return;
   const local = db();
@@ -118,6 +128,11 @@ function isConflict(message: string): boolean {
     "sale not found",
     "no register configured",
     "invalid return quantity",
+    "invalid warehouse",
+    "invalid supplier",
+    "shift already closed",
+    "shift not found",
+    "not allowed",
   ].some((m) => message.includes(m));
 }
 
@@ -165,6 +180,23 @@ async function runOp(op: SyncOp): Promise<void> {
     const args: any = { _sale_id: p.sale_id, _items: p.items };
     if (p.reason) args._reason = p.reason;
     const { error } = await supabase.rpc("create_return", args);
+    if (error) throw new Error(error.message);
+    return;
+  }
+  if (op.entity === "shift_close") {
+    const p = op.payload as { closing_cash: number; note?: string | null };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const args: any = { _closing_cash: p.closing_cash };
+    if (p.note) args._note = p.note;
+    const { error } = await supabase.rpc("close_open_shift", args);
+    if (error) throw new Error(error.message);
+    return;
+  }
+  if (op.entity === "purchase") {
+    const { error } = await supabase.rpc("receive_purchase", {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      _payload: op.payload as any,
+    });
     if (error) throw new Error(error.message);
     return;
   }
@@ -257,4 +289,44 @@ export async function recordLocalSale(sale: LocalSale): Promise<void> {
       });
     }
   }
+}
+
+/** استلام مشتريات بدون إنترنت: نزيد المخزون محليًا فورًا وننتظر تحقّق الخادم لاحقًا. */
+export async function recordLocalPurchase(
+  warehouseId: string,
+  items: Array<{ product_id: string; quantity: number; unit_cost: number }>,
+): Promise<void> {
+  if (!hasLocalDb()) return;
+  const local = db();
+  for (const item of items) {
+    const id = `${item.product_id}:${warehouseId}`;
+    const row = await local.inventory.get(id);
+    if (row) {
+      await local.inventory.update(id, { quantity: Number(row["quantity"]) + item.quantity });
+    } else {
+      await local.inventory.put({
+        id,
+        product_id: item.product_id,
+        warehouse_id: warehouseId,
+        quantity: item.quantity,
+      });
+    }
+  }
+}
+
+/** إغلاق الوردية محليًا حتى يكتمل الجرد النقدي بدون إنترنت. */
+export async function closeLocalShift(
+  shiftId: string,
+  closingCash: number,
+  note: string | null,
+): Promise<void> {
+  if (!hasLocalDb()) return;
+  const row = await db().shifts.get(shiftId);
+  if (!row) return;
+  await db().shifts.update(shiftId, {
+    status: "CLOSED",
+    closing_cash: closingCash,
+    closed_at: new Date().toISOString(),
+    note: note ?? row["note"] ?? null,
+  });
 }

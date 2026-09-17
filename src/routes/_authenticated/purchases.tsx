@@ -32,6 +32,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { dateTime, money, num } from "@/lib/format";
+import { localFirst } from "@/lib/offline/local-first";
+import {
+  enqueue,
+  isNetworkFailure,
+  isOnline,
+  recordLocalPurchase,
+  REQUEST_TIMEOUT_MS,
+} from "@/lib/offline/sync";
 
 export const Route = createFileRoute("/_authenticated/purchases")({
   head: () => ({
@@ -78,34 +86,39 @@ function PurchasesPage() {
 
   const suppliers = useQuery({
     queryKey: ["suppliers-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("suppliers").select("id, name").order("name");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () =>
+      localFirst("suppliers", async () => {
+        const { data, error } = await supabase.from("suppliers").select("id, name").order("name");
+        if (error) throw error;
+        return data ?? [];
+      }),
   });
 
   const warehouses = useQuery({
     queryKey: ["warehouses"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("warehouses").select("id, name").order("name");
-      if (error) throw error;
-      if (data?.length && !warehouseId) setWarehouseId(data[0]!.id);
-      return data ?? [];
+      const data = await localFirst("warehouses", async () => {
+        const { data, error } = await supabase.from("warehouses").select("id, name").order("name");
+        if (error) throw error;
+        return data ?? [];
+      });
+      if (data.length && !warehouseId) setWarehouseId(data[0]!.id);
+      return data;
     },
   });
 
   const products = useQuery({
     queryKey: ["products-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, name, unit, reorder_level, track_stock")
-        .eq("is_active", true)
-        .order("name");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () =>
+      localFirst("products", async () => {
+        const { data, error } = await supabase
+          .from("products")
+          .select("id, name, unit, reorder_level, track_stock")
+          .eq("is_active", true)
+          .order("name");
+        if (error) throw error;
+        return data ?? [];
+      }),
   });
 
   const receive = useMutation({
@@ -118,18 +131,45 @@ function PurchasesPage() {
           unit_cost: Number(l.unit_cost) || 0,
         }));
       if (!items.length) throw new Error("empty");
-      const { error } = await supabase.rpc("receive_purchase", {
-        _payload: {
-          supplier_id: supplierId === "none" ? null : supplierId,
-          warehouse_id: warehouseId,
-          reference: reference || null,
-          items,
-        },
-      });
-      if (error) throw error;
+      const clientTxnId = crypto.randomUUID();
+      const payload = {
+        supplier_id: supplierId === "none" ? null : supplierId,
+        warehouse_id: warehouseId,
+        reference: reference || null,
+        items,
+        client_txn_id: clientTxnId,
+        local_created_at: new Date().toISOString(),
+      };
+
+      // بدون إنترنت: نزيد المخزون محليًا ونضع الفاتورة في قائمة المزامنة
+      async function saveOffline() {
+        await recordLocalPurchase(warehouseId, items);
+        await enqueue("purchase", "CREATE", payload, {
+          entity_id: clientTxnId,
+          idempotency_key: clientTxnId,
+        });
+        return true;
+      }
+
+      if (!isOnline()) return saveOffline();
+      try {
+        const { error } = await supabase
+          .rpc("receive_purchase", { _payload: payload })
+          .abortSignal(AbortSignal.timeout(REQUEST_TIMEOUT_MS));
+        if (error) throw error;
+        return false;
+      } catch (e) {
+        const message = e instanceof Error ? e.message : "";
+        if (isNetworkFailure(message)) return saveOffline();
+        throw e;
+      }
     },
-    onSuccess: () => {
-      toast.success("تم استلام المشتريات وتحديث المخزون");
+    onSuccess: (offline) => {
+      toast.success(
+        offline
+          ? "تم تسجيل المشتريات محليًا — سترسل تلقائيًا عند عودة الإنترنت"
+          : "تم استلام المشتريات وتحديث المخزون",
+      );
       setOpen(false);
       setLines([{ product_id: "", quantity: "1", unit_cost: "0" }]);
       setReference("");
