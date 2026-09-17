@@ -901,12 +901,14 @@ export type Database = {
           branch_id: string
           cashier_id: string
           change_due: number
+          client_txn_id: string | null
           cost_total: number
           created_at: string
           customer_id: string | null
           discount: number
           id: string
           invoice_no: string
+          local_created_at: string | null
           note: string | null
           org_id: string
           paid: number
@@ -924,12 +926,14 @@ export type Database = {
           branch_id: string
           cashier_id: string
           change_due?: number
+          client_txn_id?: string | null
           cost_total?: number
           created_at?: string
           customer_id?: string | null
           discount?: number
           id?: string
           invoice_no: string
+          local_created_at?: string | null
           note?: string | null
           org_id: string
           paid?: number
@@ -947,12 +951,14 @@ export type Database = {
           branch_id?: string
           cashier_id?: string
           change_due?: number
+          client_txn_id?: string | null
           cost_total?: number
           created_at?: string
           customer_id?: string | null
           discount?: number
           id?: string
           invoice_no?: string
+          local_created_at?: string | null
           note?: string | null
           org_id?: string
           paid?: number
