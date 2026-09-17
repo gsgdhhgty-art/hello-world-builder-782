@@ -88,46 +88,57 @@ function PosPage() {
 
   const productsQuery = useQuery({
     queryKey: ["pos-products"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, name, barcode, sku, price, unit, track_stock, category_id")
-        .eq("is_active", true)
-        .order("name");
-      if (error) throw error;
-      return (data ?? []) as ProductRow[];
-    },
+    queryFn: () =>
+      localFirst<ProductRow>("products", async () => {
+        const { data, error } = await supabase
+          .from("products")
+          .select("id, name, barcode, sku, price, unit, track_stock, category_id")
+          .eq("is_active", true)
+          .order("name");
+        if (error) throw error;
+        return (data ?? []) as ProductRow[];
+      }),
   });
 
   const categoriesQuery = useQuery({
     queryKey: ["categories"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("categories").select("id, name").order("name");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () =>
+      localFirst<{ id: string; name: string }>("categories", async () => {
+        const { data, error } = await supabase.from("categories").select("id, name").order("name");
+        if (error) throw error;
+        return data ?? [];
+      }),
   });
 
   const stockQuery = useQuery({
     queryKey: ["pos-stock"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("inventory").select("product_id, quantity");
-      if (error) return {} as Record<string, number>;
-      const map: Record<string, number> = {};
-      for (const row of data ?? []) {
-        map[row.product_id] = (map[row.product_id] ?? 0) + Number(row.quantity);
+      if (isOnline()) {
+        const { data } = await supabase.from("inventory").select("*");
+        if (data && hasLocalDb()) {
+          await db()
+            .inventory.bulkPut(
+              data.map((r) => ({ ...r, id: `${r.product_id}:${r.warehouse_id}` })),
+            );
+        }
       }
-      return map;
+      return localStockMap();
     },
   });
 
   const customersQuery = useQuery({
     queryKey: ["customers-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("customers").select("id, name").order("name");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () =>
+      localFirst<{ id: string; name: string }>("customers", async () => {
+        const { data, error } = await supabase.from("customers").select("id, name").order("name");
+        if (error) throw error;
+        return data ?? [];
+      }),
+  });
+
+  const heldQuery = useQuery({
+    queryKey: ["held-orders"],
+    queryFn: async () => (hasLocalDb() ? db().held_orders.orderBy("created_at").toArray() : []),
   });
 
   const openShift = useMutation({
@@ -158,6 +169,8 @@ function PosPage() {
 
   const checkout = useMutation({
     mutationFn: async () => {
+      const clientTxnId = crypto.randomUUID();
+      const localCreatedAt = new Date().toISOString();
       const payload = {
         items: cart.map((l) => ({
           product_id: l.product.id,
@@ -167,10 +180,73 @@ function PosPage() {
         payment_method: method,
         paid: method === "CREDIT" ? 0 : Number(paidInput) || 0,
         customer_id: customerId === "none" ? null : customerId,
+        client_txn_id: clientTxnId,
+        local_created_at: localCreatedAt,
       };
-      const { data, error } = await supabase.rpc("create_sale", { _payload: payload });
-      if (error) throw error;
-      return data as { invoice_no: string; total: number; change_due: number };
+
+      async function saveOffline(): Promise<{
+        invoice_no: string;
+        total: number;
+        change_due: number;
+        offline: boolean;
+      }> {
+        const paid = method === "CREDIT" ? 0 : Math.max(Number(paidInput) || 0, totals.total);
+        const invoice = `OFF-${localCreatedAt.slice(0, 10).replace(/-/g, "")}-${clientTxnId.slice(0, 4).toUpperCase()}`;
+        await recordLocalSale({
+          id: clientTxnId,
+          client_txn_id: clientTxnId,
+          invoice_no: invoice,
+          total: totals.total,
+          subtotal: totals.subtotal,
+          discount: totals.discount,
+          tax: totals.tax,
+          paid,
+          change_due: Math.max(paid - totals.total, 0),
+          payment_method: method,
+          customer_id: customerId === "none" ? null : customerId,
+          cashier_id: profile?.id ?? null,
+          status: "COMPLETED",
+          sync_status: "PENDING",
+          local_created_at: localCreatedAt,
+          created_at: localCreatedAt,
+          items: cart.map((l) => ({
+            product_id: l.product.id,
+            product_name: l.product.name,
+            quantity: l.quantity,
+            unit_price: Number(l.product.price),
+            discount: l.discount,
+            tax: 0,
+            line_total: Number(l.product.price) * l.quantity - l.discount,
+          })),
+        });
+        await enqueue("sale", "CREATE", payload, {
+          entity_id: clientTxnId,
+          idempotency_key: clientTxnId,
+        });
+        return {
+          invoice_no: invoice,
+          total: totals.total,
+          change_due: Math.max(paid - totals.total, 0),
+          offline: true,
+        };
+      }
+
+      if (!isOnline()) return saveOffline();
+
+      try {
+        const { data, error } = await supabase.rpc("create_sale", { _payload: payload });
+        if (error) throw error;
+        return {
+          ...(data as { invoice_no: string; total: number; change_due: number }),
+          offline: false,
+        };
+      } catch (e) {
+        const message = e instanceof Error ? e.message : "";
+        const networkFailure =
+          /fetch|network|timeout|Failed to fetch|NetworkError/i.test(message) || !isOnline();
+        if (networkFailure) return saveOffline();
+        throw e;
+      }
     },
     onSuccess: (data) => {
       setLastReceipt(data);
@@ -178,7 +254,11 @@ function PosPage() {
       setPaidInput("");
       setMethod("CASH");
       setCustomerId("none");
-      toast.success(`تم إتمام الفاتورة ${data.invoice_no}`);
+      toast.success(
+        data.offline
+          ? `تم حفظ الفاتورة ${data.invoice_no} محليًا وسترسل تلقائيًا عند عودة الإنترنت`
+          : `تم إتمام الفاتورة ${data.invoice_no}`,
+      );
       void qc.invalidateQueries({ queryKey: ["pos-stock"] });
       void qc.invalidateQueries({ queryKey: ["sales"] });
     },
@@ -193,6 +273,36 @@ function PosPage() {
       toast.error(key ? map[key] : "تعذر إتمام الفاتورة");
     },
   });
+
+  async function holdOrder() {
+    if (!cart.length || !hasLocalDb()) return;
+    const order: HeldOrder = {
+      id: crypto.randomUUID(),
+      label: `${cart.length} صنف — ${money(totals.total, currency)}`,
+      created_at: new Date().toISOString(),
+      lines: cart.map((l) => ({
+        product_id: l.product.id,
+        quantity: l.quantity,
+        discount: l.discount,
+      })),
+    };
+    await db().held_orders.put(order);
+    setCart([]);
+    await qc.invalidateQueries({ queryKey: ["held-orders"] });
+    toast.success("تم تعليق الطلب");
+  }
+
+  async function resumeOrder(order: HeldOrder) {
+    const products = productsQuery.data ?? [];
+    const lines: CartLine[] = [];
+    for (const l of order.lines) {
+      const product = products.find((p) => p.id === l.product_id);
+      if (product) lines.push({ product, quantity: l.quantity, discount: l.discount });
+    }
+    setCart(lines);
+    await db().held_orders.delete(order.id);
+    await qc.invalidateQueries({ queryKey: ["held-orders"] });
+  }
 
   const filtered = useMemo(() => {
     const list = productsQuery.data ?? [];
