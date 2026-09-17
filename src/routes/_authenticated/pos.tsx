@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { money, num, PAYMENT_LABELS } from "@/lib/format";
+import { calculateCartTotals } from "@/lib/pos-math";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/pos")({
@@ -203,18 +204,18 @@ function PosPage() {
     });
   }, [productsQuery.data, search, category]);
 
-  const totals = useMemo(() => {
-    const taxRate = Number(org?.tax_rate ?? 0);
-    let subtotal = 0;
-    let discount = 0;
-    for (const l of cart) {
-      subtotal += Number(l.product.price) * l.quantity;
-      discount += Math.min(l.discount, Number(l.product.price) * l.quantity);
-    }
-    const net = subtotal - discount;
-    const tax = Math.round(net * taxRate) / 100;
-    return { subtotal, discount, tax, total: Math.round((net + tax) * 100) / 100 };
-  }, [cart, org?.tax_rate]);
+  const totals = useMemo(
+    () =>
+      calculateCartTotals(
+        cart.map((l) => ({
+          price: Number(l.product.price),
+          quantity: l.quantity,
+          discount: l.discount,
+        })),
+        Number(org?.tax_rate ?? 0),
+      ),
+    [cart, org?.tax_rate],
+  );
 
   function addToCart(p: ProductRow) {
     setCart((prev) => {
