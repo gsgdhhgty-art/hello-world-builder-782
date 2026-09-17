@@ -90,7 +90,7 @@ function PosPage() {
       }
       if (!hasLocalDb()) return null;
       const rows = await db().shifts.where("status").equals("OPEN").toArray();
-      return rows.find((s) => s.user_id === session?.user.id) ?? null;
+      return rows.find((s) => s['user_id'] === session?.user.id) ?? null;
     },
   });
 
