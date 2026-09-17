@@ -86,22 +86,15 @@ function PurchasesPage() {
 
   const suppliers = useQuery({
     queryKey: ["suppliers-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("suppliers").select("id, name").order("name");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () =>
+      localFirst("suppliers", async () => {
+        const { data, error } = await supabase.from("suppliers").select("id, name").order("name");
+        if (error) throw error;
+        return data ?? [];
+      }),
   });
 
-  const warehouses = useQuery({
-    queryKey: ["warehouses"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("warehouses").select("id, name").order("name");
-      if (error) throw error;
-      if (data?.length && !warehouseId) setWarehouseId(data[0]!.id);
-      return data ?? [];
-    },
-  });
+
 
   const products = useQuery({
     queryKey: ["products-lite"],
