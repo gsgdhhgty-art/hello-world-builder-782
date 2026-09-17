@@ -5,11 +5,51 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+  },
+  vite: {
+    plugins: [
+      // دعم العمل بدون إنترنت: تخزين ملفات التطبيق محليًا حتى يفتح ويعمل بلا شبكة
+      VitePWA({
+        registerType: "autoUpdate",
+        disable: process.env["NODE_ENV"] !== "production",
+        manifest: {
+          name: "كاشير كلاود — نظام نقاط البيع",
+          short_name: "كاشير",
+          description: "نظام كاشير ومخازن يعمل بدون إنترنت مع مزامنة سحابية تلقائية.",
+          lang: "ar",
+          dir: "rtl",
+          start_url: "/",
+          display: "standalone",
+          background_color: "#ffffff",
+          theme_color: "#0f766e",
+        },
+        workbox: {
+          globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+          navigateFallback: "/",
+          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
+          runtimeCaching: [
+            {
+              urlPattern: ({ request }) => request.mode === "navigate",
+              handler: "NetworkFirst",
+              options: { cacheName: "pages", networkTimeoutSeconds: 4 },
+            },
+            {
+              urlPattern: ({ request }) => ["script", "style", "font", "image"].includes(
+                request.destination,
+              ),
+              handler: "StaleWhileRevalidate",
+              options: { cacheName: "assets" },
+            },
+          ],
+        },
+      }),
+    ],
   },
 });
