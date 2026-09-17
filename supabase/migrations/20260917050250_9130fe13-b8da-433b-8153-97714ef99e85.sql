@@ -1,0 +1,12 @@
+REVOKE EXECUTE ON FUNCTION public.current_org_id() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.current_role_name() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.is_org_admin() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.has_perm(text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.my_permissions() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.default_permissions(public.app_role) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.set_updated_at() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.current_org_id() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.current_role_name() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_org_admin() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.has_perm(text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.my_permissions() TO authenticated;
