@@ -41,9 +41,8 @@ export default defineConfig({
               options: { cacheName: "pages", networkTimeoutSeconds: 4 },
             },
             {
-              urlPattern: ({ request }) => ["script", "style", "font", "image"].includes(
-                request.destination,
-              ),
+              urlPattern: ({ request }) =>
+                ["script", "style", "font", "image"].includes(request.destination),
               handler: "StaleWhileRevalidate",
               options: { cacheName: "assets" },
             },

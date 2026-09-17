@@ -135,7 +135,6 @@ function RootComponent() {
     registerOfflineSupport();
   }, []);
 
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
