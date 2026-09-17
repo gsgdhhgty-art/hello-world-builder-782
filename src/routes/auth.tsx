@@ -83,9 +83,17 @@ function AuthPage() {
     });
     if (error) {
       setBusy(false);
-      toast.error(error.message.includes("already") ? "هذا البريد مسجل بالفعل" : "تعذر إنشاء الحساب");
+      const code = (error as { code?: string }).code ?? "";
+      if (code === "weak_password" || error.message.toLowerCase().includes("weak")) {
+        toast.error("كلمة المرور ضعيفة أو شائعة، اختر كلمة مرور أقوى");
+      } else if (error.message.includes("already") || code === "user_already_exists") {
+        toast.error("هذا البريد مسجل بالفعل");
+      } else {
+        toast.error("تعذر إنشاء الحساب، تحقق من البيانات وحاول مرة أخرى");
+      }
       return;
     }
+
     if (!data.session) {
       setBusy(false);
       toast.success("تم إنشاء الحساب. تحقق من بريدك لتأكيد الحساب ثم سجّل الدخول.");
