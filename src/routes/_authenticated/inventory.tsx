@@ -115,17 +115,15 @@ function InventoryPage() {
       if (!adjust) return;
       const target = Number(newQty) || 0;
       const diff = target - adjust.current;
-      const { error } = await supabase
-        .from("inventory")
-        .upsert(
-          {
-            org_id: profile!.org_id!,
-            product_id: adjust.productId,
-            warehouse_id: warehouseId,
-            quantity: target,
-          },
-          { onConflict: "product_id,warehouse_id" },
-        );
+      const { error } = await supabase.from("inventory").upsert(
+        {
+          org_id: profile!.org_id!,
+          product_id: adjust.productId,
+          warehouse_id: warehouseId,
+          quantity: target,
+        },
+        { onConflict: "product_id,warehouse_id" },
+      );
       if (error) throw error;
       const { error: mErr } = await supabase.from("stock_movements").insert({
         org_id: profile!.org_id!,
@@ -254,7 +252,9 @@ function InventoryPage() {
                 {(movements.data ?? []).map((m) => (
                   <TableRow key={m.id}>
                     <TableCell>{nameOf(m.product_id)}</TableCell>
-                    <TableCell className={Number(m.qty_change) < 0 ? "text-destructive" : "text-primary"}>
+                    <TableCell
+                      className={Number(m.qty_change) < 0 ? "text-destructive" : "text-primary"}
+                    >
                       {num(m.qty_change)}
                     </TableCell>
                     <TableCell>

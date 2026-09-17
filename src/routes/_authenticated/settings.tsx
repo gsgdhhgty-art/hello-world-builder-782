@@ -24,7 +24,10 @@ export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "الإعدادات — كاشير كلاود" },
-      { name: "description", content: "بيانات المتجر، الفروع، المستودعات، أجهزة الكاشير والأدوار المخصصة." },
+      {
+        name: "description",
+        content: "بيانات المتجر، الفروع، المستودعات، أجهزة الكاشير والأدوار المخصصة.",
+      },
       { property: "og:title", content: "الإعدادات — كاشير كلاود" },
       { property: "og:description", content: "ضبط المتجر والفروع والأدوار." },
       { property: "og:type", content: "website" },
@@ -58,7 +61,10 @@ function SettingsPage() {
   const branches = useQuery({
     queryKey: ["branches"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("branches").select("id, name, is_active").order("name");
+      const { data, error } = await supabase
+        .from("branches")
+        .select("id, name, is_active")
+        .order("name");
       if (error) throw error;
       return data ?? [];
     },
@@ -192,7 +198,9 @@ function SettingsPage() {
   });
 
   if (!isAdmin) {
-    return <div className="p-10 text-center text-muted-foreground">الإعدادات للمالك والمسؤولين فقط.</div>;
+    return (
+      <div className="p-10 text-center text-muted-foreground">الإعدادات للمالك والمسؤولين فقط.</div>
+    );
   }
 
   const branchName_ = (id: string | null) =>
@@ -210,12 +218,20 @@ function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="o-name">اسم المتجر</Label>
-              <Input id="o-name" value={orgForm.name} onChange={(e) => setOrgForm({ ...orgForm, name: e.target.value })} />
+              <Input
+                id="o-name"
+                value={orgForm.name}
+                onChange={(e) => setOrgForm({ ...orgForm, name: e.target.value })}
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="o-cur">العملة</Label>
-                <Input id="o-cur" value={orgForm.currency} onChange={(e) => setOrgForm({ ...orgForm, currency: e.target.value })} />
+                <Input
+                  id="o-cur"
+                  value={orgForm.currency}
+                  onChange={(e) => setOrgForm({ ...orgForm, currency: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="o-tax">الضريبة %</Label>
@@ -242,15 +258,28 @@ function SettingsPage() {
           <CardContent className="space-y-4">
             <ul className="space-y-1 text-sm">
               {(branches.data ?? []).map((b) => (
-                <li key={b.id} className="flex items-center justify-between rounded-lg border px-3 py-2">
+                <li
+                  key={b.id}
+                  className="flex items-center justify-between rounded-lg border px-3 py-2"
+                >
                   <span>{b.name}</span>
-                  <span className="text-xs text-muted-foreground">{b.is_active ? "مفعّل" : "موقوف"}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {b.is_active ? "مفعّل" : "موقوف"}
+                  </span>
                 </li>
               ))}
             </ul>
             <div className="flex gap-2">
-              <Input placeholder="اسم الفرع" value={branchName} onChange={(e) => setBranchName(e.target.value)} />
-              <Button variant="outline" disabled={!branchName.trim() || addBranch.isPending} onClick={() => addBranch.mutate()}>
+              <Input
+                placeholder="اسم الفرع"
+                value={branchName}
+                onChange={(e) => setBranchName(e.target.value)}
+              />
+              <Button
+                variant="outline"
+                disabled={!branchName.trim() || addBranch.isPending}
+                onClick={() => addBranch.mutate()}
+              >
                 <Plus className="size-4" />
               </Button>
             </div>
@@ -264,7 +293,10 @@ function SettingsPage() {
           <CardContent className="space-y-4">
             <ul className="space-y-1 text-sm">
               {(warehouses.data ?? []).map((w) => (
-                <li key={w.id} className="flex items-center justify-between rounded-lg border px-3 py-2">
+                <li
+                  key={w.id}
+                  className="flex items-center justify-between rounded-lg border px-3 py-2"
+                >
                   <span>{w.name}</span>
                   <span className="text-xs text-muted-foreground">{branchName_(w.branch_id)}</span>
                 </li>
@@ -290,7 +322,11 @@ function SettingsPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button variant="outline" disabled={!warehouseName.trim() || addWarehouse.isPending} onClick={() => addWarehouse.mutate()}>
+              <Button
+                variant="outline"
+                disabled={!warehouseName.trim() || addWarehouse.isPending}
+                onClick={() => addWarehouse.mutate()}
+              >
                 <Plus className="size-4" />
               </Button>
             </div>
@@ -304,7 +340,10 @@ function SettingsPage() {
           <CardContent className="space-y-4">
             <ul className="space-y-1 text-sm">
               {(registers.data ?? []).map((r) => (
-                <li key={r.id} className="flex items-center justify-between rounded-lg border px-3 py-2">
+                <li
+                  key={r.id}
+                  className="flex items-center justify-between rounded-lg border px-3 py-2"
+                >
                   <span>{r.name}</span>
                   <span className="text-xs text-muted-foreground">{branchName_(r.branch_id)}</span>
                 </li>
@@ -330,7 +369,11 @@ function SettingsPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button variant="outline" disabled={!registerName.trim() || addRegister.isPending} onClick={() => addRegister.mutate()}>
+              <Button
+                variant="outline"
+                disabled={!registerName.trim() || addRegister.isPending}
+                onClick={() => addRegister.mutate()}
+              >
                 <Plus className="size-4" />
               </Button>
             </div>
@@ -355,7 +398,9 @@ function SettingsPage() {
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {PERMISSION_LIST.filter((p) => (r.permissions as Record<string, boolean>)[p.key])
+                    {PERMISSION_LIST.filter(
+                      (p) => (r.permissions as Record<string, boolean>)[p.key],
+                    )
                       .map((p) => p.label)
                       .join("، ") || "بدون صلاحيات"}
                   </p>
@@ -370,7 +415,10 @@ function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label>الدور الأساسي</Label>
-                <Select value={roleBase} onValueChange={(v) => setRoleBase(v as (typeof BASE_ROLES)[number])}>
+                <Select
+                  value={roleBase}
+                  onValueChange={(v) => setRoleBase(v as (typeof BASE_ROLES)[number])}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -387,7 +435,10 @@ function SettingsPage() {
 
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {PERMISSION_LIST.map((p) => (
-                <div key={p.key} className="flex items-center justify-between rounded-lg border px-3 py-2">
+                <div
+                  key={p.key}
+                  className="flex items-center justify-between rounded-lg border px-3 py-2"
+                >
                   <Label htmlFor={`perm-${p.key}`} className="text-sm">
                     {p.label}
                   </Label>
@@ -400,7 +451,10 @@ function SettingsPage() {
               ))}
             </div>
 
-            <Button disabled={!roleName.trim() || addRole.isPending} onClick={() => addRole.mutate()}>
+            <Button
+              disabled={!roleName.trim() || addRole.isPending}
+              onClick={() => addRole.mutate()}
+            >
               إنشاء الدور
             </Button>
           </CardContent>

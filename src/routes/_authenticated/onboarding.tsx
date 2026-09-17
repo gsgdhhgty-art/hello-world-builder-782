@@ -53,11 +53,21 @@ function Onboarding() {
           <form className="space-y-4" onSubmit={submit}>
             <div className="space-y-2">
               <Label htmlFor="org">اسم المتجر</Label>
-              <Input id="org" required value={orgName} onChange={(e) => setOrgName(e.target.value)} />
+              <Input
+                id="org"
+                required
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="name">اسمك بالكامل</Label>
-              <Input id="name" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+              <Input
+                id="name"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

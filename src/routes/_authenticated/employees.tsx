@@ -41,7 +41,10 @@ export const Route = createFileRoute("/_authenticated/employees")({
   head: () => ({
     meta: [
       { title: "الموظفون — كاشير كلاود" },
-      { name: "description", content: "إضافة موظفين، تحديد الأدوار والصلاحيات وتفعيل أو إيقاف الحسابات." },
+      {
+        name: "description",
+        content: "إضافة موظفين، تحديد الأدوار والصلاحيات وتفعيل أو إيقاف الحسابات.",
+      },
       { property: "og:title", content: "الموظفون — كاشير كلاود" },
       { property: "og:description", content: "إدارة فريق المتجر وصلاحياتهم." },
       { property: "og:type", content: "website" },
@@ -78,7 +81,9 @@ function EmployeesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, role, employee_code, branch_id, custom_role_id, is_active, last_login_at")
+        .select(
+          "id, full_name, role, employee_code, branch_id, custom_role_id, is_active, last_login_at",
+        )
         .order("full_name");
       if (error) throw error;
       return data ?? [];
@@ -152,8 +157,7 @@ function EmployeesPage() {
   });
 
   const resetPass = useMutation({
-    mutationFn: async () =>
-      resetPasswordFn({ data: { userId: resetFor!, password: newPassword } }),
+    mutationFn: async () => resetPasswordFn({ data: { userId: resetFor!, password: newPassword } }),
     onSuccess: () => {
       toast.success("تم تغيير كلمة المرور");
       setResetFor(null);
@@ -163,7 +167,11 @@ function EmployeesPage() {
   });
 
   if (!isAdmin) {
-    return <div className="p-10 text-center text-muted-foreground">هذه الصفحة للمالك والمسؤولين فقط.</div>;
+    return (
+      <div className="p-10 text-center text-muted-foreground">
+        هذه الصفحة للمالك والمسؤولين فقط.
+      </div>
+    );
   }
 
   return (
@@ -195,11 +203,15 @@ function EmployeesPage() {
                   <TableRow key={s.id}>
                     <TableCell className="font-medium">
                       {s.full_name}
-                      {self && <Badge className="ms-2" variant="secondary">أنت</Badge>}
+                      {self && (
+                        <Badge className="ms-2" variant="secondary">
+                          أنت
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       {s.role === "OWNER" || self ? (
-                        ROLE_LABELS[s.role] ?? s.role
+                        (ROLE_LABELS[s.role] ?? s.role)
                       ) : (
                         <Select
                           value={s.role}
@@ -291,21 +303,37 @@ function EmployeesPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="f-name">الاسم بالكامل</Label>
-              <Input id="f-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
+              <Input
+                id="f-name"
+                value={form.fullName}
+                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="f-email">البريد الإلكتروني</Label>
-              <Input id="f-email" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Input
+                id="f-email"
+                dir="ltr"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="f-pass">كلمة المرور</Label>
-              <Input id="f-pass" dir="ltr" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+              <Input
+                id="f-pass"
+                dir="ltr"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label>الدور</Label>
               <Select
                 value={form.role}
-                onValueChange={(v) => setForm({ ...form, role: v as (typeof ROLE_OPTIONS)[number] })}
+                onValueChange={(v) =>
+                  setForm({ ...form, role: v as (typeof ROLE_OPTIONS)[number] })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -321,7 +349,10 @@ function EmployeesPage() {
             </div>
             <div className="space-y-2">
               <Label>الفرع</Label>
-              <Select value={form.branchId} onValueChange={(v) => setForm({ ...form, branchId: v })}>
+              <Select
+                value={form.branchId}
+                onValueChange={(v) => setForm({ ...form, branchId: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -337,11 +368,18 @@ function EmployeesPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="f-code">رقم الموظف</Label>
-              <Input id="f-code" value={form.employeeCode} onChange={(e) => setForm({ ...form, employeeCode: e.target.value })} />
+              <Input
+                id="f-code"
+                value={form.employeeCode}
+                onChange={(e) => setForm({ ...form, employeeCode: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label>دور مخصص</Label>
-              <Select value={form.customRoleId} onValueChange={(v) => setForm({ ...form, customRoleId: v })}>
+              <Select
+                value={form.customRoleId}
+                onValueChange={(v) => setForm({ ...form, customRoleId: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -382,13 +420,21 @@ function EmployeesPage() {
           </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="np">كلمة المرور الجديدة</Label>
-            <Input id="np" dir="ltr" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <Input
+              id="np"
+              dir="ltr"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setResetFor(null)}>
               إلغاء
             </Button>
-            <Button disabled={newPassword.length < 6 || resetPass.isPending} onClick={() => resetPass.mutate()}>
+            <Button
+              disabled={newPassword.length < 6 || resetPass.isPending}
+              onClick={() => resetPass.mutate()}
+            >
               حفظ
             </Button>
           </DialogFooter>

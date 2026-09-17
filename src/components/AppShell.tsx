@@ -55,7 +55,6 @@ export function AppShell() {
     }
   }, [loading, profile, onOnboarding, navigate]);
 
-
   if (loading) {
     return (
       <div className="grid min-h-screen place-items-center bg-background text-muted-foreground">
@@ -144,7 +143,9 @@ export function AppShell() {
               to={item.to}
               className={cn(
                 "shrink-0 rounded-full px-3 py-1.5 text-xs",
-                location.pathname === item.to ? "bg-primary text-primary-foreground" : "bg-secondary",
+                location.pathname === item.to
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary",
               )}
             >
               {item.label}

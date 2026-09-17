@@ -41,7 +41,10 @@ function AuthPage() {
     const { data } = await supabase.auth.getSession();
     const uid = data.session?.user.id;
     if (!uid) return;
-    await supabase.from("profiles").update({ last_login_at: new Date().toISOString() }).eq("id", uid);
+    await supabase
+      .from("profiles")
+      .update({ last_login_at: new Date().toISOString() })
+      .eq("id", uid);
     const { data: prof } = await supabase
       .from("profiles")
       .select("role, org_id")
@@ -164,11 +167,21 @@ function AuthPage() {
               <form className="space-y-4 pt-4" onSubmit={handleSignUp}>
                 <div className="space-y-2">
                   <Label htmlFor="org">اسم المتجر / النشاط</Label>
-                  <Input id="org" required value={orgName} onChange={(e) => setOrgName(e.target.value)} />
+                  <Input
+                    id="org"
+                    required
+                    value={orgName}
+                    onChange={(e) => setOrgName(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="name">اسمك بالكامل</Label>
-                  <Input id="name" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                  <Input
+                    id="name"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="up-email">البريد الإلكتروني</Label>

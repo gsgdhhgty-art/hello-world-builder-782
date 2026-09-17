@@ -445,7 +445,10 @@ function PosPage() {
           <div className="space-y-1 text-sm">
             <Row label="الإجمالي قبل الخصم" value={money(totals.subtotal, currency)} />
             <Row label="الخصم" value={money(totals.discount, currency)} />
-            <Row label={`الضريبة (${num(org?.tax_rate ?? 0, 0)}%)`} value={money(totals.tax, currency)} />
+            <Row
+              label={`الضريبة (${num(org?.tax_rate ?? 0, 0)}%)`}
+              value={money(totals.tax, currency)}
+            />
             <div className="flex items-center justify-between border-t pt-2 text-lg font-extrabold">
               <span>المطلوب</span>
               <span className="tabular-nums text-primary">{money(totals.total, currency)}</span>

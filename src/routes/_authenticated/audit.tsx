@@ -17,7 +17,10 @@ export const Route = createFileRoute("/_authenticated/audit")({
   head: () => ({
     meta: [
       { title: "سجل التدقيق — كاشير كلاود" },
-      { name: "description", content: "سجل كل العمليات الحساسة: المبيعات، المرتجعات، الورديات والحسابات." },
+      {
+        name: "description",
+        content: "سجل كل العمليات الحساسة: المبيعات، المرتجعات، الورديات والحسابات.",
+      },
       { property: "og:title", content: "سجل التدقيق — كاشير كلاود" },
       { property: "og:description", content: "تتبع كل عملية داخل المتجر." },
       { property: "og:type", content: "website" },
@@ -66,11 +69,14 @@ function AuditPage() {
   });
 
   if (!isAdmin) {
-    return <div className="p-10 text-center text-muted-foreground">سجل التدقيق للمالك والمسؤولين فقط.</div>;
+    return (
+      <div className="p-10 text-center text-muted-foreground">
+        سجل التدقيق للمالك والمسؤولين فقط.
+      </div>
+    );
   }
 
-  const nameOf = (id: string | null) =>
-    staff.data?.find((s) => s.id === id)?.full_name ?? "—";
+  const nameOf = (id: string | null) => staff.data?.find((s) => s.id === id)?.full_name ?? "—";
 
   return (
     <div>
@@ -89,9 +95,14 @@ function AuditPage() {
             <TableBody>
               {(logs.data ?? []).map((l) => (
                 <TableRow key={l.id}>
-                  <TableCell className="font-medium">{ACTION_LABELS[l.action] ?? l.action}</TableCell>
+                  <TableCell className="font-medium">
+                    {ACTION_LABELS[l.action] ?? l.action}
+                  </TableCell>
                   <TableCell>{nameOf(l.user_id)}</TableCell>
-                  <TableCell className="max-w-[320px] truncate text-xs text-muted-foreground" dir="ltr">
+                  <TableCell
+                    className="max-w-[320px] truncate text-xs text-muted-foreground"
+                    dir="ltr"
+                  >
                     {JSON.stringify(l.details)}
                   </TableCell>
                   <TableCell>{dateTime(l.created_at)}</TableCell>

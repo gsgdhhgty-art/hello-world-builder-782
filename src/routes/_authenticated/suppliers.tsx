@@ -165,19 +165,37 @@ function SuppliersPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="s-name">الاسم</Label>
-              <Input id="s-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <Input
+                id="s-name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="s-phone">الجوال</Label>
-              <Input id="s-phone" dir="ltr" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              <Input
+                id="s-phone"
+                dir="ltr"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="s-email">البريد</Label>
-              <Input id="s-email" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Input
+                id="s-email"
+                dir="ltr"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="s-address">العنوان</Label>
-              <Input id="s-address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+              <Input
+                id="s-address"
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+              />
             </div>
           </div>
           <DialogFooter>

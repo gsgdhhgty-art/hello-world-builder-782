@@ -195,9 +195,7 @@ function SalesPage() {
                         min="0"
                         step="0.001"
                         value={returnQty[it.id] ?? ""}
-                        onChange={(e) =>
-                          setReturnQty({ ...returnQty, [it.id]: e.target.value })
-                        }
+                        onChange={(e) => setReturnQty({ ...returnQty, [it.id]: e.target.value })}
                       />
                     </TableCell>
                   )}

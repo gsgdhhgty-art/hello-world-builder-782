@@ -144,7 +144,11 @@ function ReportsPage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <Stat label="الإيرادات" value={money(revenue, currency)} sub={`${num(rows.length)} فاتورة`} />
+          <Stat
+            label="الإيرادات"
+            value={money(revenue, currency)}
+            sub={`${num(rows.length)} فاتورة`}
+          />
           <Stat label="الخصومات" value={money(discount, currency)} sub="مجموع الخصم الممنوح" />
           <Stat label="الضريبة المحصلة" value={money(tax, currency)} sub="ضمن الإيرادات" />
           {can("profit.view") && (

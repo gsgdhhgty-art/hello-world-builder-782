@@ -409,10 +409,7 @@ function ProductsPage() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               إلغاء
             </Button>
-            <Button
-              disabled={!form.name.trim() || save.isPending}
-              onClick={() => save.mutate()}
-            >
+            <Button disabled={!form.name.trim() || save.isPending} onClick={() => save.mutate()}>
               حفظ
             </Button>
           </DialogFooter>

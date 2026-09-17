@@ -46,7 +46,9 @@ function ShiftsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("shifts")
-        .select("id, user_id, opening_cash, closing_cash, expected_cash, status, opened_at, closed_at, note")
+        .select(
+          "id, user_id, opening_cash, closing_cash, expected_cash, status, opened_at, closed_at, note",
+        )
         .order("opened_at", { ascending: false })
         .limit(100);
       if (error) throw error;
@@ -158,8 +160,12 @@ function ShiftsPage() {
                       <TableCell>{dateTime(s.opened_at)}</TableCell>
                       <TableCell>{dateTime(s.closed_at)}</TableCell>
                       <TableCell>{money(s.opening_cash, currency)}</TableCell>
-                      <TableCell>{s.expected_cash == null ? "—" : money(s.expected_cash, currency)}</TableCell>
-                      <TableCell>{s.closing_cash == null ? "—" : money(s.closing_cash, currency)}</TableCell>
+                      <TableCell>
+                        {s.expected_cash == null ? "—" : money(s.expected_cash, currency)}
+                      </TableCell>
+                      <TableCell>
+                        {s.closing_cash == null ? "—" : money(s.closing_cash, currency)}
+                      </TableCell>
                       <TableCell className={diff && diff < 0 ? "text-destructive" : ""}>
                         {diff == null ? "—" : money(diff, currency)}
                       </TableCell>

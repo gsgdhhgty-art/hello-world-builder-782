@@ -145,8 +145,7 @@ function PurchasesPage() {
     (s, l) => s + (Number(l.quantity) || 0) * (Number(l.unit_cost) || 0),
     0,
   );
-  const supplierName = (id: string | null) =>
-    suppliers.data?.find((s) => s.id === id)?.name ?? "—";
+  const supplierName = (id: string | null) => suppliers.data?.find((s) => s.id === id)?.name ?? "—";
 
   if (!can("purchases.manage")) {
     return <div className="p-10 text-center text-muted-foreground">لا تملك صلاحية المشتريات.</div>;
@@ -266,7 +265,9 @@ function PurchasesPage() {
                     step="0.001"
                     value={l.quantity}
                     onChange={(e) =>
-                      setLines(lines.map((x, xi) => (xi === i ? { ...x, quantity: e.target.value } : x)))
+                      setLines(
+                        lines.map((x, xi) => (xi === i ? { ...x, quantity: e.target.value } : x)),
+                      )
                     }
                   />
                 </div>
@@ -277,7 +278,9 @@ function PurchasesPage() {
                     step="0.01"
                     value={l.unit_cost}
                     onChange={(e) =>
-                      setLines(lines.map((x, xi) => (xi === i ? { ...x, unit_cost: e.target.value } : x)))
+                      setLines(
+                        lines.map((x, xi) => (xi === i ? { ...x, unit_cost: e.target.value } : x)),
+                      )
                     }
                   />
                 </div>
@@ -295,7 +298,9 @@ function PurchasesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setLines([...lines, { product_id: "", quantity: "1", unit_cost: "0" }])}
+              onClick={() =>
+                setLines([...lines, { product_id: "", quantity: "1", unit_cost: "0" }])
+              }
             >
               <Plus className="size-4" /> صنف آخر
             </Button>

@@ -111,12 +111,27 @@ function Dashboard() {
       </PageHeader>
 
       <div className="grid gap-4 p-6 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat icon={Receipt} label="مبيعات اليوم" value={money(salesTotal, currency)} sub={`${num(rows.length)} فاتورة`} />
+        <Stat
+          icon={Receipt}
+          label="مبيعات اليوم"
+          value={money(salesTotal, currency)}
+          sub={`${num(rows.length)} فاتورة`}
+        />
         {can("profit.view") && (
-          <Stat icon={TrendingUp} label="ربح اليوم" value={money(profitTotal, currency)} sub="الإيراد ناقص التكلفة" />
+          <Stat
+            icon={TrendingUp}
+            label="ربح اليوم"
+            value={money(profitTotal, currency)}
+            sub="الإيراد ناقص التكلفة"
+          />
         )}
         {can("expenses.manage") && (
-          <Stat icon={Wallet} label="مصروفات اليوم" value={money(expenseTotal, currency)} sub="نقدًا من الصندوق" />
+          <Stat
+            icon={Wallet}
+            label="مصروفات اليوم"
+            value={money(expenseTotal, currency)}
+            sub="نقدًا من الصندوق"
+          />
         )}
         {can("inventory.view") && (
           <Stat
@@ -182,7 +197,9 @@ function Dashboard() {
                   {(lowStock.data ?? []).map((p) => (
                     <TableRow key={p.id}>
                       <TableCell className="font-medium">{p.name}</TableCell>
-                      <TableCell className="text-destructive">{num(p.qty)} {p.unit}</TableCell>
+                      <TableCell className="text-destructive">
+                        {num(p.qty)} {p.unit}
+                      </TableCell>
                       <TableCell>{num(p.reorder_level)}</TableCell>
                     </TableRow>
                   ))}

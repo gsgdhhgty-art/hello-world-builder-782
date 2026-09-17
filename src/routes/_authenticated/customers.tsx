@@ -168,19 +168,37 @@ function CustomersPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="c-name">الاسم</Label>
-              <Input id="c-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <Input
+                id="c-name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="c-phone">الجوال</Label>
-              <Input id="c-phone" dir="ltr" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              <Input
+                id="c-phone"
+                dir="ltr"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="c-email">البريد</Label>
-              <Input id="c-email" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Input
+                id="c-email"
+                dir="ltr"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="c-address">العنوان</Label>
-              <Input id="c-address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+              <Input
+                id="c-address"
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+              />
             </div>
           </div>
           <DialogFooter>
