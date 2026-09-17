@@ -18,6 +18,8 @@ import {
   Wallet,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { OfflineProvider } from "@/hooks/useOffline";
+import { SyncBadge } from "@/components/SyncBadge";
 import { Button } from "@/components/ui/button";
 import { ROLE_LABELS } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -40,6 +42,14 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; perm?: str
 ];
 
 export function AppShell() {
+  return (
+    <OfflineProvider>
+      <AppShellInner />
+    </OfflineProvider>
+  );
+}
+
+function AppShellInner() {
   const { profile, org, loading, can, signOut, permissions } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -122,6 +132,7 @@ export function AppShell() {
           })}
         </nav>
         <div className="border-t border-sidebar-border p-3 text-sm">
+          <SyncBadge className="mb-2" />
           <div className="truncate font-semibold">{profile.full_name}</div>
           <div className="text-xs opacity-70">{ROLE_LABELS[profile.role] ?? profile.role}</div>
           <Button
