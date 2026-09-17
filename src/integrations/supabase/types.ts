@@ -564,8 +564,10 @@ export type Database = {
       }
       purchases: {
         Row: {
+          client_txn_id: string | null
           created_at: string
           id: string
+          local_created_at: string | null
           note: string | null
           org_id: string
           paid: number
@@ -578,8 +580,10 @@ export type Database = {
           warehouse_id: string
         }
         Insert: {
+          client_txn_id?: string | null
           created_at?: string
           id?: string
+          local_created_at?: string | null
           note?: string | null
           org_id: string
           paid?: number
@@ -592,8 +596,10 @@ export type Database = {
           warehouse_id: string
         }
         Update: {
+          client_txn_id?: string | null
           created_at?: string
           id?: string
+          local_created_at?: string | null
           note?: string | null
           org_id?: string
           paid?: number
@@ -1253,6 +1259,10 @@ export type Database = {
           _tax_rate?: number
         }
         Returns: string
+      }
+      close_open_shift: {
+        Args: { _closing_cash: number; _note?: string }
+        Returns: Json
       }
       close_shift: {
         Args: { _closing_cash: number; _note?: string; _shift_id: string }
