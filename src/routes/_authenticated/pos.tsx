@@ -19,6 +19,10 @@ import {
 import { money, num, PAYMENT_LABELS } from "@/lib/format";
 import { calculateCartTotals } from "@/lib/pos-math";
 import { cn } from "@/lib/utils";
+import { db, hasLocalDb, type HeldOrder } from "@/lib/offline/db";
+import { localFirst } from "@/lib/offline/local-first";
+import { enqueue, isOnline, localStockMap, recordLocalSale } from "@/lib/offline/sync";
+import { useOffline } from "@/hooks/useOffline";
 
 export const Route = createFileRoute("/_authenticated/pos")({
   head: () => ({
