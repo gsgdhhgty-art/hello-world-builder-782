@@ -77,13 +77,20 @@ function PosPage() {
   const shiftQuery = useQuery({
     queryKey: ["open-shift", session?.user.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("shifts")
-        .select("id, opening_cash, opened_at, branch_id, register_id")
-        .eq("status", "OPEN")
-        .maybeSingle();
-      if (error) throw error;
-      return data;
+      if (isOnline()) {
+        const { data, error } = await supabase
+          .from("shifts")
+          .select("*")
+          .eq("status", "OPEN")
+          .maybeSingle();
+        if (!error) {
+          if (hasLocalDb() && data) await db().shifts.put(data);
+          return data;
+        }
+      }
+      if (!hasLocalDb()) return null;
+      const rows = await db().shifts.where("status").equals("OPEN").toArray();
+      return rows.find((s) => s.user_id === session?.user.id) ?? null;
     },
   });
 
