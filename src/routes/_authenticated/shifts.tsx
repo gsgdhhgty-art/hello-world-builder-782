@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { dateTime, money } from "@/lib/format";
+import { localFirst } from "@/lib/offline/local-first";
 import {
   closeLocalShift,
   enqueue,
@@ -50,7 +51,8 @@ function ShiftsPage() {
 
   const shifts = useQuery({
     queryKey: ["shifts"],
-    queryFn: async () => {
+    queryFn: () =>
+      localFirst("shifts", async () => {
       const { data, error } = await supabase
         .from("shifts")
         .select(
@@ -58,9 +60,9 @@ function ShiftsPage() {
         )
         .order("opened_at", { ascending: false })
         .limit(100);
-      if (error) throw error;
-      return data ?? [];
-    },
+        if (error) throw error;
+        return data ?? [];
+      }),
   });
 
   const staff = useQuery({
