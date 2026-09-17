@@ -42,6 +42,14 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; perm?: str
 ];
 
 export function AppShell() {
+  return (
+    <OfflineProvider>
+      <AppShellInner />
+    </OfflineProvider>
+  );
+}
+
+function AppShellInner() {
   const { profile, org, loading, can, signOut, permissions } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
