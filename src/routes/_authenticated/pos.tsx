@@ -90,7 +90,7 @@ function PosPage() {
       }
       if (!hasLocalDb()) return null;
       const rows = await db().shifts.where("status").equals("OPEN").toArray();
-      return rows.find((s) => s['user_id'] === session?.user.id) ?? null;
+      return rows.find((s) => s["user_id"] === session?.user.id) ?? null;
     },
   });
 
@@ -124,10 +124,9 @@ function PosPage() {
       if (isOnline()) {
         const { data } = await supabase.from("inventory").select("*");
         if (data && hasLocalDb()) {
-          await db()
-            .inventory.bulkPut(
-              data.map((r) => ({ ...r, id: `${r.product_id}:${r.warehouse_id}` })),
-            );
+          await db().inventory.bulkPut(
+            data.map((r) => ({ ...r, id: `${r.product_id}:${r.warehouse_id}` })),
+          );
         }
       }
       return localStockMap();
@@ -519,7 +518,6 @@ function PosPage() {
             ))}
           </div>
         )}
-
 
         <div className="min-h-32 flex-1 space-y-2 overflow-y-auto p-3">
           {cart.map((l) => (

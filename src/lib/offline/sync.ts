@@ -208,7 +208,7 @@ export async function localStockMap(): Promise<Record<string, number>> {
   const map: Record<string, number> = {};
   if (!hasLocalDb()) return map;
   for (const row of await db().inventory.toArray()) {
-    map[row['product_id']] = (map[row['product_id']] ?? 0) + Number(row['quantity']);
+    map[row["product_id"]] = (map[row["product_id"]] ?? 0) + Number(row["quantity"]);
   }
   return map;
 }
@@ -219,12 +219,12 @@ export async function recordLocalSale(sale: LocalSale): Promise<void> {
   await local.sales.put(sale);
   for (const item of sale.items) {
     const product = await local.products.get(item.product_id);
-    if (!product?.['track_stock']) continue;
+    if (!product?.["track_stock"]) continue;
     const rows = await local.inventory.where("product_id").equals(item.product_id).toArray();
     const row = rows[0];
     if (row) {
-      await local.inventory.update(row['id'], {
-        quantity: Number(row['quantity']) - item.quantity,
+      await local.inventory.update(row["id"], {
+        quantity: Number(row["quantity"]) - item.quantity,
       });
     }
   }
