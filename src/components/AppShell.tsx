@@ -47,13 +47,14 @@ export function AppShell() {
 
   useEffect(() => {
     if (loading) return;
-    if (profile && !profile.org_id && !onOnboarding) {
+    if (!profile?.org_id && !onOnboarding) {
       navigate({ to: "/onboarding", replace: true });
     }
     if (profile?.org_id && onOnboarding) {
       navigate({ to: "/dashboard", replace: true });
     }
   }, [loading, profile, onOnboarding, navigate]);
+
 
   if (loading) {
     return (
