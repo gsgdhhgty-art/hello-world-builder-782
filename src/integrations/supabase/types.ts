@@ -1275,6 +1275,14 @@ export type Database = {
       has_perm: { Args: { _perm: string }; Returns: boolean }
       is_org_admin: { Args: never; Returns: boolean }
       my_permissions: { Args: never; Returns: Json }
+      open_shift: {
+        Args: {
+          _client_txn_id?: string
+          _opening_cash?: number
+          _register_id?: string
+        }
+        Returns: Json
+      }
       receive_purchase: { Args: { _payload: Json }; Returns: Json }
     }
     Enums: {

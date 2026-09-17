@@ -10,6 +10,8 @@ import {
   LogOut,
   Package,
   Receipt,
+  RefreshCw,
+  RotateCcw,
   ScanBarcode,
   Settings,
   ShoppingCart,
@@ -28,6 +30,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; perm?: str
   { to: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard, perm: "reports.view" },
   { to: "/pos", label: "الكاشير", icon: ScanBarcode, perm: "sales.create" },
   { to: "/sales", label: "الفواتير", icon: Receipt },
+  { to: "/returns", label: "المرتجعات", icon: RotateCcw, perm: "sales.refund" },
   { to: "/products", label: "المنتجات", icon: Package, perm: "products.view" },
   { to: "/inventory", label: "المخزون", icon: Boxes, perm: "inventory.view" },
   { to: "/purchases", label: "المشتريات", icon: ShoppingCart, perm: "purchases.manage" },
@@ -38,6 +41,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; perm?: str
   { to: "/reports", label: "التقارير", icon: BarChart3, perm: "reports.view" },
   { to: "/employees", label: "الموظفون", icon: Users, perm: "*" },
   { to: "/settings", label: "الإعدادات", icon: Building2, perm: "*" },
+  { to: "/sync", label: "المزامنة", icon: RefreshCw },
   { to: "/audit", label: "سجل التدقيق", icon: ClipboardList, perm: "*" },
 ];
 
