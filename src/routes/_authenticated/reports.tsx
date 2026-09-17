@@ -88,7 +88,7 @@ function ReportsPage() {
     },
   });
 
-  const rows = sales.data ?? [];
+  const rows = useMemo(() => sales.data ?? [], [sales.data]);
   const revenue = rows.reduce((s, r) => s + Number(r.total), 0);
   const cost = rows.reduce((s, r) => s + Number(r.cost_total), 0);
   const discount = rows.reduce((s, r) => s + Number(r.discount), 0);
