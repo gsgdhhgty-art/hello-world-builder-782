@@ -91,7 +91,7 @@ function SalesPage() {
       const { data, error } = await supabase.rpc("create_return", {
         _sale_id: openSale!,
         _items: payload,
-        _reason: reason || undefined,
+        ...(reason ? { _reason: reason } : {}),
       });
       if (error) throw error;
       return data as { total: number };

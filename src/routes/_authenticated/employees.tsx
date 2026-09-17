@@ -203,7 +203,9 @@ function EmployeesPage() {
                       ) : (
                         <Select
                           value={s.role}
-                          onValueChange={(v) => update.mutate({ id: s.id, role: v })}
+                          onValueChange={(v) =>
+                            update.mutate({ id: s.id, role: v as (typeof ROLE_OPTIONS)[number] })
+                          }
                         >
                           <SelectTrigger className="w-40">
                             <SelectValue />
