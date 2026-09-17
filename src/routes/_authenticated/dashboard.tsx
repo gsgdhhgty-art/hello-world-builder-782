@@ -232,15 +232,19 @@ function Stat({
   sub: string;
 }) {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">{label}</span>
-          <Icon className="size-4 text-primary" />
-        </div>
-        <div className="mt-2 text-2xl font-extrabold tabular-nums">{value}</div>
-        <div className="text-xs text-muted-foreground">{sub}</div>
-      </CardContent>
-    </Card>
+    <div className="surface-card relative overflow-hidden p-5">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -start-6 -top-8 size-24 rounded-full gradient-primary opacity-10"
+      />
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <span className="min-w-0 truncate text-sm font-medium text-muted-foreground">{label}</span>
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl gradient-primary">
+          <Icon className="size-4" />
+        </span>
+      </div>
+      <div className="mt-3 text-2xl font-extrabold tabular-nums sm:text-3xl">{value}</div>
+      <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+    </div>
   );
 }

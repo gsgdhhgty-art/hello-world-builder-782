@@ -11,8 +11,10 @@ export function SyncBadge({ className }: { className?: string }) {
       onClick={() => void sync()}
       title={online ? "متصل — اضغط للمزامنة الآن" : "تعمل بدون إنترنت، وسيتم رفع البيانات تلقائيًا"}
       className={cn(
-        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-colors",
-        online ? "bg-sidebar-accent/60" : "bg-destructive/15 text-destructive",
+        "press flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition-colors",
+        online
+          ? "bg-sidebar-accent/60 text-inherit"
+          : "bg-destructive/15 text-destructive ring-1 ring-destructive/25",
         className,
       )}
     >
