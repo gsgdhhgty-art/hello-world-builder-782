@@ -22,7 +22,7 @@ export interface ReceiptData {
   payment_method: string;
   offline: boolean;
   cashier: string;
-  customer?: string | null;
+  customer?: string | null | undefined;
   created_at: string;
   payments: Array<{ method: string; amount: number; reference?: string | null }>;
   items: Array<{
@@ -36,9 +36,9 @@ export interface ReceiptData {
 
 export interface ReceiptBusiness {
   name: string;
-  address?: string | null;
-  phone?: string | null;
-  tax_number?: string | null;
+  address?: string | null | undefined;
+  phone?: string | null | undefined;
+  tax_number?: string | null | undefined;
 }
 
 function escapeHtml(value: string) {

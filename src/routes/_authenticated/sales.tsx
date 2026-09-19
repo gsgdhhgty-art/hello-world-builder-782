@@ -173,6 +173,6 @@ function SalesPage() {
   </div>;
 }
 
-function Info({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Info({ label, value, sub }: { label: string; value: string; sub?: string | undefined }) {
   return <div className="flex justify-between gap-3 sm:block"><span className="text-xs text-muted-foreground">{label}</span><div className="font-bold">{value}</div>{sub && <div className="text-xs text-muted-foreground" dir="ltr">{sub}</div>}</div>;
 }
