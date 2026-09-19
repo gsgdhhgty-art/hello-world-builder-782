@@ -30,6 +30,9 @@ export interface Organization {
   currency: string;
   tax_rate: number;
   business_type: string;
+  address: string | null;
+  phone: string | null;
+  tax_number: string | null;
 }
 
 interface AuthValue {
@@ -72,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const [{ data: orgRow }, { data: perms }] = await Promise.all([
         supabase
           .from("organizations")
-          .select("id, name, currency, tax_rate, business_type")
+          .select("id, name, currency, tax_rate, business_type, address, phone, tax_number")
           .eq("id", prof.org_id)
           .maybeSingle(),
         supabase.rpc("my_permissions"),

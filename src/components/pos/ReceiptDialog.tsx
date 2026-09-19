@@ -24,31 +24,58 @@ export interface ReceiptData {
   cashier: string;
   customer?: string | null;
   created_at: string;
-  items: Array<{ name: string; quantity: number; unit_price: number; line_total: number }>;
+  payments: Array<{ method: string; amount: number; reference?: string | null }>;
+  items: Array<{
+    name: string;
+    sku?: string | null;
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+  }>;
+}
+
+export interface ReceiptBusiness {
+  name: string;
+  address?: string | null;
+  phone?: string | null;
+  tax_number?: string | null;
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>'"]/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;",
+  })[char] ?? char);
 }
 
 /** Local receipt printing — works with no internet (browser print dialog only). */
-function printReceipt(receipt: ReceiptData, org: string, currency: string) {
+export function printReceipt(receipt: ReceiptData, business: ReceiptBusiness, currency: string) {
   const rows = receipt.items
     .map(
       (i) =>
-        `<tr><td>${i.name}</td><td>${num(i.quantity, 0)}</td><td>${money(i.unit_price, currency)}</td><td>${money(i.line_total, currency)}</td></tr>`,
+        `<tr><td>${escapeHtml(i.name)}${i.sku ? `<small>${escapeHtml(i.sku)}</small>` : ""}</td><td>${num(i.quantity, 0)}</td><td>${money(i.unit_price, currency)}</td><td>${money(i.line_total, currency)}</td></tr>`,
     )
     .join("");
   const html = `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8">
   <title>${receipt.invoice_no}</title><style>
   body{font-family:system-ui,sans-serif;width:80mm;margin:0 auto;padding:8px;font-size:12px}
-  h1{font-size:16px;text-align:center;margin:4px 0}
+  h1{font-size:18px;text-align:center;margin:4px 0}.brand{text-align:center;margin-bottom:8px}.brand div{margin:1px 0}
   table{width:100%;border-collapse:collapse;margin-top:8px}
   th,td{text-align:start;padding:2px 0;font-size:11px}
   tfoot td{border-top:1px dashed #000;padding-top:4px;font-weight:700}
-  .c{text-align:center}.muted{color:#555;font-size:11px}
+  .c{text-align:center}.muted{color:#555;font-size:11px}small{display:block;color:#666;font-size:9px}.payments{border-top:1px dashed #000;margin-top:8px;padding-top:5px}.payment{display:flex;justify-content:space-between}
   </style></head><body>
-  <h1>${org}</h1>
+  <div class="brand"><h1>${escapeHtml(business.name)}</h1>
+  ${business.address ? `<div>${escapeHtml(business.address)}</div>` : ""}
+  ${business.phone ? `<div dir="ltr">${escapeHtml(business.phone)}</div>` : ""}
+  ${business.tax_number ? `<div>الرقم الضريبي: ${escapeHtml(business.tax_number)}</div>` : ""}</div>
   <div class="c muted">فاتورة ${receipt.invoice_no}</div>
   <div class="c muted">${dateTime(receipt.created_at)}</div>
-  <div class="muted">الكاشير: ${receipt.cashier}</div>
-  ${receipt.customer ? `<div class="muted">العميل: ${receipt.customer}</div>` : ""}
+  <div class="muted">الكاشير: ${escapeHtml(receipt.cashier)}</div>
+  ${receipt.customer ? `<div class="muted">العميل: ${escapeHtml(receipt.customer)}</div>` : ""}
   <table><thead><tr><th>الصنف</th><th>كمية</th><th>سعر</th><th>الإجمالي</th></tr></thead>
   <tbody>${rows}</tbody>
   <tfoot>
@@ -59,7 +86,7 @@ function printReceipt(receipt: ReceiptData, org: string, currency: string) {
     <tr><td colspan="3">المدفوع</td><td>${money(receipt.paid, currency)}</td></tr>
     <tr><td colspan="3">الباقي</td><td>${money(receipt.change_due, currency)}</td></tr>
     ${receipt.credit ? `<tr><td colspan="3">آجل</td><td>${money(receipt.credit, currency)}</td></tr>` : ""}
-  </tfoot></table>
+  </tfoot></table><div class="payments"><strong>تفاصيل الدفع</strong>${receipt.payments.map((p) => `<div class="payment"><span>${escapeHtml(PAYMENT_LABELS[p.method] ?? p.method)}</span><span>${money(p.amount, currency)}</span></div>`).join("")}</div>
   <p class="c muted">شكرًا لزيارتكم</p>
   <script>window.onload=function(){window.print();}</script>
   </body></html>`;
@@ -72,12 +99,12 @@ function printReceipt(receipt: ReceiptData, org: string, currency: string) {
 export function ReceiptDialog({
   receipt,
   onClose,
-  org,
+  business,
   currency,
 }: {
   receipt: ReceiptData | null;
   onClose: () => void;
-  org: string;
+  business: ReceiptBusiness;
   currency: string;
 }) {
   // تنظيف بعد إغلاق النافذة حتى تبقى الشاشة قابلة للاستخدام فورًا
@@ -130,7 +157,7 @@ export function ReceiptDialog({
           <Button variant="outline" onClick={onClose}>
             فاتورة جديدة
           </Button>
-          <Button onClick={() => receipt && printReceipt(receipt, org, currency)}>
+          <Button onClick={() => receipt && printReceipt(receipt, business, currency)}>
             <Printer className="size-4" /> طباعة الإيصال
           </Button>
         </DialogFooter>
