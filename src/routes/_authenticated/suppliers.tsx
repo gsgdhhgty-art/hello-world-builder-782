@@ -56,14 +56,15 @@ function SuppliersPage() {
 
   const suppliers = useQuery({
     queryKey: ["suppliers"],
-    queryFn: () => localFirst("suppliers", async () => {
-      const { data, error } = await supabase
-        .from("suppliers")
-        .select("id, name, phone, email, address, balance")
-        .order("name");
-      if (error) throw error;
-      return data ?? [];
-    }),
+    queryFn: () =>
+      localFirst("suppliers", async () => {
+        const { data, error } = await supabase
+          .from("suppliers")
+          .select("id, name, phone, email, address, balance")
+          .order("name");
+        if (error) throw error;
+        return data ?? [];
+      }),
   });
 
   const save = useMutation({
@@ -80,7 +81,10 @@ function SuppliersPage() {
       const saveOffline = async () => {
         const current = await db().suppliers.get(id);
         await db().suppliers.put({ ...current, ...payload, balance: current?.["balance"] ?? 0 });
-        await enqueue("supplier", editingId ? "UPDATE" : "CREATE", payload, { entity_id: id, idempotency_key: id });
+        await enqueue("supplier", editingId ? "UPDATE" : "CREATE", payload, {
+          entity_id: id,
+          idempotency_key: id,
+        });
         return true;
       };
       if (!isOnline()) return saveOffline();

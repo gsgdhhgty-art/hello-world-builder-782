@@ -42,13 +42,17 @@ export interface ReceiptBusiness {
 }
 
 function escapeHtml(value: string) {
-  return value.replace(/[&<>'"]/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "'": "&#39;",
-    '"': "&quot;",
-  })[char] ?? char);
+  return value.replace(
+    /[&<>'"]/g,
+    (char) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        '"': "&quot;",
+      })[char] ?? char,
+  );
 }
 
 /** Local receipt printing — works with no internet (browser print dialog only). */

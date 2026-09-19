@@ -124,15 +124,16 @@ function PurchasesPage() {
 
   const orders = useQuery({
     queryKey: ["purchase-orders-open"],
-    queryFn: () => localFirst("purchase_orders", async () => {
-      const { data, error } = await supabase
-        .from("purchase_orders")
-        .select("id, order_no, supplier_id, warehouse_id")
-        .in("status", ["DRAFT", "ORDERED"])
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    }),
+    queryFn: () =>
+      localFirst("purchase_orders", async () => {
+        const { data, error } = await supabase
+          .from("purchase_orders")
+          .select("id, order_no, supplier_id, warehouse_id")
+          .in("status", ["DRAFT", "ORDERED"])
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        return data ?? [];
+      }),
   });
 
   const receive = useMutation({
@@ -264,13 +265,29 @@ function PurchasesPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label>طلب الشراء</Label>
-              <Select value={purchaseOrderId} onValueChange={(value) => {
-                setPurchaseOrderId(value);
-                const order = orders.data?.find((item) => item.id === value);
-                if (order) { setSupplierId(order.supplier_id ?? "none"); setWarehouseId(order.warehouse_id); setReference(order.order_no); }
-              }}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="none">فاتورة مباشرة بدون طلب</SelectItem>{(orders.data ?? []).map((order) => <SelectItem key={order.id} value={order.id}>{order.order_no}</SelectItem>)}</SelectContent>
+              <Select
+                value={purchaseOrderId}
+                onValueChange={(value) => {
+                  setPurchaseOrderId(value);
+                  const order = orders.data?.find((item) => item.id === value);
+                  if (order) {
+                    setSupplierId(order.supplier_id ?? "none");
+                    setWarehouseId(order.warehouse_id);
+                    setReference(order.order_no);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">فاتورة مباشرة بدون طلب</SelectItem>
+                  {(orders.data ?? []).map((order) => (
+                    <SelectItem key={order.id} value={order.id}>
+                      {order.order_no}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">

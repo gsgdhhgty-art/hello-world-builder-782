@@ -213,8 +213,26 @@ async function runOp(op: SyncOp): Promise<void> {
   }
   if (op.entity === "purchase_order") {
     const p = op.payload as {
-      order: { id: string; org_id: string; supplier_id: string | null; warehouse_id: string; order_no: string; status: string; note: string | null; expected_at: string | null; created_by: string };
-      items: Array<{ id: string; org_id: string; purchase_order_id: string; product_id: string; quantity: number; unit_cost: number; line_total: number }>;
+      order: {
+        id: string;
+        org_id: string;
+        supplier_id: string | null;
+        warehouse_id: string;
+        order_no: string;
+        status: string;
+        note: string | null;
+        expected_at: string | null;
+        created_by: string;
+      };
+      items: Array<{
+        id: string;
+        org_id: string;
+        purchase_order_id: string;
+        product_id: string;
+        quantity: number;
+        unit_cost: number;
+        line_total: number;
+      }>;
     };
     const { error: orderError } = await supabase.from("purchase_orders").upsert(p.order);
     if (orderError) throw new Error(orderError.message);
