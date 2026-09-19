@@ -48,6 +48,9 @@ function SettingsPage() {
     name: org?.name ?? "",
     currency: org?.currency ?? "SAR",
     tax_rate: String(org?.tax_rate ?? 15),
+    address: org?.address ?? "",
+    phone: org?.phone ?? "",
+    tax_number: org?.tax_number ?? "",
   });
   const [branchName, setBranchName] = useState("");
   const [warehouseName, setWarehouseName] = useState("");
@@ -114,6 +117,9 @@ function SettingsPage() {
           name: orgForm.name.trim(),
           currency: orgForm.currency.trim() || "SAR",
           tax_rate: Number(orgForm.tax_rate) || 0,
+          address: orgForm.address.trim() || null,
+          phone: orgForm.phone.trim() || null,
+          tax_number: orgForm.tax_number.trim() || null,
         })
         .eq("id", org!.id);
       if (error) throw error;
@@ -213,7 +219,7 @@ function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>بيانات المتجر</CardTitle>
-            <CardDescription>الاسم والعملة ونسبة الضريبة المطبقة على الفواتير.</CardDescription>
+            <CardDescription>الهوية والبيانات التي تظهر على الفاتورة الضريبية.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -223,6 +229,34 @@ function SettingsPage() {
                 value={orgForm.name}
                 onChange={(e) => setOrgForm({ ...orgForm, name: e.target.value })}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="o-address">العنوان</Label>
+              <Input
+                id="o-address"
+                value={orgForm.address}
+                onChange={(e) => setOrgForm({ ...orgForm, address: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="o-phone">الهاتف</Label>
+                <Input
+                  id="o-phone"
+                  dir="ltr"
+                  value={orgForm.phone}
+                  onChange={(e) => setOrgForm({ ...orgForm, phone: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="o-tax-number">الرقم الضريبي</Label>
+                <Input
+                  id="o-tax-number"
+                  dir="ltr"
+                  value={orgForm.tax_number}
+                  onChange={(e) => setOrgForm({ ...orgForm, tax_number: e.target.value })}
+                />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

@@ -25,6 +25,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { money } from "@/lib/format";
+import { localFirst } from "@/lib/offline/local-first";
+import { db } from "@/lib/offline/db";
+import { enqueue, isNetworkFailure, isOnline, REQUEST_TIMEOUT_MS } from "@/lib/offline/sync";
 
 export const Route = createFileRoute("/_authenticated/suppliers")({
   head: () => ({
@@ -53,33 +56,53 @@ function SuppliersPage() {
 
   const suppliers = useQuery({
     queryKey: ["suppliers"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("suppliers")
-        .select("id, name, phone, email, address, balance")
-        .order("name");
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () =>
+      localFirst("suppliers", async () => {
+        const { data, error } = await supabase
+          .from("suppliers")
+          .select("id, name, phone, email, address, balance")
+          .order("name");
+        if (error) throw error;
+        return data ?? [];
+      }),
   });
 
   const save = useMutation({
     mutationFn: async () => {
+      const id = editingId ?? crypto.randomUUID();
       const payload = {
+        id,
         org_id: profile!.org_id!,
         name: form.name.trim(),
         phone: form.phone.trim() || null,
         email: form.email.trim() || null,
         address: form.address.trim() || null,
       };
-      const q = editingId
-        ? supabase.from("suppliers").update(payload).eq("id", editingId)
-        : supabase.from("suppliers").insert(payload);
-      const { error } = await q;
-      if (error) throw error;
+      const saveOffline = async () => {
+        const current = await db().suppliers.get(id);
+        await db().suppliers.put({ ...current, ...payload, balance: current?.["balance"] ?? 0 });
+        await enqueue("supplier", editingId ? "UPDATE" : "CREATE", payload, {
+          entity_id: id,
+          idempotency_key: id,
+        });
+        return true;
+      };
+      if (!isOnline()) return saveOffline();
+      try {
+        const q = editingId
+          ? supabase.from("suppliers").update(payload).eq("id", editingId)
+          : supabase.from("suppliers").insert(payload);
+        const { error } = await q.abortSignal(AbortSignal.timeout(REQUEST_TIMEOUT_MS));
+        if (error) throw error;
+        return false;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "";
+        if (isNetworkFailure(message)) return saveOffline();
+        throw error;
+      }
     },
-    onSuccess: () => {
-      toast.success("تم الحفظ");
+    onSuccess: (offline) => {
+      toast.success(offline ? "تم حفظ المورد محليًا وسيُزامن تلقائيًا" : "تم الحفظ");
       setOpen(false);
       setEditingId(null);
       setForm({ ...EMPTY });

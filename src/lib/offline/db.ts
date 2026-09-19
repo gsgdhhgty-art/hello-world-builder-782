@@ -73,6 +73,8 @@ class PosDatabase extends Dexie {
   registers!: Table<Row, string>;
   shifts!: Table<Row, string>;
   expenses!: Table<Row, string>;
+  purchase_orders!: Table<Row, string>;
+  purchase_order_items!: Table<Row, string>;
   sales!: Table<LocalSale, string>;
   held_orders!: Table<HeldOrder, string>;
   sync_queue!: Table<SyncOp, string>;
@@ -95,6 +97,10 @@ class PosDatabase extends Dexie {
       held_orders: "id, created_at",
       sync_queue: "id, status, next_attempt_at, entity",
       meta: "key",
+    });
+    this.version(2).stores({
+      purchase_orders: "id, order_no, supplier_id, warehouse_id, status, created_at",
+      purchase_order_items: "id, purchase_order_id, product_id",
     });
   }
 }

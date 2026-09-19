@@ -328,6 +328,7 @@ export type Database = {
       }
       organizations: {
         Row: {
+          address: string | null
           business_type: string
           created_at: string
           currency: string
@@ -335,10 +336,13 @@ export type Database = {
           id: string
           name: string
           owner_id: string
+          phone: string | null
+          tax_number: string | null
           tax_rate: number
           updated_at: string
         }
         Insert: {
+          address?: string | null
           business_type?: string
           created_at?: string
           currency?: string
@@ -346,10 +350,13 @@ export type Database = {
           id?: string
           name: string
           owner_id: string
+          phone?: string | null
+          tax_number?: string | null
           tax_rate?: number
           updated_at?: string
         }
         Update: {
+          address?: string | null
           business_type?: string
           created_at?: string
           currency?: string
@@ -357,6 +364,8 @@ export type Database = {
           id?: string
           name?: string
           owner_id?: string
+          phone?: string | null
+          tax_number?: string | null
           tax_rate?: number
           updated_at?: string
         }
@@ -558,6 +567,128 @@ export type Database = {
             columns: ["purchase_id"]
             isOneToOne: false
             referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          line_total: number | null
+          org_id: string
+          product_id: string
+          purchase_order_id: string
+          quantity: number
+          unit_cost: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_total?: number | null
+          org_id: string
+          product_id: string
+          purchase_order_id: string
+          quantity: number
+          unit_cost: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_total?: number | null
+          org_id?: string
+          product_id?: string
+          purchase_order_id?: string
+          quantity?: number
+          unit_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_order_items_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_order_items_purchase_order_id_fkey"
+            columns: ["purchase_order_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_orders: {
+        Row: {
+          created_at: string
+          created_by: string
+          expected_at: string | null
+          id: string
+          note: string | null
+          order_no: string
+          org_id: string
+          status: string
+          supplier_id: string | null
+          total: number
+          updated_at: string
+          warehouse_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expected_at?: string | null
+          id?: string
+          note?: string | null
+          order_no: string
+          org_id: string
+          status?: string
+          supplier_id?: string | null
+          total?: number
+          updated_at?: string
+          warehouse_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expected_at?: string | null
+          id?: string
+          note?: string | null
+          order_no?: string
+          org_id?: string
+          status?: string
+          supplier_id?: string | null
+          total?: number
+          updated_at?: string
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_orders_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
             referencedColumns: ["id"]
           },
         ]

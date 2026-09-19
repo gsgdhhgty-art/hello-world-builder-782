@@ -378,8 +378,10 @@ function PosPage() {
             ? null
             : ((customersQuery.data ?? []).find((c) => c.id === customerId)?.name ?? null),
         created_at: localCreatedAt,
+        payments: payments.map((p) => ({ method: p.method, amount: p.amount })),
         items: cart.map((l) => ({
           name: l.product.name,
+          sku: l.product.sku ?? l.product.barcode,
           quantity: l.quantity,
           unit_price: Number(l.product.price),
           line_total: round2(Number(l.product.price) * l.quantity - l.discount),
@@ -950,7 +952,12 @@ function PosPage() {
       <ReceiptDialog
         receipt={receipt}
         onClose={() => setReceipt(null)}
-        org={org?.name ?? "متجري"}
+        business={{
+          name: org?.name ?? "متجري",
+          address: org?.address,
+          phone: org?.phone,
+          tax_number: org?.tax_number,
+        }}
         currency={currency}
       />
 

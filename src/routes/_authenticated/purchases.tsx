@@ -69,6 +69,7 @@ function PurchasesPage() {
   const [supplierId, setSupplierId] = useState("none");
   const [warehouseId, setWarehouseId] = useState("");
   const [reference, setReference] = useState("");
+  const [purchaseOrderId, setPurchaseOrderId] = useState("none");
   const [lines, setLines] = useState<Line[]>([{ product_id: "", quantity: "1", unit_cost: "0" }]);
 
   const purchases = useQuery({
@@ -121,6 +122,20 @@ function PurchasesPage() {
       }),
   });
 
+  const orders = useQuery({
+    queryKey: ["purchase-orders-open"],
+    queryFn: () =>
+      localFirst("purchase_orders", async () => {
+        const { data, error } = await supabase
+          .from("purchase_orders")
+          .select("id, order_no, supplier_id, warehouse_id")
+          .in("status", ["DRAFT", "ORDERED"])
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        return data ?? [];
+      }),
+  });
+
   const receive = useMutation({
     mutationFn: async () => {
       const items = lines
@@ -139,6 +154,7 @@ function PurchasesPage() {
         items,
         client_txn_id: clientTxnId,
         local_created_at: new Date().toISOString(),
+        purchase_order_id: purchaseOrderId === "none" ? undefined : purchaseOrderId,
       };
 
       // بدون إنترنت: نزيد المخزون محليًا ونضع الفاتورة في قائمة المزامنة
@@ -157,6 +173,13 @@ function PurchasesPage() {
           .rpc("receive_purchase", { _payload: payload })
           .abortSignal(AbortSignal.timeout(REQUEST_TIMEOUT_MS));
         if (error) throw error;
+        if (purchaseOrderId !== "none") {
+          const { error: orderError } = await supabase
+            .from("purchase_orders")
+            .update({ status: "RECEIVED" })
+            .eq("id", purchaseOrderId);
+          if (orderError) throw orderError;
+        }
         return false;
       } catch (e) {
         const message = e instanceof Error ? e.message : "";
@@ -173,9 +196,11 @@ function PurchasesPage() {
       setOpen(false);
       setLines([{ product_id: "", quantity: "1", unit_cost: "0" }]);
       setReference("");
+      setPurchaseOrderId("none");
       void qc.invalidateQueries({ queryKey: ["purchases"] });
       void qc.invalidateQueries({ queryKey: ["inventory"] });
       void qc.invalidateQueries({ queryKey: ["pos-stock"] });
+      void qc.invalidateQueries({ queryKey: ["purchase-orders"] });
     },
     onError: (e: Error) =>
       toast.error(e.message === "empty" ? "أضف صنفًا واحدًا على الأقل" : "تعذر حفظ المشتريات"),
@@ -237,7 +262,34 @@ function PurchasesPage() {
             <DialogTitle>فاتورة شراء جديدة</DialogTitle>
           </DialogHeader>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label>طلب الشراء</Label>
+              <Select
+                value={purchaseOrderId}
+                onValueChange={(value) => {
+                  setPurchaseOrderId(value);
+                  const order = orders.data?.find((item) => item.id === value);
+                  if (order) {
+                    setSupplierId(order.supplier_id ?? "none");
+                    setWarehouseId(order.warehouse_id);
+                    setReference(order.order_no);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">فاتورة مباشرة بدون طلب</SelectItem>
+                  {(orders.data ?? []).map((order) => (
+                    <SelectItem key={order.id} value={order.id}>
+                      {order.order_no}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label>المورد</Label>
               <Select value={supplierId} onValueChange={setSupplierId}>
