@@ -18,6 +18,8 @@ const PULLED_TABLES = [
   "registers",
   "shifts",
   "expenses",
+  "purchase_orders",
+  "purchase_order_items",
 ] as const;
 
 export function isOnline(): boolean {
@@ -197,6 +199,32 @@ async function runOp(op: SyncOp): Promise<void> {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       _payload: op.payload as any,
     });
+    if (error) throw new Error(error.message);
+    const orderId = (op.payload as { purchase_order_id?: string }).purchase_order_id;
+    if (orderId) {
+      const { error: orderError } = await supabase
+        .from("purchase_orders")
+        .update({ status: "RECEIVED" })
+        .eq("id", orderId);
+      if (orderError) throw new Error(orderError.message);
+      await db().purchase_orders.update(orderId, { status: "RECEIVED" });
+    }
+    return;
+  }
+  if (op.entity === "purchase_order") {
+    const p = op.payload as {
+      order: { id: string; org_id: string; supplier_id: string | null; warehouse_id: string; order_no: string; status: string; note: string | null; expected_at: string | null; created_by: string };
+      items: Array<{ id: string; org_id: string; purchase_order_id: string; product_id: string; quantity: number; unit_cost: number; line_total: number }>;
+    };
+    const { error: orderError } = await supabase.from("purchase_orders").upsert(p.order);
+    if (orderError) throw new Error(orderError.message);
+    const { error: itemError } = await supabase.from("purchase_order_items").upsert(p.items);
+    if (itemError) throw new Error(itemError.message);
+    return;
+  }
+  if (op.entity === "supplier") {
+    const payload = op.payload as Record<string, unknown>;
+    const { error } = await supabase.from("suppliers").upsert(payload as never);
     if (error) throw new Error(error.message);
     return;
   }
