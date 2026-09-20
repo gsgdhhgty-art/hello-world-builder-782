@@ -122,122 +122,154 @@ function AuthPage() {
     <main className="grid min-h-screen bg-background lg:grid-cols-[minmax(0,1fr)_minmax(480px,42%)]">
       <section className="relative hidden overflow-hidden bg-primary p-12 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
         <div className="relative z-10 flex items-center gap-3">
-          <span className="grid size-12 place-items-center rounded-xl bg-primary-foreground/15"><ShoppingCart className="size-6" /></span>
-          <div><div className="text-2xl font-black">SmartPOS</div><div className="text-xs text-primary-foreground/70">نقطة بيع ذكية لمتجرك</div></div>
+          <span className="grid size-12 place-items-center rounded-xl bg-primary-foreground/15">
+            <ShoppingCart className="size-6" />
+          </span>
+          <div>
+            <div className="text-2xl font-black">SmartPOS</div>
+            <div className="text-xs text-primary-foreground/70">نقطة بيع ذكية لمتجرك</div>
+          </div>
         </div>
         <div className="relative z-10 max-w-xl">
-          <h1 className="text-4xl font-black leading-tight">كل ما تحتاجه لإدارة متجرك، في مكان واحد.</h1>
-          <p className="mt-4 max-w-lg leading-8 text-primary-foreground/75">بيع أسرع، مخزون دقيق، وتقارير واضحة لحظة بلحظة مع استمرار العمل عند انقطاع الإنترنت.</p>
+          <h1 className="text-4xl font-black leading-tight">
+            كل ما تحتاجه لإدارة متجرك، في مكان واحد.
+          </h1>
+          <p className="mt-4 max-w-lg leading-8 text-primary-foreground/75">
+            بيع أسرع، مخزون دقيق، وتقارير واضحة لحظة بلحظة مع استمرار العمل عند انقطاع الإنترنت.
+          </p>
           <div className="mt-10 grid grid-cols-3 gap-3">
             <AuthFeature icon={Store} title="مبيعات سهلة" />
             <AuthFeature icon={Boxes} title="مخزون لحظي" />
             <AuthFeature icon={BarChart3} title="تقارير واضحة" />
           </div>
         </div>
-        <div className="relative z-10 flex items-center gap-2 text-sm text-primary-foreground/70"><CheckCircle2 className="size-4" /> آمن، سريع، ومصمم للمتاجر العربية</div>
+        <div className="relative z-10 flex items-center gap-2 text-sm text-primary-foreground/70">
+          <CheckCircle2 className="size-4" /> آمن، سريع، ومصمم للمتاجر العربية
+        </div>
       </section>
 
       <section className="flex items-center justify-center px-4 py-10 sm:px-10">
-      <Card className="w-full max-w-md border-0 bg-transparent shadow-none">
-        <CardHeader className="px-0 text-start">
-          <span className="mb-6 grid size-12 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg lg:hidden"><ShoppingCart /></span>
-          <CardTitle className="text-3xl font-black">مرحبًا بك في SmartPOS</CardTitle>
-          <CardDescription className="pt-2">سجّل الدخول للمتابعة إلى لوحة إدارة متجرك</CardDescription>
-        </CardHeader>
-        <CardContent className="px-0">
-          <Tabs defaultValue="signin">
-            <TabsList className="grid h-11 w-full grid-cols-2 rounded-lg bg-secondary">
-              <TabsTrigger value="signin">دخول</TabsTrigger>
-              <TabsTrigger value="signup">متجر جديد</TabsTrigger>
-            </TabsList>
+        <Card className="w-full max-w-md border-0 bg-transparent shadow-none">
+          <CardHeader className="px-0 text-start">
+            <span className="mb-6 grid size-12 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg lg:hidden">
+              <ShoppingCart />
+            </span>
+            <CardTitle className="text-3xl font-black">مرحبًا بك في SmartPOS</CardTitle>
+            <CardDescription className="pt-2">
+              سجّل الدخول للمتابعة إلى لوحة إدارة متجرك
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-0">
+            <Tabs defaultValue="signin">
+              <TabsList className="grid h-11 w-full grid-cols-2 rounded-lg bg-secondary">
+                <TabsTrigger value="signin">دخول</TabsTrigger>
+                <TabsTrigger value="signup">متجر جديد</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="signin">
-              <form className="space-y-5 pt-6" onSubmit={handleSignIn}>
-                <div className="space-y-2">
-                  <Label htmlFor="in-email">البريد الإلكتروني</Label>
-                  <Input
-                    id="in-email"
-                    type="email"
-                    required
-                    dir="ltr"
-                    value={inEmail}
-                    onChange={(e) => setInEmail(e.target.value)}
-                    className="h-11 bg-card"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="in-pass">كلمة المرور</Label>
-                  <div className="relative"><Input
-                    id="in-pass"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    dir="ltr"
-                    value={inPass}
-                    onChange={(e) => setInPass(e.target.value)}
-                    className="h-11 bg-card pe-11"
-                  /><Button type="button" variant="ghost" size="icon" className="absolute end-1 top-1/2 size-9 -translate-y-1/2" aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"} onClick={() => setShowPassword((value) => !value)}>{showPassword ? <EyeOff /> : <Eye />}</Button></div>
-                </div>
-                <Button className="h-12 w-full text-base font-black" disabled={busy}>
-                  {busy ? "جارٍ الدخول..." : "تسجيل الدخول"}
-                </Button>
-              </form>
-            </TabsContent>
+              <TabsContent value="signin">
+                <form className="space-y-5 pt-6" onSubmit={handleSignIn}>
+                  <div className="space-y-2">
+                    <Label htmlFor="in-email">البريد الإلكتروني</Label>
+                    <Input
+                      id="in-email"
+                      type="email"
+                      required
+                      dir="ltr"
+                      value={inEmail}
+                      onChange={(e) => setInEmail(e.target.value)}
+                      className="h-11 bg-card"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="in-pass">كلمة المرور</Label>
+                    <div className="relative">
+                      <Input
+                        id="in-pass"
+                        type={showPassword ? "text" : "password"}
+                        required
+                        dir="ltr"
+                        value={inPass}
+                        onChange={(e) => setInPass(e.target.value)}
+                        className="h-11 bg-card pe-11"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute end-1 top-1/2 size-9 -translate-y-1/2"
+                        aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                        onClick={() => setShowPassword((value) => !value)}
+                      >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                      </Button>
+                    </div>
+                  </div>
+                  <Button className="h-12 w-full text-base font-black" disabled={busy}>
+                    {busy ? "جارٍ الدخول..." : "تسجيل الدخول"}
+                  </Button>
+                </form>
+              </TabsContent>
 
-            <TabsContent value="signup">
-              <form className="space-y-4 pt-6" onSubmit={handleSignUp}>
-                <div className="space-y-2">
-                  <Label htmlFor="org">اسم المتجر / النشاط</Label>
-                  <Input
-                    id="org"
-                    required
-                    value={orgName}
-                    onChange={(e) => setOrgName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="name">اسمك بالكامل</Label>
-                  <Input
-                    id="name"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="up-email">البريد الإلكتروني</Label>
-                  <Input
-                    id="up-email"
-                    type="email"
-                    required
-                    dir="ltr"
-                    value={upEmail}
-                    onChange={(e) => setUpEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="up-pass">كلمة المرور</Label>
-                  <Input
-                    id="up-pass"
-                    type="password"
-                    required
-                    dir="ltr"
-                    value={upPass}
-                    onChange={(e) => setUpPass(e.target.value)}
-                  />
-                </div>
-                <Button className="h-12 w-full font-black" disabled={busy}>
-                  {busy ? "جارٍ الإنشاء..." : "إنشاء المتجر"}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+              <TabsContent value="signup">
+                <form className="space-y-4 pt-6" onSubmit={handleSignUp}>
+                  <div className="space-y-2">
+                    <Label htmlFor="org">اسم المتجر / النشاط</Label>
+                    <Input
+                      id="org"
+                      required
+                      value={orgName}
+                      onChange={(e) => setOrgName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">اسمك بالكامل</Label>
+                    <Input
+                      id="name"
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="up-email">البريد الإلكتروني</Label>
+                    <Input
+                      id="up-email"
+                      type="email"
+                      required
+                      dir="ltr"
+                      value={upEmail}
+                      onChange={(e) => setUpEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="up-pass">كلمة المرور</Label>
+                    <Input
+                      id="up-pass"
+                      type="password"
+                      required
+                      dir="ltr"
+                      value={upPass}
+                      onChange={(e) => setUpPass(e.target.value)}
+                    />
+                  </div>
+                  <Button className="h-12 w-full font-black" disabled={busy}>
+                    {busy ? "جارٍ الإنشاء..." : "إنشاء المتجر"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </section>
     </main>
   );
 }
 
 function AuthFeature({ icon: Icon, title }: { icon: typeof Store; title: string }) {
-  return <div className="rounded-xl border border-primary-foreground/15 bg-primary-foreground/10 p-4"><Icon className="mb-3 size-5" /><div className="text-sm font-bold">{title}</div></div>;
+  return (
+    <div className="rounded-xl border border-primary-foreground/15 bg-primary-foreground/10 p-4">
+      <Icon className="mb-3 size-5" />
+      <div className="text-sm font-bold">{title}</div>
+    </div>
+  );
 }
