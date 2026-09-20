@@ -80,13 +80,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "كاشير كلاود — نظام نقاط بيع وإدارة متاجر" },
+      { title: "SmartPOS — نظام نقاط بيع وإدارة متاجر" },
       {
         name: "description",
         content:
           "نظام نقاط بيع سحابي متعدد الفروع: كاشير سريع، مخزون، ورديات، مشتريات، تقارير وصلاحيات دقيقة.",
       },
-      { property: "og:title", content: "كاشير كلاود — نظام نقاط بيع وإدارة متاجر" },
+      { property: "og:title", content: "SmartPOS — نظام نقاط بيع وإدارة متاجر" },
       {
         property: "og:description",
         content: "كاشير سريع، مخزون لحظي، ورديات وتقارير أرباح لكل فرع.",
