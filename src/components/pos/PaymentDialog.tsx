@@ -251,7 +251,11 @@ export function PaymentDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             إلغاء
           </Button>
-          <Button className="min-w-44 bg-success text-base font-black text-success-foreground hover:bg-success/90" disabled={!canConfirm} onClick={confirm}>
+          <Button
+            className="min-w-44 bg-success text-base font-black text-success-foreground hover:bg-success/90"
+            disabled={!canConfirm}
+            onClick={confirm}
+          >
             تأكيد الدفع
           </Button>
         </DialogFooter>

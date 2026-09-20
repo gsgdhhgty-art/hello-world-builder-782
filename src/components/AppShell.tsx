@@ -159,22 +159,35 @@ function AppShellInner() {
 
   const nav = (
     <>
-      <div className={cn("flex h-[72px] items-center gap-3 border-b border-sidebar-border px-4", collapsed && "justify-center px-2")}>
+      <div
+        className={cn(
+          "flex h-[72px] items-center gap-3 border-b border-sidebar-border px-4",
+          collapsed && "justify-center px-2",
+        )}
+      >
         <span className="grid size-10 shrink-0 place-items-center rounded-xl gradient-primary text-lg font-black glow-primary">
           S
         </span>
-        {!collapsed && <div className="min-w-0">
-          <div className="truncate text-lg font-black text-sidebar-foreground">
-            Smart<span className="text-primary">POS</span>
+        {!collapsed && (
+          <div className="min-w-0">
+            <div className="truncate text-lg font-black text-sidebar-foreground">
+              Smart<span className="text-primary">POS</span>
+            </div>
+            <div className="truncate text-[10px] font-semibold text-muted-foreground">
+              {org?.name ?? "إدارة أسهل، مبيعات أكثر"}
+            </div>
           </div>
-          <div className="truncate text-[10px] font-semibold text-muted-foreground">{org?.name ?? "إدارة أسهل، مبيعات أكثر"}</div>
-        </div>}
+        )}
       </div>
 
       <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4 scroll-slim">
         {groups.map((group) => (
           <div key={group.title}>
-            {!collapsed && <div className="px-3 pb-1.5 text-[10px] font-bold text-muted-foreground">{group.title}</div>}
+            {!collapsed && (
+              <div className="px-3 pb-1.5 text-[10px] font-bold text-muted-foreground">
+                {group.title}
+              </div>
+            )}
             <div className="space-y-1">
               {group.items.map((item) => {
                 const active = location.pathname === item.to;
@@ -195,7 +208,9 @@ function AppShellInner() {
                       <item.icon className="size-4" />
                     </span>
                     {!collapsed && <span className="truncate">{item.label}</span>}
-                    {active && !collapsed ? <ChevronLeft className="ms-auto size-4 opacity-70" /> : null}
+                    {active && !collapsed ? (
+                      <ChevronLeft className="ms-auto size-4 opacity-70" />
+                    ) : null}
                   </Link>
                 );
               })}
@@ -206,27 +221,36 @@ function AppShellInner() {
 
       <div className="border-t border-sidebar-border p-3">
         {!collapsed && <SyncBadge className="mb-2 w-full justify-center" />}
-        <div className={cn("flex items-center gap-3 rounded-xl bg-sidebar-accent/60 px-2 py-2", collapsed && "justify-center")}>
+        <div
+          className={cn(
+            "flex items-center gap-3 rounded-xl bg-sidebar-accent/60 px-2 py-2",
+            collapsed && "justify-center",
+          )}
+        >
           <span className="grid size-9 shrink-0 place-items-center rounded-full gradient-primary text-sm font-bold">
             {initials}
           </span>
-          {!collapsed && <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold text-sidebar-foreground">
-              {profile.full_name}
+          {!collapsed && (
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-semibold text-sidebar-foreground">
+                {profile.full_name}
+              </div>
+              <div className="truncate text-[11px] text-sidebar-foreground/60">
+                {ROLE_LABELS[profile.role] ?? profile.role}
+              </div>
             </div>
-            <div className="truncate text-[11px] text-sidebar-foreground/60">
-              {ROLE_LABELS[profile.role] ?? profile.role}
-            </div>
-          </div>}
-          {!collapsed && <Button
-            variant="ghost"
-            size="icon"
-            aria-label="تسجيل الخروج"
-            className="text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-            onClick={() => void handleSignOut()}
-          >
-            <LogOut className="size-4" />
-          </Button>}
+          )}
+          {!collapsed && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="تسجيل الخروج"
+              className="text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              onClick={() => void handleSignOut()}
+            >
+              <LogOut className="size-4" />
+            </Button>
+          )}
         </div>
       </div>
     </>
@@ -234,7 +258,12 @@ function AppShellInner() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className={cn("sticky top-0 hidden h-screen shrink-0 flex-col border-l border-sidebar-border gradient-sidebar text-sidebar-foreground transition-[width] duration-200 md:flex", collapsed ? "w-[76px]" : "w-60")}>
+      <aside
+        className={cn(
+          "sticky top-0 hidden h-screen shrink-0 flex-col border-l border-sidebar-border gradient-sidebar text-sidebar-foreground transition-[width] duration-200 md:flex",
+          collapsed ? "w-[76px]" : "w-60",
+        )}
+      >
         {nav}
       </aside>
 
@@ -255,13 +284,26 @@ function AppShellInner() {
             </SheetContent>
           </Sheet>
 
-          <Button variant="ghost" size="icon" className="hidden md:inline-flex" aria-label={collapsed ? "توسيع القائمة" : "تصغير القائمة"} onClick={() => setCollapsed((value) => !value)}>
-            {collapsed ? <PanelRightOpen className="size-5" /> : <PanelRightClose className="size-5" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden md:inline-flex"
+            aria-label={collapsed ? "توسيع القائمة" : "تصغير القائمة"}
+            onClick={() => setCollapsed((value) => !value)}
+          >
+            {collapsed ? (
+              <PanelRightOpen className="size-5" />
+            ) : (
+              <PanelRightClose className="size-5" />
+            )}
           </Button>
 
           <div className="relative hidden min-w-0 max-w-lg flex-1 lg:block">
             <Search className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input className="h-10 w-full rounded-xl border border-input bg-background px-4 pe-10 text-sm outline-hidden transition focus:border-primary focus:ring-3 focus:ring-primary/10" placeholder="ابحث عن فاتورة، منتج أو عميل..." />
+            <input
+              className="h-10 w-full rounded-xl border border-input bg-background px-4 pe-10 text-sm outline-hidden transition focus:border-primary focus:ring-3 focus:ring-primary/10"
+              placeholder="ابحث عن فاتورة، منتج أو عميل..."
+            />
           </div>
           <div className="min-w-0 lg:hidden">
             <h2 className="truncate text-base font-extrabold">{current?.label ?? "SmartPOS"}</h2>

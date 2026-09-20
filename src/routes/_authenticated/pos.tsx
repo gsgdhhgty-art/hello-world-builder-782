@@ -746,7 +746,12 @@ function PosPage() {
                     <span className="text-sm font-black text-foreground">
                       {money(p.price, currency)}
                     </span>
-                    <span className={cn("mt-1 w-fit rounded-full px-2 py-0.5 text-[10px] font-bold", out ? "bg-destructive/10 text-destructive" : "status-success")}>
+                    <span
+                      className={cn(
+                        "mt-1 w-fit rounded-full px-2 py-0.5 text-[10px] font-bold",
+                        out ? "bg-destructive/10 text-destructive" : "status-success",
+                      )}
+                    >
                       {p.track_stock ? `${num(qty)} متوفر` : "متاح"}
                     </span>
                   </div>
@@ -781,7 +786,12 @@ function PosPage() {
       <aside className="workspace-card flex w-full shrink-0 flex-col overflow-hidden lg:h-full lg:w-[390px] xl:w-[420px]">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b p-4">
           <div className="min-w-0">
-            <div className="truncate text-lg font-black">سلة المشتريات <span className="ms-1 inline-grid size-6 place-items-center rounded-full bg-primary text-xs text-primary-foreground">{cart.length}</span></div>
+            <div className="truncate text-lg font-black">
+              سلة المشتريات{" "}
+              <span className="ms-1 inline-grid size-6 place-items-center rounded-full bg-primary text-xs text-primary-foreground">
+                {cart.length}
+              </span>
+            </div>
             <div className="truncate text-xs text-muted-foreground">
               الكاشير: {profile?.full_name}
             </div>
@@ -835,7 +845,10 @@ function PosPage() {
             </p>
           )}
           {cart.map((l) => (
-            <div key={l.product.id} className="flex items-center gap-2 border-b border-border/60 p-3 hover:bg-muted/25">
+            <div
+              key={l.product.id}
+              className="flex items-center gap-2 border-b border-border/60 p-3 hover:bg-muted/25"
+            >
               <div className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
                 {l.product.image_url ? (
                   <img src={l.product.image_url} alt="" className="size-full object-cover" />
