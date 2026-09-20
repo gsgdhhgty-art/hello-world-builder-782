@@ -113,17 +113,17 @@ export function PaymentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl gap-0 p-0">
-        <DialogHeader className="border-b p-4">
-          <DialogTitle className="text-lg">الدفع</DialogTitle>
+      <DialogContent className="max-w-4xl gap-0 overflow-hidden p-0">
+        <DialogHeader className="border-b bg-muted/25 p-5">
+          <DialogTitle className="text-xl font-black">طرق الدفع</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 p-4 md:grid-cols-2">
           {/* summary + methods */}
           <div className="space-y-3">
-            <div className="rounded-xl border bg-muted/40 p-4">
+            <div className="rounded-xl border border-primary/15 bg-primary/5 p-5">
               <div className="text-xs text-muted-foreground">المطلوب</div>
-              <div className="text-3xl font-black text-primary">{money(total, currency)}</div>
+              <div className="mt-1 text-4xl font-black text-primary">{money(total, currency)}</div>
               <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-muted-foreground">المدفوع: </span>
@@ -144,16 +144,16 @@ export function PaymentDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-3">
               {METHODS.map((m) => (
                 <Button
                   key={m.key}
                   type="button"
                   variant={method === m.key ? "default" : "outline"}
-                  className="h-14 flex-col gap-1 text-xs font-bold"
+                  className="h-20 flex-col gap-2 rounded-xl text-sm font-bold"
                   onClick={() => setMethod(m.key)}
                 >
-                  <m.icon className="size-4" />
+                  <m.icon className="size-6" />
                   {m.label}
                 </Button>
               ))}
@@ -213,7 +213,7 @@ export function PaymentDialog({
 
           {/* keypad */}
           <div className="space-y-3">
-            <div className="rounded-lg border p-3 text-end text-2xl font-black tabular-nums">
+            <div className="rounded-xl border border-primary/20 bg-background p-4 text-end text-3xl font-black tabular-nums shadow-inner">
               {amount || "0"}
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -251,8 +251,12 @@ export function PaymentDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             إلغاء
           </Button>
-          <Button className="min-w-40 text-base font-bold" disabled={!canConfirm} onClick={confirm}>
-            إتمام البيع
+          <Button
+            className="min-w-44 bg-success text-base font-black text-success-foreground hover:bg-success/90"
+            disabled={!canConfirm}
+            onClick={confirm}
+          >
+            تأكيد الدفع
           </Button>
         </DialogFooter>
       </DialogContent>
