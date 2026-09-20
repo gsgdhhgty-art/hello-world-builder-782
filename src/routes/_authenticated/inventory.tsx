@@ -142,29 +142,25 @@ function InventoryPage() {
       if (!note.trim()) throw new Error("سبب التسوية مطلوب");
       const target = Math.max(0, Number(newQty) || 0);
       const diff = target - adjust.current;
-      const { error } = await supabase
-        .from("inventory")
-        .upsert(
-          {
-            org_id: orgId,
-            product_id: adjust.productId,
-            warehouse_id: warehouseId,
-            quantity: target,
-          },
-          { onConflict: "product_id,warehouse_id" },
-        );
-      if (error) throw error;
-      const { error: movementError } = await supabase
-        .from("stock_movements")
-        .insert({
+      const { error } = await supabase.from("inventory").upsert(
+        {
           org_id: orgId,
           product_id: adjust.productId,
           warehouse_id: warehouseId,
-          qty_change: diff,
-          movement_type: "ADJUSTMENT",
-          note: note.trim(),
-          user_id: profile.id,
-        });
+          quantity: target,
+        },
+        { onConflict: "product_id,warehouse_id" },
+      );
+      if (error) throw error;
+      const { error: movementError } = await supabase.from("stock_movements").insert({
+        org_id: orgId,
+        product_id: adjust.productId,
+        warehouse_id: warehouseId,
+        qty_change: diff,
+        movement_type: "ADJUSTMENT",
+        note: note.trim(),
+        user_id: profile.id,
+      });
       if (movementError) throw movementError;
     },
     onSuccess: () => {
