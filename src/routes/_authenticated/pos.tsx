@@ -6,6 +6,7 @@ import {
   CloudOff,
   Minus,
   PauseCircle,
+  Package,
   Percent,
   PlayCircle,
   Plus,
@@ -47,6 +48,7 @@ import { db, hasLocalDb, type HeldOrder } from "@/lib/offline/db";
 import { localFirst } from "@/lib/offline/local-first";
 import { enqueue, isOnline, localStockMap, recordLocalSale } from "@/lib/offline/sync";
 import { useOffline } from "@/hooks/useOffline";
+import { resolveProductImages } from "@/lib/product-images";
 
 export const Route = createFileRoute("/_authenticated/pos")({
   head: () => ({
@@ -172,8 +174,8 @@ function PosPage() {
 
   const productsQuery = useQuery({
     queryKey: ["pos-products"],
-    queryFn: () =>
-      localFirst<ProductRow>("products", async () => {
+    queryFn: async () => {
+      const rows = await localFirst<ProductRow>("products", async () => {
         const { data, error } = await supabase
           .from("products")
           .select("id, name, barcode, sku, price, unit, track_stock, category_id, image_url")
@@ -181,7 +183,9 @@ function PosPage() {
           .order("name");
         if (error) throw error;
         return (data ?? []) as ProductRow[];
-      }),
+      });
+      return resolveProductImages(rows);
+    },
   });
 
   const categoriesQuery = useQuery({
@@ -713,7 +717,7 @@ function PosPage() {
           ))}
         </div>
 
-        <div className="grid flex-1 auto-rows-min grid-cols-2 gap-3 overflow-y-auto p-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 scroll-slim">
+        <div className="grid flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto p-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 scroll-slim">
           {filtered.map((p) => {
             const qty = stock[p.id] ?? 0;
             const out = p.track_stock && qty <= 0;
@@ -723,7 +727,7 @@ function PosPage() {
                   type="button"
                   onClick={() => addToCart(p)}
                   className={cn(
-                    "group flex h-full w-full flex-col gap-1 overflow-hidden rounded-xl border border-border bg-card text-start shadow-xs transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-card active:scale-[0.98]",
+                    "group flex h-full w-full flex-col gap-1 overflow-hidden rounded-lg border border-border bg-card text-start shadow-xs transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-card active:scale-[0.98]",
                     out && "opacity-60",
                   )}
                 >
@@ -736,9 +740,7 @@ function PosPage() {
                         className="size-full object-contain transition-transform group-hover:scale-105"
                       />
                     ) : (
-                      <span className="text-2xl font-black text-muted-foreground">
-                        {p.name.slice(0, 1)}
-                      </span>
+                      <Package className="size-10 text-muted-foreground/35" />
                     )}
                   </div>
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-2">

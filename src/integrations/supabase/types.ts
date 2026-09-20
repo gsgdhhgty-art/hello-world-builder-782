@@ -377,6 +377,8 @@ export type Database = {
           category_id: string | null
           cost: number
           created_at: string
+          description: string | null
+          expires_at: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -385,16 +387,20 @@ export type Database = {
           price: number
           reorder_level: number
           sku: string | null
+          supplier_id: string | null
           tax_rate: number | null
           track_stock: boolean
           unit: string
           updated_at: string
+          wholesale_price: number
         }
         Insert: {
           barcode?: string | null
           category_id?: string | null
           cost?: number
           created_at?: string
+          description?: string | null
+          expires_at?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -403,16 +409,20 @@ export type Database = {
           price?: number
           reorder_level?: number
           sku?: string | null
+          supplier_id?: string | null
           tax_rate?: number | null
           track_stock?: boolean
           unit?: string
           updated_at?: string
+          wholesale_price?: number
         }
         Update: {
           barcode?: string | null
           category_id?: string | null
           cost?: number
           created_at?: string
+          description?: string | null
+          expires_at?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -421,10 +431,12 @@ export type Database = {
           price?: number
           reorder_level?: number
           sku?: string | null
+          supplier_id?: string | null
           tax_rate?: number | null
           track_stock?: boolean
           unit?: string
           updated_at?: string
+          wholesale_price?: number
         }
         Relationships: [
           {
@@ -439,6 +451,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
         ]
