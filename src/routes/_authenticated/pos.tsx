@@ -645,9 +645,9 @@ function PosPage() {
   const cats = categoriesQuery.data ?? [];
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col lg:h-screen lg:flex-row">
+    <div className="flex min-h-[calc(100vh-72px)] flex-col gap-3 bg-background p-3 lg:h-[calc(100vh-72px)] lg:flex-row lg:overflow-hidden">
       {/* ===== catalog ===== */}
-      <section className="flex min-w-0 flex-1 flex-col border-s bg-background">
+      <section className="workspace-card flex min-w-0 flex-1 flex-col overflow-hidden">
         {!online && (
           <div className="flex items-center gap-2 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">
             <CloudOff className="size-4" />
@@ -655,7 +655,7 @@ function PosPage() {
             {pending > 0 ? ` (${pending} بانتظار الرفع)` : ""}
           </div>
         )}
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b p-3 sm:flex">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 p-3 sm:flex">
           <form
             className="relative min-w-0 flex-1"
             onSubmit={(e) => {
@@ -670,20 +670,20 @@ function PosPage() {
               placeholder="ابحث بالاسم أو SKU أو امسح الباركود"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-11 pe-9 text-base"
+              className="h-12 rounded-xl border-primary/20 bg-background pe-10 text-sm shadow-xs focus-visible:ring-primary/15"
             />
           </form>
           <Button
             variant="outline"
             size="icon"
-            className="size-11 shrink-0"
+            className="size-12 shrink-0 border-primary/20 text-primary"
             onClick={() => setScannerOpen(true)}
           >
             <Camera className="size-5" />
           </Button>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto border-b p-2">
+        <div className="flex gap-2 overflow-x-auto border-y border-border/70 bg-muted/30 p-2 scroll-slim">
           <Button
             size="sm"
             variant={category === "all" ? "default" : "outline"}
@@ -713,7 +713,7 @@ function PosPage() {
           ))}
         </div>
 
-        <div className="grid flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto p-3 sm:grid-cols-3 xl:grid-cols-5">
+        <div className="grid flex-1 auto-rows-min grid-cols-2 gap-3 overflow-y-auto p-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 scroll-slim">
           {filtered.map((p) => {
             const qty = stock[p.id] ?? 0;
             const out = p.track_stock && qty <= 0;
@@ -723,17 +723,17 @@ function PosPage() {
                   type="button"
                   onClick={() => addToCart(p)}
                   className={cn(
-                    "flex h-full w-full flex-col gap-1 overflow-hidden rounded-xl border bg-card text-start transition hover:border-primary hover:shadow-md active:scale-[0.98]",
+                    "group flex h-full w-full flex-col gap-1 overflow-hidden rounded-xl border border-border bg-card text-start shadow-xs transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-card active:scale-[0.98]",
                     out && "opacity-60",
                   )}
                 >
-                  <div className="grid aspect-square w-full place-items-center bg-muted/50">
+                  <div className="grid aspect-[4/3] w-full place-items-center bg-muted/45 p-2">
                     {p.image_url ? (
                       <img
                         src={p.image_url}
                         alt={p.name}
                         loading="lazy"
-                        className="size-full object-cover"
+                        className="size-full object-contain transition-transform group-hover:scale-105"
                       />
                     ) : (
                       <span className="text-2xl font-black text-muted-foreground">
@@ -743,12 +743,11 @@ function PosPage() {
                   </div>
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-2">
                     <span className="line-clamp-2 text-sm font-semibold">{p.name}</span>
-                    <span className="text-base font-extrabold text-primary">
+                    <span className="text-sm font-black text-foreground">
                       {money(p.price, currency)}
                     </span>
-                    <span className="truncate text-[11px] text-muted-foreground">
-                      {p.track_stock ? `المتوفر ${num(qty)} ${p.unit}` : "بدون مخزون"}
-                      {p.barcode ? ` · ${p.barcode}` : p.sku ? ` · ${p.sku}` : ""}
+                    <span className={cn("mt-1 w-fit rounded-full px-2 py-0.5 text-[10px] font-bold", out ? "bg-destructive/10 text-destructive" : "status-success")}>
+                      {p.track_stock ? `${num(qty)} متوفر` : "متاح"}
                     </span>
                   </div>
                 </button>
@@ -756,7 +755,7 @@ function PosPage() {
                   type="button"
                   aria-label="تفضيل"
                   onClick={() => toggleFavorite(p.id)}
-                  className="absolute end-2 top-2 rounded-full bg-background/90 p-1.5 shadow"
+                  className="absolute end-2 top-2 rounded-full border border-border bg-card/95 p-1.5 shadow-xs"
                 >
                   <Star
                     className={cn(
@@ -779,10 +778,10 @@ function PosPage() {
       </section>
 
       {/* ===== cart ===== */}
-      <aside className="flex w-full shrink-0 flex-col bg-card lg:h-screen lg:w-[400px]">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b p-3">
+      <aside className="workspace-card flex w-full shrink-0 flex-col overflow-hidden lg:h-full lg:w-[390px] xl:w-[420px]">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b p-4">
           <div className="min-w-0">
-            <div className="truncate font-bold">فاتورة جديدة</div>
+            <div className="truncate text-lg font-black">سلة المشتريات <span className="ms-1 inline-grid size-6 place-items-center rounded-full bg-primary text-xs text-primary-foreground">{cart.length}</span></div>
             <div className="truncate text-xs text-muted-foreground">
               الكاشير: {profile?.full_name}
             </div>
@@ -805,7 +804,7 @@ function PosPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b p-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b bg-muted/25 p-3">
           <Select value={customerId} onValueChange={setCustomerId}>
             <SelectTrigger className="min-w-0">
               <SelectValue placeholder="عميل نقدي" />
@@ -836,7 +835,7 @@ function PosPage() {
             </p>
           )}
           {cart.map((l) => (
-            <div key={l.product.id} className="flex items-center gap-2 border-b p-2">
+            <div key={l.product.id} className="flex items-center gap-2 border-b border-border/60 p-3 hover:bg-muted/25">
               <div className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
                 {l.product.image_url ? (
                   <img src={l.product.image_url} alt="" className="size-full object-cover" />
@@ -860,13 +859,14 @@ function PosPage() {
                 >
                   <Minus className="size-3.5" />
                 </Button>
-                <button
+                <Button
                   type="button"
-                  className="w-10 rounded-md border py-1 text-center text-sm font-bold"
+                  variant="secondary"
+                  className="h-8 w-10 px-0 text-center text-sm font-bold"
                   onClick={() => setQtyEditor({ id: l.product.id, value: "" })}
                 >
                   {num(l.quantity)}
-                </button>
+                </Button>
                 <Button
                   size="icon"
                   variant="outline"
@@ -903,7 +903,7 @@ function PosPage() {
           ))}
         </div>
 
-        <div className="space-y-1 border-t p-3 text-sm">
+        <div className="space-y-2 border-t bg-muted/20 p-4 text-sm">
           <Row label="الإجمالي الفرعي" value={money(totals.subtotal, currency)} />
           <Row
             label="الخصم"
@@ -921,12 +921,12 @@ function PosPage() {
             }
           />
           <Row label="الضريبة" value={money(taxTotal, currency)} />
-          <div className="flex items-center justify-between border-t pt-2 text-lg font-black">
+          <div className="flex items-center justify-between rounded-xl bg-primary/8 px-3 py-2 text-xl font-black">
             <span>الإجمالي</span>
             <span className="text-primary">{money(grandTotal, currency)}</span>
           </div>
           <Button
-            className="h-14 w-full text-lg font-black"
+            className="h-14 w-full bg-success text-lg font-black text-success-foreground shadow-lg shadow-success/20 hover:bg-success/90"
             disabled={!cart.length || checkout.isPending}
             onClick={() => setPayOpen(true)}
           >

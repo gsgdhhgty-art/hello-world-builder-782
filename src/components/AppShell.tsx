@@ -10,7 +10,8 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Moon,
+  Bell,
+  Search,
   Package,
   Receipt,
   RefreshCw,
@@ -18,7 +19,8 @@ import {
   ScanBarcode,
   ShoppingCart,
   FileInput,
-  Sun,
+  PanelRightClose,
+  PanelRightOpen,
   Truck,
   Users,
   Wallet,
@@ -45,8 +47,8 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: "البيع",
     items: [
-      { to: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard, perm: "reports.view" },
-      { to: "/pos", label: "الكاشير", icon: ScanBarcode, perm: "sales.create" },
+      { to: "/dashboard", label: "الرئيسية", icon: LayoutDashboard, perm: "reports.view" },
+      { to: "/pos", label: "البيع السريع", icon: ScanBarcode, perm: "sales.create" },
       { to: "/sales", label: "الفواتير", icon: Receipt },
       { to: "/returns", label: "المرتجعات", icon: RotateCcw, perm: "sales.refund" },
       { to: "/shifts", label: "الورديات", icon: Clock },
@@ -84,29 +86,12 @@ export function AppShell() {
   );
 }
 
-function useTheme() {
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    const saved = localStorage.getItem("kashir_theme");
-    const isDark = saved === "dark";
-    setDark(isDark);
-    document.documentElement.classList.toggle("dark", isDark);
-  }, []);
-  function toggle() {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("kashir_theme", next ? "dark" : "light");
-  }
-  return { dark, toggle };
-}
-
 function AppShellInner() {
   const { profile, org, loading, can, signOut, permissions } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { dark, toggle } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const onOnboarding = location.pathname.startsWith("/onboarding");
 
   useEffect(() => {
@@ -174,24 +159,22 @@ function AppShellInner() {
 
   const nav = (
     <>
-      <div className="flex items-center gap-3 px-5 py-5">
-        <span className="grid size-10 shrink-0 place-items-center rounded-2xl gradient-primary text-lg font-black glow-primary">
-          ك
+      <div className={cn("flex h-[72px] items-center gap-3 border-b border-sidebar-border px-4", collapsed && "justify-center px-2")}>
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl gradient-primary text-lg font-black glow-primary">
+          S
         </span>
-        <div className="min-w-0">
-          <div className="truncate text-sm font-extrabold text-sidebar-foreground">
-            {org?.name ?? "كاشير كلاود"}
+        {!collapsed && <div className="min-w-0">
+          <div className="truncate text-lg font-black text-sidebar-foreground">
+            Smart<span className="text-primary">POS</span>
           </div>
-          <div className="text-[11px] text-sidebar-foreground/60">نظام نقاط البيع</div>
-        </div>
+          <div className="truncate text-[10px] font-semibold text-muted-foreground">{org?.name ?? "إدارة أسهل، مبيعات أكثر"}</div>
+        </div>}
       </div>
 
-      <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4 scroll-slim">
+      <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4 scroll-slim">
         {groups.map((group) => (
           <div key={group.title}>
-            <div className="px-3 pb-2 text-[10px] font-bold tracking-widest text-sidebar-foreground/45">
-              {group.title}
-            </div>
+            {!collapsed && <div className="px-3 pb-1.5 text-[10px] font-bold text-muted-foreground">{group.title}</div>}
             <div className="space-y-1">
               {group.items.map((item) => {
                 const active = location.pathname === item.to;
@@ -200,24 +183,19 @@ function AppShellInner() {
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      "group press flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm",
+                      "group relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-all",
+                      collapsed && "justify-center px-0",
                       active
-                        ? "bg-sidebar-primary/15 font-bold text-sidebar-primary-foreground"
+                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                         : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     )}
+                    title={collapsed ? item.label : undefined}
                   >
-                    <span
-                      className={cn(
-                        "grid size-8 shrink-0 place-items-center rounded-lg transition-colors",
-                        active
-                          ? "gradient-primary"
-                          : "bg-sidebar-accent/60 text-sidebar-foreground/80 group-hover:bg-sidebar-accent",
-                      )}
-                    >
+                    <span className="grid size-7 shrink-0 place-items-center">
                       <item.icon className="size-4" />
                     </span>
-                    <span className="truncate">{item.label}</span>
-                    {active ? <ChevronLeft className="ms-auto size-4 opacity-70" /> : null}
+                    {!collapsed && <span className="truncate">{item.label}</span>}
+                    {active && !collapsed ? <ChevronLeft className="ms-auto size-4 opacity-70" /> : null}
                   </Link>
                 );
               })}
@@ -227,20 +205,20 @@ function AppShellInner() {
       </nav>
 
       <div className="border-t border-sidebar-border p-3">
-        <SyncBadge className="mb-3 w-full justify-center" />
-        <div className="flex items-center gap-3 rounded-xl bg-sidebar-accent/50 px-3 py-2.5">
+        {!collapsed && <SyncBadge className="mb-2 w-full justify-center" />}
+        <div className={cn("flex items-center gap-3 rounded-xl bg-sidebar-accent/60 px-2 py-2", collapsed && "justify-center")}>
           <span className="grid size-9 shrink-0 place-items-center rounded-full gradient-primary text-sm font-bold">
             {initials}
           </span>
-          <div className="min-w-0 flex-1">
+          {!collapsed && <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-semibold text-sidebar-foreground">
               {profile.full_name}
             </div>
             <div className="truncate text-[11px] text-sidebar-foreground/60">
               {ROLE_LABELS[profile.role] ?? profile.role}
             </div>
-          </div>
-          <Button
+          </div>}
+          {!collapsed && <Button
             variant="ghost"
             size="icon"
             aria-label="تسجيل الخروج"
@@ -248,7 +226,7 @@ function AppShellInner() {
             onClick={() => void handleSignOut()}
           >
             <LogOut className="size-4" />
-          </Button>
+          </Button>}
         </div>
       </div>
     </>
@@ -256,12 +234,12 @@ function AppShellInner() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gradient-sidebar text-sidebar-foreground md:flex">
+      <aside className={cn("sticky top-0 hidden h-screen shrink-0 flex-col border-l border-sidebar-border gradient-sidebar text-sidebar-foreground transition-[width] duration-200 md:flex", collapsed ? "w-[76px]" : "w-60")}>
         {nav}
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b bg-background/85 px-4 py-3 backdrop-blur-md">
+        <header className="sticky top-0 z-30 grid h-[72px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-card/95 px-4 backdrop-blur-md">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden" aria-label="القائمة">
@@ -277,20 +255,26 @@ function AppShellInner() {
             </SheetContent>
           </Sheet>
 
-          <div className="min-w-0">
-            <h2 className="truncate text-base font-extrabold sm:text-lg">
-              {current?.label ?? "كاشير كلاود"}
-            </h2>
-            <p className="truncate text-[11px] text-muted-foreground">{org?.name}</p>
+          <Button variant="ghost" size="icon" className="hidden md:inline-flex" aria-label={collapsed ? "توسيع القائمة" : "تصغير القائمة"} onClick={() => setCollapsed((value) => !value)}>
+            {collapsed ? <PanelRightOpen className="size-5" /> : <PanelRightClose className="size-5" />}
+          </Button>
+
+          <div className="relative hidden min-w-0 max-w-lg flex-1 lg:block">
+            <Search className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <input className="h-10 w-full rounded-xl border border-input bg-background px-4 pe-10 text-sm outline-hidden transition focus:border-primary focus:ring-3 focus:ring-primary/10" placeholder="ابحث عن فاتورة، منتج أو عميل..." />
+          </div>
+          <div className="min-w-0 lg:hidden">
+            <h2 className="truncate text-base font-extrabold">{current?.label ?? "SmartPOS"}</h2>
           </div>
 
           <div className="flex items-center gap-2">
             <SyncBadge className="hidden shrink-0 border bg-secondary text-secondary-foreground sm:flex" />
-            <Button variant="outline" size="icon" aria-label="تبديل المظهر" onClick={toggle}>
-              {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            <Button variant="ghost" size="icon" aria-label="الإشعارات" className="relative">
+              <Bell className="size-5" />
+              <span className="absolute end-1.5 top-1.5 size-2 rounded-full bg-destructive ring-2 ring-card" />
             </Button>
             {can("sales.create") ? (
-              <Button asChild className="hidden gradient-primary press sm:inline-flex">
+              <Button asChild className="hidden gradient-primary sm:inline-flex">
                 <Link to="/pos">
                   <ScanBarcode className="size-4" /> الكاشير
                 </Link>
@@ -298,12 +282,9 @@ function AppShellInner() {
             ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  aria-label="حسابي"
-                  className="grid size-9 shrink-0 place-items-center rounded-full gradient-primary text-sm font-bold"
-                >
+                <Button size="icon" aria-label="حسابي" className="rounded-full gradient-primary">
                   {initials}
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuLabel>
@@ -339,10 +320,10 @@ export function PageHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="border-b bg-surface/60 px-4 py-5 sm:px-6">
+    <div className="px-4 pb-3 pt-6 sm:px-6">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:flex-wrap sm:justify-between">
         <div className="min-w-0">
-          <h1 className="truncate text-xl font-extrabold sm:text-2xl">{title}</h1>
+          <h1 className="truncate text-xl font-black text-foreground sm:text-2xl">{title}</h1>
           {description ? (
             <p className="mt-1 truncate text-sm text-muted-foreground">{description}</p>
           ) : null}
