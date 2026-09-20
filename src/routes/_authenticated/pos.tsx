@@ -6,6 +6,7 @@ import {
   CloudOff,
   Minus,
   PauseCircle,
+  Package,
   Percent,
   PlayCircle,
   Plus,

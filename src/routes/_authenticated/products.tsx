@@ -11,7 +11,6 @@ import {
   Search,
   Trash2,
   UploadCloud,
-  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -238,6 +237,23 @@ function ProductsPage() {
     onError: () => toast.error("تعذر إضافة التصنيف"),
   });
 
+  const removeProduct = useMutation({
+    mutationFn: async (product: Product) => {
+      if (!window.confirm(`حذف ${product.name}؟ لن يمكن التراجع عن ذلك.`)) return false;
+      const { error } = await supabase.from("products").delete().eq("id", product.id);
+      if (error) throw error;
+      await removeProductImage(product.image_url);
+      return true;
+    },
+    onSuccess: (removed) => {
+      if (!removed) return;
+      toast.success("تم حذف المنتج وصورته بأمان");
+      void qc.invalidateQueries({ queryKey: ["products"] });
+      void qc.invalidateQueries({ queryKey: ["pos-products"] });
+    },
+    onError: () => toast.error("تعذر حذف المنتج لأنه مرتبط بحركات مسجلة"),
+  });
+
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return (products.data ?? []).filter((product) => {
@@ -356,7 +372,7 @@ function ProductsPage() {
                   <TableCell className="font-black tabular-nums text-primary">{money(product.price, currency)}</TableCell>
                   <TableCell className="tabular-nums">{num(product.reorder_level)}</TableCell>
                   <TableCell><Badge className={product.is_active ? "status-success border-0" : ""} variant={product.is_active ? "outline" : "secondary"}>{product.is_active ? "متوفر" : "موقوف"}</Badge></TableCell>
-                  <TableCell className="text-end">{editable && <Button size="icon" variant="ghost" aria-label={`تعديل ${product.name}`} onClick={() => openEdit(product)}><Pencil /></Button>}</TableCell>
+                  <TableCell className="text-end">{editable && <div className="flex justify-end gap-1"><Button size="icon" variant="ghost" aria-label={`تعديل ${product.name}`} onClick={() => openEdit(product)}><Pencil /></Button><Button size="icon" variant="ghost" aria-label={`حذف ${product.name}`} disabled={removeProduct.isPending} onClick={() => removeProduct.mutate(product)}><Trash2 className="text-destructive" /></Button></div>}</TableCell>
                 </TableRow>
               ))}
               {!filtered.length && <TableRow><TableCell colSpan={8} className="py-14 text-center text-muted-foreground"><Package className="mx-auto mb-2 size-8 opacity-40" />لا توجد منتجات مطابقة.</TableCell></TableRow>}
