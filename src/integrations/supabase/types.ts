@@ -371,6 +371,32 @@ export type Database = {
         }
         Relationships: []
       }
+      product_barcode_counters: {
+        Row: {
+          next_value: number
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          next_value?: number
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          next_value?: number
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_barcode_counters_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           barcode: string | null
@@ -1432,6 +1458,7 @@ export type Database = {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: Json
       }
+      generate_product_barcode: { Args: never; Returns: string }
       has_perm: { Args: { _perm: string }; Returns: boolean }
       is_org_admin: { Args: never; Returns: boolean }
       my_permissions: { Args: never; Returns: Json }
