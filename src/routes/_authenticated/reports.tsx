@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Banknote, Boxes, Download, ReceiptText, TrendingUp } from "lucide-react";
+import { Banknote, Boxes, Download, FileSpreadsheet, ReceiptText, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/AppShell";
@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { money, num, PAYMENT_LABELS, dateTime } from "@/lib/format";
+import { exportCsv, exportExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
@@ -50,6 +51,7 @@ function ReportsPage() {
   const [from, setFrom] = useState(day(new Date(Date.now() - 29 * 86400000)));
   const [to, setTo] = useState(day(new Date()));
   const [branchId, setBranchId] = useState("all");
+  const [cashierId, setCashierId] = useState("all");
   const fromIso = new Date(`${from}T00:00:00`).toISOString();
   const toIso = new Date(`${to}T23:59:59`).toISOString();
 
@@ -61,17 +63,26 @@ function ReportsPage() {
       return data ?? [];
     },
   });
+  const staff = useQuery({
+    queryKey: ["report-staff"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("id, full_name").eq("is_active", true).order("full_name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
   const sales = useQuery({
-    queryKey: ["rep-sales", fromIso, toIso, branchId],
+    queryKey: ["rep-sales", fromIso, toIso, branchId, cashierId],
     queryFn: async () => {
       let q = supabase
         .from("sales")
         .select(
-          "id, total, cost_total, discount, tax, payment_method, created_at, status, branch_id",
+          "id, total, cost_total, discount, tax, payment_method, created_at, status, branch_id, cashier_id",
         )
         .gte("created_at", fromIso)
         .lte("created_at", toIso);
       if (branchId !== "all") q = q.eq("branch_id", branchId);
+      if (cashierId !== "all") q = q.eq("cashier_id", cashierId);
       const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
@@ -188,6 +199,16 @@ function ReportsPage() {
       .sort((a, b) => b[1].total - a[1].total)
       .slice(0, 20);
   }, [items.data]);
+  const exportHeaders = ["التاريخ", "عدد الفواتير", "المبيعات", "الضريبة"];
+  const dailyRows = useMemo(() => {
+    const map = new Map<string, { count: number; total: number; tax: number }>();
+    for (const sale of sales.data ?? []) {
+      const key = sale.created_at.slice(0, 10);
+      const row = map.get(key) ?? { count: 0, total: 0, tax: 0 };
+      row.count += 1; row.total += Number(sale.total); row.tax += Number(sale.tax); map.set(key, row);
+    }
+    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, row]) => [date, row.count, row.total, row.tax]);
+  }, [sales.data]);
   const byMethod = useMemo(() => {
     const map: Record<string, number> = {};
     for (const sale of sales.data ?? [])
@@ -209,9 +230,8 @@ function ReportsPage() {
         title="التقارير الشاملة"
         description="المبيعات والمخزون والمصروفات والنقدية في مكان واحد."
       >
-        <Button variant="outline" onClick={() => window.print()}>
-          <Download className="size-4" /> تصدير PDF
-        </Button>
+        <Button variant="outline" onClick={() => exportCsv(`sales-report-${from}-${to}`, exportHeaders, dailyRows)}><Download /> CSV</Button>
+        <Button variant="outline" onClick={() => exportExcel(`sales-report-${from}-${to}`, "المبيعات", exportHeaders, dailyRows)}><FileSpreadsheet /> Excel</Button>
       </PageHeader>
       <div className="space-y-5 p-4 sm:p-6" id="report-print-area">
         <div className="surface-card flex flex-wrap items-center gap-3 p-4 print:hidden">
@@ -239,6 +259,10 @@ function ReportsPage() {
                 </SelectItem>
               ))}
             </SelectContent>
+          </Select>
+          <Select value={cashierId} onValueChange={setCashierId}>
+            <SelectTrigger className="w-48"><SelectValue placeholder="الكاشير" /></SelectTrigger>
+            <SelectContent><SelectItem value="all">كل الكاشيرين</SelectItem>{(staff.data ?? []).map((person) => <SelectItem key={person.id} value={person.id}>{person.full_name}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
