@@ -9,6 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
+  head: () => ({
+    meta: [
+      { title: "إعداد المتجر — SmartPOS" },
+      { name: "description", content: "أكمل بيانات متجرك الأساسية لبدء استخدام SmartPOS." },
+      { property: "og:title", content: "إعداد المتجر — SmartPOS" },
+      { property: "og:description", content: "إعداد المتجر والفرع الرئيسي ونقطة البيع." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Onboarding,
 });
 

@@ -321,14 +321,18 @@ export async function localStockMap(): Promise<Record<string, number>> {
 }
 
 /** Apply an offline sale locally: invoice + stock + queue entry, all without internet. */
-export async function recordLocalSale(sale: LocalSale): Promise<void> {
+export async function recordLocalSale(sale: LocalSale, warehouseId?: string): Promise<void> {
   const local = db();
   await local.sales.put(sale);
   for (const item of sale.items) {
     const product = await local.products.get(item.product_id);
     if (!product?.["track_stock"]) continue;
     const rows = await local.inventory.where("product_id").equals(item.product_id).toArray();
-    const row = rows[0];
+    const row = warehouseId
+      ? rows.find((candidate) => candidate["warehouse_id"] === warehouseId)
+      : rows.length === 1
+        ? rows[0]
+        : undefined;
     if (row) {
       await local.inventory.update(row["id"], {
         quantity: Number(row["quantity"]) - item.quantity,

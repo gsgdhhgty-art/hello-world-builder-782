@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -391,33 +391,45 @@ function PosPage() {
         const invoice = `OFF-${localCreatedAt.slice(0, 10).replace(/-/g, "")}-${clientTxnId
           .slice(0, 4)
           .toUpperCase()}`;
-        await recordLocalSale({
-          id: clientTxnId,
-          client_txn_id: clientTxnId,
-          invoice_no: invoice,
-          total: grandTotal,
-          subtotal: totals.subtotal,
-          discount: round2(totals.discount + effCartDiscount),
-          tax: taxTotal,
-          paid,
-          change_due: round2(Math.max(paidNonCredit - grandTotal, 0)),
-          payment_method: base.payment_method,
-          customer_id: customerId === "none" ? null : customerId,
-          cashier_id: profile?.id ?? null,
-          status: "COMPLETED",
-          sync_status: "PENDING",
-          local_created_at: localCreatedAt,
-          created_at: localCreatedAt,
-          items: cart.map((l) => ({
-            product_id: l.product.id,
-            product_name: l.product.name,
-            quantity: l.quantity,
-            unit_price: Number(l.product.price),
-            discount: l.discount,
-            tax: 0,
-            line_total: round2(Number(l.product.price) * l.quantity - l.discount),
-          })),
-        });
+        const warehouses = hasLocalDb() ? await db().warehouses.toArray() : [];
+        const branchId = shiftQuery.data?.branch_id as string | undefined;
+        const warehouse =
+          warehouses.find(
+            (candidate) => candidate["branch_id"] === branchId && candidate["is_active"] !== false,
+          ) ??
+          warehouses.find(
+            (candidate) => !candidate["branch_id"] && candidate["is_active"] !== false,
+          );
+        await recordLocalSale(
+          {
+            id: clientTxnId,
+            client_txn_id: clientTxnId,
+            invoice_no: invoice,
+            total: grandTotal,
+            subtotal: totals.subtotal,
+            discount: round2(totals.discount + effCartDiscount),
+            tax: taxTotal,
+            paid,
+            change_due: round2(Math.max(paidNonCredit - grandTotal, 0)),
+            payment_method: base.payment_method,
+            customer_id: customerId === "none" ? null : customerId,
+            cashier_id: profile?.id ?? null,
+            status: "COMPLETED",
+            sync_status: "PENDING",
+            local_created_at: localCreatedAt,
+            created_at: localCreatedAt,
+            items: cart.map((l) => ({
+              product_id: l.product.id,
+              product_name: l.product.name,
+              quantity: l.quantity,
+              unit_price: Number(l.product.price),
+              discount: l.discount,
+              tax: 0,
+              line_total: round2(Number(l.product.price) * l.quantity - l.discount),
+            })),
+          },
+          warehouse?.["id"] as string | undefined,
+        );
         await enqueue("sale", "CREATE", payload, {
           entity_id: clientTxnId,
           idempotency_key: clientTxnId,
@@ -542,7 +554,7 @@ function PosPage() {
     });
   }, [productsQuery.data, search, category, favorites]);
 
-  function addToCart(p: ProductRow, qty = 1) {
+  const addToCart = useCallback((p: ProductRow, qty = 1) => {
     setCart((prev) => {
       const idx = prev.findIndex((l) => l.product.id === p.id);
       if (idx === -1) return [...prev, { product: p, quantity: qty, discount: 0 }];
@@ -551,7 +563,7 @@ function PosPage() {
       next[idx] = { ...line, quantity: line.quantity + qty };
       return next;
     });
-  }
+  }, []);
 
   function setQty(id: string, qty: number) {
     setCart((prev) =>
@@ -561,20 +573,23 @@ function PosPage() {
     );
   }
 
-  function scanCode(code: string) {
-    const value = code.trim();
-    if (!value) return;
-    const exact = (productsQuery.data ?? []).find((p) => p.barcode === value || p.sku === value);
-    if (exact) {
-      addToCart(exact);
-      setSearch("");
-      searchRef.current?.focus();
-    } else {
-      toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
-      setSearch(value);
-      searchRef.current?.focus();
-    }
-  }
+  const scanCode = useCallback(
+    (code: string) => {
+      const value = code.trim();
+      if (!value) return;
+      const exact = (productsQuery.data ?? []).find((p) => p.barcode === value || p.sku === value);
+      if (exact) {
+        addToCart(exact);
+        setSearch("");
+        searchRef.current?.focus();
+      } else {
+        toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
+        setSearch(value);
+        searchRef.current?.focus();
+      }
+    },
+    [addToCart, productsQuery.data],
+  );
 
   useEffect(() => {
     let buffer = "";
@@ -583,22 +598,20 @@ function PosPage() {
       if (Date.now() - lastKeyAt > 120) buffer = "";
     }, 150);
     const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      const editable =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        (target instanceof HTMLElement && target.isContentEditable);
+      if (editable && target !== searchRef.current) {
+        buffer = "";
+        return;
+      }
       const now = Date.now();
       if (event.key === "Enter") {
         if (buffer.length >= 4 && now - lastKeyAt < 120) {
           event.preventDefault();
-          const value = buffer.trim();
-          const exact = (productsQuery.data ?? []).find(
-            (product) => product.barcode === value || product.sku === value,
-          );
-          if (exact) {
-            addToCart(exact);
-            setSearch("");
-          } else {
-            toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
-            setSearch(value);
-          }
-          searchRef.current?.focus();
+          scanCode(buffer);
         }
         buffer = "";
         return;
@@ -613,7 +626,7 @@ function PosPage() {
       window.clearInterval(reset);
       document.removeEventListener("keydown", onKeyDown, true);
     };
-  }, [productsQuery.data]);
+  }, [scanCode]);
 
   function applyDiscount() {
     if (!discEditor) return;

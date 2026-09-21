@@ -17,7 +17,7 @@ export default defineConfig({
     plugins: [
       // دعم العمل بدون إنترنت: تخزين ملفات التطبيق محليًا حتى يفتح ويعمل بلا شبكة
       VitePWA({
-        registerType: "autoUpdate",
+        registerType: "prompt",
         disable: process.env["NODE_ENV"] !== "production",
         manifest: {
           name: "SmartPOS — نظام نقاط البيع",
