@@ -391,6 +391,15 @@ function PosPage() {
         const invoice = `OFF-${localCreatedAt.slice(0, 10).replace(/-/g, "")}-${clientTxnId
           .slice(0, 4)
           .toUpperCase()}`;
+        const warehouses = hasLocalDb() ? await db().warehouses.toArray() : [];
+        const branchId = shiftQuery.data?.branch_id as string | undefined;
+        const warehouse =
+          warehouses.find(
+            (candidate) => candidate["branch_id"] === branchId && candidate["is_active"] !== false,
+          ) ??
+          warehouses.find(
+            (candidate) => !candidate["branch_id"] && candidate["is_active"] !== false,
+          );
         await recordLocalSale(
           {
             id: clientTxnId,
@@ -419,7 +428,7 @@ function PosPage() {
               line_total: round2(Number(l.product.price) * l.quantity - l.discount),
             })),
           },
-          selectedWarehouseId || undefined,
+          warehouse?.["id"] as string | undefined,
         );
         await enqueue("sale", "CREATE", payload, {
           entity_id: clientTxnId,
