@@ -391,33 +391,36 @@ function PosPage() {
         const invoice = `OFF-${localCreatedAt.slice(0, 10).replace(/-/g, "")}-${clientTxnId
           .slice(0, 4)
           .toUpperCase()}`;
-        await recordLocalSale({
-          id: clientTxnId,
-          client_txn_id: clientTxnId,
-          invoice_no: invoice,
-          total: grandTotal,
-          subtotal: totals.subtotal,
-          discount: round2(totals.discount + effCartDiscount),
-          tax: taxTotal,
-          paid,
-          change_due: round2(Math.max(paidNonCredit - grandTotal, 0)),
-          payment_method: base.payment_method,
-          customer_id: customerId === "none" ? null : customerId,
-          cashier_id: profile?.id ?? null,
-          status: "COMPLETED",
-          sync_status: "PENDING",
-          local_created_at: localCreatedAt,
-          created_at: localCreatedAt,
-          items: cart.map((l) => ({
-            product_id: l.product.id,
-            product_name: l.product.name,
-            quantity: l.quantity,
-            unit_price: Number(l.product.price),
-            discount: l.discount,
-            tax: 0,
-            line_total: round2(Number(l.product.price) * l.quantity - l.discount),
-          })),
-        }, selectedWarehouseId || undefined);
+        await recordLocalSale(
+          {
+            id: clientTxnId,
+            client_txn_id: clientTxnId,
+            invoice_no: invoice,
+            total: grandTotal,
+            subtotal: totals.subtotal,
+            discount: round2(totals.discount + effCartDiscount),
+            tax: taxTotal,
+            paid,
+            change_due: round2(Math.max(paidNonCredit - grandTotal, 0)),
+            payment_method: base.payment_method,
+            customer_id: customerId === "none" ? null : customerId,
+            cashier_id: profile?.id ?? null,
+            status: "COMPLETED",
+            sync_status: "PENDING",
+            local_created_at: localCreatedAt,
+            created_at: localCreatedAt,
+            items: cart.map((l) => ({
+              product_id: l.product.id,
+              product_name: l.product.name,
+              quantity: l.quantity,
+              unit_price: Number(l.product.price),
+              discount: l.discount,
+              tax: 0,
+              line_total: round2(Number(l.product.price) * l.quantity - l.discount),
+            })),
+          },
+          selectedWarehouseId || undefined,
+        );
         await enqueue("sale", "CREATE", payload, {
           entity_id: clientTxnId,
           idempotency_key: clientTxnId,

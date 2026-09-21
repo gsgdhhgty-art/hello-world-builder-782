@@ -49,9 +49,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          تعذر تحميل الصفحة
-        </h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">تعذر تحميل الصفحة</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           حدث خطأ غير متوقع. أعد المحاولة أو ارجع إلى الصفحة الرئيسية.
         </p>
