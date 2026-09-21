@@ -99,6 +99,41 @@ export type Database = {
           },
         ]
       }
+      brands: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brands_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -334,9 +369,12 @@ export type Database = {
           currency: string
           feature_flags: Json
           id: string
+          low_stock_alerts_enabled: boolean
+          low_stock_include_out_of_stock: boolean
           name: string
           owner_id: string
           phone: string | null
+          reorder_suggestion_multiplier: number
           tax_number: string | null
           tax_rate: number
           updated_at: string
@@ -348,9 +386,12 @@ export type Database = {
           currency?: string
           feature_flags?: Json
           id?: string
+          low_stock_alerts_enabled?: boolean
+          low_stock_include_out_of_stock?: boolean
           name: string
           owner_id: string
           phone?: string | null
+          reorder_suggestion_multiplier?: number
           tax_number?: string | null
           tax_rate?: number
           updated_at?: string
@@ -362,9 +403,12 @@ export type Database = {
           currency?: string
           feature_flags?: Json
           id?: string
+          low_stock_alerts_enabled?: boolean
+          low_stock_include_out_of_stock?: boolean
           name?: string
           owner_id?: string
           phone?: string | null
+          reorder_suggestion_multiplier?: number
           tax_number?: string | null
           tax_rate?: number
           updated_at?: string
@@ -400,6 +444,7 @@ export type Database = {
       products: {
         Row: {
           barcode: string | null
+          brand_id: string | null
           category_id: string | null
           cost: number
           created_at: string
@@ -422,6 +467,7 @@ export type Database = {
         }
         Insert: {
           barcode?: string | null
+          brand_id?: string | null
           category_id?: string | null
           cost?: number
           created_at?: string
@@ -444,6 +490,7 @@ export type Database = {
         }
         Update: {
           barcode?: string | null
+          brand_id?: string | null
           category_id?: string | null
           cost?: number
           created_at?: string
@@ -465,6 +512,13 @@ export type Database = {
           wholesale_price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "products_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_category_id_fkey"
             columns: ["category_id"]
@@ -1471,6 +1525,35 @@ export type Database = {
         Returns: Json
       }
       receive_purchase: { Args: { _payload: Json }; Returns: Json }
+      report_daily_sales: {
+        Args: {
+          _branch_id?: string
+          _cashier_id?: string
+          _from: string
+          _to: string
+        }
+        Returns: {
+          day: string
+          invoice_count: number
+          sales_total: number
+          tax_total: number
+        }[]
+      }
+      report_top_products: {
+        Args: {
+          _branch_id?: string
+          _cashier_id?: string
+          _from: string
+          _to: string
+        }
+        Returns: {
+          product_id: string
+          product_name: string
+          profit: number
+          quantity: number
+          sales_total: number
+        }[]
+      }
     }
     Enums: {
       app_role:
