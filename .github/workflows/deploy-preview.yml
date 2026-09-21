@@ -11,10 +11,10 @@ concurrency:
 jobs:
   preview:
     name: Build preview bundle
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: preview
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -31,7 +31,7 @@ jobs:
           VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
 
       - name: Upload preview artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: preview-build-${{ github.event.pull_request.number }}
           path: .output
