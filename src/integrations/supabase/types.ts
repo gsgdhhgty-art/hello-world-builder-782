@@ -913,6 +913,83 @@ export type Database = {
           },
         ]
       }
+      sale_exchanges: {
+        Row: {
+          amount_due: number
+          created_at: string
+          id: string
+          note: string | null
+          org_id: string
+          original_sale_id: string
+          refund_due: number
+          replacement_sale_id: string
+          replacement_total: number
+          return_id: string
+          returned_total: number
+          settlement_method: string
+          user_id: string
+        }
+        Insert: {
+          amount_due?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          org_id: string
+          original_sale_id: string
+          refund_due?: number
+          replacement_sale_id: string
+          replacement_total?: number
+          return_id: string
+          returned_total?: number
+          settlement_method?: string
+          user_id: string
+        }
+        Update: {
+          amount_due?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          org_id?: string
+          original_sale_id?: string
+          refund_due?: number
+          replacement_sale_id?: string
+          replacement_total?: number
+          return_id?: string
+          returned_total?: number
+          settlement_method?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_exchanges_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_exchanges_original_sale_id_fkey"
+            columns: ["original_sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_exchanges_replacement_sale_id_fkey"
+            columns: ["replacement_sale_id"]
+            isOneToOne: true
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_exchanges_return_id_fkey"
+            columns: ["return_id"]
+            isOneToOne: true
+            referencedRelation: "sale_returns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sale_items: {
         Row: {
           created_at: string
@@ -1496,6 +1573,16 @@ export type Database = {
       }
       close_shift: {
         Args: { _closing_cash: number; _note?: string; _shift_id: string }
+        Returns: Json
+      }
+      create_exchange: {
+        Args: {
+          _note?: string
+          _replacement_items: Json
+          _return_items: Json
+          _sale_id: string
+          _settlement_method?: string
+        }
         Returns: Json
       }
       create_return: {
