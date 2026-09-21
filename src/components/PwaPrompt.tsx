@@ -31,7 +31,9 @@ export function PwaPrompt() {
           {isUpdate ? "يتوفر تحديث جديد" : "ثبّت SmartPOS على جهازك"}
         </p>
         <p className="text-xs text-muted-foreground">
-          {isUpdate ? "حدّث الملفات بأمان للحصول على أحدث نسخة." : "افتحه كتطبيق مستقل للعمل بسرعة."}
+          {isUpdate
+            ? "حدّث الملفات بأمان للحصول على أحدث نسخة."
+            : "افتحه كتطبيق مستقل للعمل بسرعة."}
         </p>
       </div>
       <Button

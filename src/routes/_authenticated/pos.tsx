@@ -561,20 +561,23 @@ function PosPage() {
     );
   }
 
-  const scanCode = useCallback((code: string) => {
-    const value = code.trim();
-    if (!value) return;
-    const exact = (productsQuery.data ?? []).find((p) => p.barcode === value || p.sku === value);
-    if (exact) {
-      addToCart(exact);
-      setSearch("");
-      searchRef.current?.focus();
-    } else {
-      toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
-      setSearch(value);
-      searchRef.current?.focus();
-    }
-  }, [addToCart, productsQuery.data]);
+  const scanCode = useCallback(
+    (code: string) => {
+      const value = code.trim();
+      if (!value) return;
+      const exact = (productsQuery.data ?? []).find((p) => p.barcode === value || p.sku === value);
+      if (exact) {
+        addToCart(exact);
+        setSearch("");
+        searchRef.current?.focus();
+      } else {
+        toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
+        setSearch(value);
+        searchRef.current?.focus();
+      }
+    },
+    [addToCart, productsQuery.data],
+  );
 
   useEffect(() => {
     let buffer = "";
