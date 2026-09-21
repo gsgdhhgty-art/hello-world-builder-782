@@ -42,8 +42,8 @@ export function PwaInstallControl() {
           <DialogHeader>
             <DialogTitle>إضافة SmartPOS إلى الشاشة الرئيسية</DialogTitle>
             <DialogDescription>
-              هذا المتصفح لا يوفّر نافذة تثبيت تلقائية. افتح قائمة المتصفح ثم اختر «إضافة إلى
-              الشاشة الرئيسية» أو «تثبيت التطبيق».
+              هذا المتصفح لا يوفّر نافذة تثبيت تلقائية. افتح قائمة المتصفح ثم اختر «إضافة إلى الشاشة
+              الرئيسية» أو «تثبيت التطبيق».
             </DialogDescription>
           </DialogHeader>
           <Button variant="outline" onClick={() => setInstructionsOpen(false)}>
