@@ -294,7 +294,7 @@ function ReportsPage() {
           <Stat
             icon={TrendingUp}
             label="صافي الأداء"
-             value={money(reportedProfit - expenseTotal, currency)}
+            value={money(reportedProfit - expenseTotal, currency)}
             sub={`مصروفات ${money(expenseTotal, currency)}`}
           />
           <Stat
@@ -332,11 +332,11 @@ function ReportsPage() {
             <ReportTable
               title="أفضل المنتجات"
               heads={["الصنف", "الكمية", "المبيعات", ...(can("profit.view") ? ["الربح"] : [])]}
-               rows={(topProductsQuery.data ?? []).map((value) => [
-                 value.product_name,
-                 num(value.quantity),
-                 money(value.sales_total, currency),
-                 ...(can("profit.view") ? [money(value.profit ?? 0, currency)] : []),
+              rows={(topProductsQuery.data ?? []).map((value) => [
+                value.product_name,
+                num(value.quantity),
+                money(value.sales_total, currency),
+                ...(can("profit.view") ? [money(value.profit ?? 0, currency)] : []),
               ])}
             />
           </TabsContent>
