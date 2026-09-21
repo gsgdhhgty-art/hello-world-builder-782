@@ -35,6 +35,8 @@ export function CameraScanner({
             videoRef.current,
             (result) => {
               if (!result || cancelled) return;
+              cancelled = true;
+              controls?.stop();
               onDetected(result.getText());
               onOpenChange(false);
             },
@@ -59,7 +61,9 @@ export function CameraScanner({
           try {
             const codes = await detector.detect(videoRef.current);
             const raw = codes?.[0]?.rawValue;
-            if (raw) {
+            if (raw && !cancelled) {
+              cancelled = true;
+              if (timer) clearInterval(timer);
               onDetected(String(raw));
               onOpenChange(false);
             }

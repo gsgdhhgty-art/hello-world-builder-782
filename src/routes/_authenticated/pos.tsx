@@ -417,7 +417,7 @@ function PosPage() {
             tax: 0,
             line_total: round2(Number(l.product.price) * l.quantity - l.discount),
           })),
-        });
+        }, selectedWarehouseId || undefined);
         await enqueue("sale", "CREATE", payload, {
           entity_id: clientTxnId,
           idempotency_key: clientTxnId,
