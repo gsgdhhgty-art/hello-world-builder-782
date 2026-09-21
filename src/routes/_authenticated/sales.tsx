@@ -296,7 +296,7 @@ function SalesPage() {
         line_total: Number(item.line_total),
       })),
     };
-    printReceipt(
+    const opened = printReceipt(
       receipt,
       {
         name: org?.name ?? "متجري",
@@ -307,6 +307,7 @@ function SalesPage() {
       currency,
       paper,
     );
+    if (!opened) toast.error("اسمح بالنوافذ المنبثقة لطباعة الفاتورة");
   }
 
   return (

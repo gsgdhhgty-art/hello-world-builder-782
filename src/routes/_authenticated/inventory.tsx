@@ -17,6 +17,7 @@ import { PageHeader } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -80,6 +81,8 @@ function InventoryPage() {
   const [note, setNote] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [multiplier, setMultiplier] = useState(String(org?.reorder_suggestion_multiplier ?? 2));
+  const [alertsEnabled, setAlertsEnabled] = useState(org?.low_stock_alerts_enabled ?? true);
+  const [includeOut, setIncludeOut] = useState(org?.low_stock_include_out_of_stock ?? true);
 
   const warehouses = useQuery({
     queryKey: ["warehouses"],
@@ -183,7 +186,8 @@ function InventoryPage() {
         .from("organizations")
         .update({
           reorder_suggestion_multiplier: Math.max(1, Number(multiplier) || 2),
-          low_stock_alerts_enabled: true,
+          low_stock_alerts_enabled: alertsEnabled,
+          low_stock_include_out_of_stock: includeOut,
         })
         .eq("id", org.id);
       if (error) throw error;
@@ -530,7 +534,9 @@ function InventoryPage() {
           <DialogHeader>
             <DialogTitle>إعداد تنبيهات المخزون</DialogTitle>
           </DialogHeader>
-          <div className="space-y-2">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-lg border p-3"><Label htmlFor="alerts-enabled">إظهار تنبيهات المخزون</Label><Switch id="alerts-enabled" checked={alertsEnabled} onCheckedChange={setAlertsEnabled} /></div>
+            <div className="flex items-center justify-between rounded-lg border p-3"><Label htmlFor="include-out">تضمين الأصناف النافدة</Label><Switch id="include-out" checked={includeOut} onCheckedChange={setIncludeOut} disabled={!alertsEnabled} /></div>
             <Label htmlFor="restock-multiplier">مضاعف الكمية المقترحة</Label>
             <Input
               id="restock-multiplier"
