@@ -12,6 +12,7 @@ import {
   Plus,
   Search,
   Star,
+  Sparkles,
   Trash2,
   UserPlus,
   X,
@@ -49,6 +50,7 @@ import { localFirst } from "@/lib/offline/local-first";
 import { enqueue, isOnline, localStockMap, recordLocalSale } from "@/lib/offline/sync";
 import { useOffline } from "@/hooks/useOffline";
 import { resolveProductImages } from "@/lib/product-images";
+import { AiSuggestDialog } from "@/components/pos/AiSuggestDialog";
 
 export const Route = createFileRoute("/_authenticated/pos")({
   head: () => ({
@@ -123,6 +125,7 @@ function PosPage() {
   } | null>(null);
   const [cartDiscount, setCartDiscount] = useState(0);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
 
   useEffect(() => {
     if (!hasLocalDb()) return;
@@ -735,6 +738,16 @@ function PosPage() {
           >
             <Camera className="size-5" />
           </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-12 shrink-0 border-primary/20 text-primary"
+            onClick={() => setAiOpen(true)}
+            aria-label="اقتراح منتجات بالذكاء الاصطناعي"
+            title="اقتراح منتجات من وصف العميل"
+          >
+            <Sparkles className="size-5" />
+          </Button>
         </div>
 
         <div className="flex gap-2 overflow-x-auto border-y border-border/70 bg-muted/30 p-2 scroll-slim">
@@ -1001,6 +1014,17 @@ function PosPage() {
       </aside>
 
       <CameraScanner open={scannerOpen} onOpenChange={setScannerOpen} onDetected={scanCode} />
+      <AiSuggestDialog
+        open={aiOpen}
+        onOpenChange={setAiOpen}
+        products={productsQuery.data ?? []}
+        currency={currency}
+        online={online}
+        onAdd={(id) => {
+          const product = productsQuery.data?.find((item) => item.id === id);
+          if (product) addToCart(product);
+        }}
+      />
 
       <PaymentDialog
         open={payOpen}

@@ -78,6 +78,7 @@ interface Product {
   is_active: boolean;
   category_id: string | null;
   supplier_id: string | null;
+  brand_id: string | null;
   description: string | null;
   expires_at: string | null;
   image_url: string | null;
@@ -100,6 +101,7 @@ const EMPTY = {
   is_active: true,
   category_id: "none",
   supplier_id: "none",
+  brand_id: "none",
   description: "",
   expires_at: "",
 };
@@ -136,7 +138,7 @@ function ProductsPage() {
       const { data, error } = await supabase
         .from("products")
         .select(
-          "id, name, sku, barcode, unit, cost, price, wholesale_price, tax_rate, track_stock, reorder_level, is_active, category_id, supplier_id, description, expires_at, image_url, created_at, updated_at",
+          "id, name, sku, barcode, unit, cost, price, wholesale_price, tax_rate, track_stock, reorder_level, is_active, category_id, supplier_id, brand_id, description, expires_at, image_url, created_at, updated_at",
         )
         .order("updated_at", { ascending: false });
       if (error) throw error;
@@ -163,6 +165,17 @@ function ProductsPage() {
     queryKey: ["suppliers-lite"],
     queryFn: async () => {
       const { data, error } = await supabase.from("suppliers").select("id, name").order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const brands = useQuery({
+    queryKey: ["brands"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("brands")
+        .select("id, name, description")
+        .order("name");
       if (error) throw error;
       return data ?? [];
     },
@@ -209,6 +222,7 @@ function ProductsPage() {
         is_active: form.is_active,
         category_id: form.category_id === "none" ? null : form.category_id,
         supplier_id: form.supplier_id === "none" ? null : form.supplier_id,
+        brand_id: form.brand_id === "none" ? null : form.brand_id,
         description: form.description.trim() || null,
         expires_at: form.expires_at || null,
         image_url: nextImage,
@@ -343,6 +357,7 @@ function ProductsPage() {
       is_active: product.is_active,
       category_id: product.category_id ?? "none",
       supplier_id: product.supplier_id ?? "none",
+      brand_id: product.brand_id ?? "none",
       description: product.description ?? "",
       expires_at: product.expires_at ?? "",
     });
@@ -772,6 +787,24 @@ function ProductsPage() {
                     {(suppliers.data ?? []).map((supplier) => (
                       <SelectItem key={supplier.id} value={supplier.id}>
                         {supplier.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="العلامة التجارية">
+                <Select
+                  value={form.brand_id}
+                  onValueChange={(value) => setForm({ ...form, brand_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">بدون علامة</SelectItem>
+                    {(brands.data ?? []).map((brand) => (
+                      <SelectItem key={brand.id} value={brand.id}>
+                        {brand.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Eye, Printer, Search, Undo2 } from "lucide-react";
+import { Download, Eye, FileSpreadsheet, Printer, Search, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,6 +35,7 @@ import {
 import { dateTime, money, num, PAYMENT_LABELS } from "@/lib/format";
 import { db, hasLocalDb, type LocalSale } from "@/lib/offline/db";
 import { printReceipt, type ReceiptData } from "@/components/pos/ReceiptDialog";
+import { exportCsv, exportExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/sales")({
   head: () => ({
@@ -101,6 +102,8 @@ function SalesPage() {
   const [branchId, setBranchId] = useState("all");
   const [status, setStatus] = useState("all");
   const [payment, setPayment] = useState("all");
+  const [cashierId, setCashierId] = useState("all");
+  const [paper, setPaper] = useState<"58" | "80">("80");
   const [search, setSearch] = useState("");
   const [openSale, setOpenSale] = useState<SaleRow | null>(null);
   const [returnQty, setReturnQty] = useState<Record<string, string>>({});
@@ -139,7 +142,7 @@ function SalesPage() {
   });
 
   const sales = useQuery({
-    queryKey: ["sales", from, to, branchId, status, payment],
+    queryKey: ["sales", from, to, branchId, status, payment, cashierId],
     queryFn: async (): Promise<SaleRow[]> => {
       let query = supabase
         .from("sales")
@@ -157,6 +160,7 @@ function SalesPage() {
           status as "COMPLETED" | "REFUNDED" | "PARTIALLY_REFUNDED" | "VOID",
         );
       if (payment !== "all") query = query.eq("payment_method", payment);
+      if (cashierId !== "all") query = query.eq("cashier_id", cashierId);
       const { data, error } = await query;
       if (error) throw error;
       const cloud = (data ?? []) as SaleRow[];
@@ -244,6 +248,26 @@ function SalesPage() {
     staff.data?.find((item) => item.id === openSale?.cashier_id)?.full_name ?? "—";
   const selectedBranch =
     branches.data?.find((item) => item.id === openSale?.branch_id)?.name ?? "—";
+  const exportHeaders = [
+    "الفاتورة",
+    "التاريخ",
+    "الفرع",
+    "الكاشير",
+    "طريقة الدفع",
+    "الضريبة",
+    "الإجمالي",
+    "الحالة",
+  ];
+  const exportRows = filtered.map((sale) => [
+    sale.invoice_no,
+    dateTime(sale.created_at),
+    branches.data?.find((item) => item.id === sale.branch_id)?.name ?? "محلي",
+    staff.data?.find((item) => item.id === sale.cashier_id)?.full_name ?? "—",
+    PAYMENT_LABELS[sale.payment_method] ?? sale.payment_method,
+    Number(sale.tax),
+    Number(sale.total),
+    STATUS_LABELS[sale.status] ?? sale.status,
+  ]);
 
   function printSelected() {
     if (!openSale || !detail.data) return;
@@ -272,7 +296,7 @@ function SalesPage() {
         line_total: Number(item.line_total),
       })),
     };
-    printReceipt(
+    const opened = printReceipt(
       receipt,
       {
         name: org?.name ?? "متجري",
@@ -281,14 +305,31 @@ function SalesPage() {
         tax_number: org?.tax_number,
       },
       currency,
+      paper,
     );
+    if (!opened) toast.error("اسمح بالنوافذ المنبثقة لطباعة الفاتورة");
   }
 
   return (
     <div>
-      <PageHeader title="المبيعات" description="ابحث وصفِّ وراجع كل فاتورة ودفعاتها." />
+      <PageHeader title="المبيعات" description="ابحث وصفِّ وراجع كل فاتورة ودفعاتها.">
+        <Button
+          variant="outline"
+          onClick={() => exportCsv(`invoices-${from}-${to}`, exportHeaders, exportRows)}
+        >
+          <Download /> CSV
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            exportExcel(`invoices-${from}-${to}`, "الفواتير", exportHeaders, exportRows)
+          }
+        >
+          <FileSpreadsheet /> Excel
+        </Button>
+      </PageHeader>
       <div className="space-y-4 p-4 sm:p-6">
-        <div className="surface-card grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-6">
+        <div className="surface-card grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-7">
           <div className="relative md:col-span-2">
             <Search className="absolute start-3 top-3 size-4 text-muted-foreground" />
             <Input
@@ -319,6 +360,19 @@ function SalesPage() {
               {(branches.data ?? []).map((branch) => (
                 <SelectItem key={branch.id} value={branch.id}>
                   {branch.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={cashierId} onValueChange={setCashierId}>
+            <SelectTrigger>
+              <SelectValue placeholder="الكاشير" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الكاشيرين</SelectItem>
+              {(staff.data ?? []).map((person) => (
+                <SelectItem key={person.id} value={person.id}>
+                  {person.full_name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -520,6 +574,15 @@ function SalesPage() {
             <Button variant="outline" onClick={() => setOpenSale(null)}>
               إغلاق
             </Button>
+            <Select value={paper} onValueChange={(value) => setPaper(value as "58" | "80")}>
+              <SelectTrigger className="w-28">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="58">58 مم</SelectItem>
+                <SelectItem value="80">80 مم</SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="outline" onClick={printSelected} disabled={!detail.data}>
               <Printer className="size-4" /> طباعة
             </Button>

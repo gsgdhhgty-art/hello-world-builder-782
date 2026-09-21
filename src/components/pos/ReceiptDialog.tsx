@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,7 +56,12 @@ function escapeHtml(value: string) {
 }
 
 /** Local receipt printing — works with no internet (browser print dialog only). */
-export function printReceipt(receipt: ReceiptData, business: ReceiptBusiness, currency: string) {
+export function printReceipt(
+  receipt: ReceiptData,
+  business: ReceiptBusiness,
+  currency: string,
+  paper: "58" | "80" = "80",
+) {
   const rows = receipt.items
     .map(
       (i) =>
@@ -65,10 +70,10 @@ export function printReceipt(receipt: ReceiptData, business: ReceiptBusiness, cu
     .join("");
   const html = `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8">
   <title>${receipt.invoice_no}</title><style>
-  body{font-family:system-ui,sans-serif;width:80mm;margin:0 auto;padding:8px;font-size:12px}
+  @page{size:${paper}mm auto;margin:0}*{box-sizing:border-box}body{font-family:system-ui,sans-serif;width:${paper}mm;margin:0 auto;padding:${paper === "58" ? "4px" : "8px"};font-size:${paper === "58" ? "10px" : "12px"};color:#000}
   h1{font-size:18px;text-align:center;margin:4px 0}.brand{text-align:center;margin-bottom:8px}.brand div{margin:1px 0}
   table{width:100%;border-collapse:collapse;margin-top:8px}
-  th,td{text-align:start;padding:2px 0;font-size:11px}
+  th,td{text-align:start;padding:3px 2px;font-size:${paper === "58" ? "9px" : "11px"};vertical-align:top}th{border-bottom:1px solid #000}.total{font-size:14px}
   tfoot td{border-top:1px dashed #000;padding-top:4px;font-weight:700}
   .c{text-align:center}.muted{color:#555;font-size:11px}small{display:block;color:#666;font-size:9px}.payments{border-top:1px dashed #000;margin-top:8px;padding-top:5px}.payment{display:flex;justify-content:space-between}
   </style></head><body>
@@ -86,7 +91,7 @@ export function printReceipt(receipt: ReceiptData, business: ReceiptBusiness, cu
     <tr><td colspan="3">الإجمالي الفرعي</td><td>${money(receipt.subtotal, currency)}</td></tr>
     <tr><td colspan="3">الخصم</td><td>${money(receipt.discount, currency)}</td></tr>
     <tr><td colspan="3">الضريبة</td><td>${money(receipt.tax, currency)}</td></tr>
-    <tr><td colspan="3">الإجمالي</td><td>${money(receipt.total, currency)}</td></tr>
+     <tr class="total"><td colspan="3">الإجمالي شامل الضريبة</td><td>${money(receipt.total, currency)}</td></tr>
     <tr><td colspan="3">المدفوع</td><td>${money(receipt.paid, currency)}</td></tr>
     <tr><td colspan="3">الباقي</td><td>${money(receipt.change_due, currency)}</td></tr>
     ${receipt.credit ? `<tr><td colspan="3">آجل</td><td>${money(receipt.credit, currency)}</td></tr>` : ""}
@@ -95,9 +100,10 @@ export function printReceipt(receipt: ReceiptData, business: ReceiptBusiness, cu
   <script>window.onload=function(){window.print();}</script>
   </body></html>`;
   const w = window.open("", "_blank", "width=380,height=600");
-  if (!w) return;
+  if (!w) return false;
   w.document.write(html);
   w.document.close();
+  return true;
 }
 
 export function ReceiptDialog({
@@ -111,6 +117,7 @@ export function ReceiptDialog({
   business: ReceiptBusiness;
   currency: string;
 }) {
+  const [paper, setPaper] = useState<"58" | "80">("80");
   // تنظيف بعد إغلاق النافذة حتى تبقى الشاشة قابلة للاستخدام فورًا
   useEffect(() => {
     if (!receipt) document.body.style.pointerEvents = "";
@@ -148,19 +155,21 @@ export function ReceiptDialog({
                 </div>
               )}
             </div>
-            <div className="max-h-44 overflow-y-auto rounded-lg border">
-              <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 border-b bg-muted/40 px-3 py-2 text-xs font-bold text-muted-foreground">
+            <div className="max-h-56 overflow-y-auto rounded-lg border">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] gap-2 border-b bg-muted/40 px-3 py-2 text-xs font-bold text-muted-foreground">
                 <span>الصنف</span>
                 <span>الكمية</span>
+                <span>السعر</span>
                 <span>الإجمالي</span>
               </div>
               {receipt.items.map((item, index) => (
                 <div
                   key={`${item.name}-${index}`}
-                  className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 border-b px-3 py-2 last:border-0"
+                  className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] gap-2 border-b px-3 py-2 last:border-0"
                 >
                   <span className="min-w-0 truncate font-semibold">{item.name}</span>
                   <span className="tabular-nums">{num(item.quantity)}</span>
+                  <span className="tabular-nums">{money(item.unit_price, currency)}</span>
                   <span className="font-bold tabular-nums">{money(item.line_total, currency)}</span>
                 </div>
               ))}
@@ -169,6 +178,8 @@ export function ReceiptDialog({
               <ReceiptRow label="الإجمالي الفرعي" value={money(receipt.subtotal, currency)} />
               <ReceiptRow label="الخصم" value={money(receipt.discount, currency)} />
               <ReceiptRow label="الضريبة" value={money(receipt.tax, currency)} />
+              <div className="my-2 border-t" />
+              <ReceiptRow label="الإجمالي شامل الضريبة" value={money(receipt.total, currency)} />
               <ReceiptRow label="المدفوع" value={money(receipt.paid, currency)} />
               {receipt.payments.map((payment, index) => (
                 <ReceiptRow
@@ -186,10 +197,31 @@ export function ReceiptDialog({
           </div>
         )}
         <DialogFooter>
+          <div className="me-auto flex rounded-md border p-1">
+            <Button
+              size="sm"
+              variant={paper === "58" ? "default" : "ghost"}
+              onClick={() => setPaper("58")}
+            >
+              58 مم
+            </Button>
+            <Button
+              size="sm"
+              variant={paper === "80" ? "default" : "ghost"}
+              onClick={() => setPaper("80")}
+            >
+              80 مم
+            </Button>
+          </div>
           <Button variant="outline" onClick={onClose}>
             فاتورة جديدة
           </Button>
-          <Button onClick={() => receipt && printReceipt(receipt, business, currency)}>
+          <Button
+            onClick={() => {
+              if (receipt && !printReceipt(receipt, business, currency, paper))
+                window.alert("اسمح بالنوافذ المنبثقة لطباعة الإيصال.");
+            }}
+          >
             <Printer className="size-4" /> طباعة الإيصال
           </Button>
         </DialogFooter>
