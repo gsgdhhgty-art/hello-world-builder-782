@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -542,7 +542,7 @@ function PosPage() {
     });
   }, [productsQuery.data, search, category, favorites]);
 
-  function addToCart(p: ProductRow, qty = 1) {
+  const addToCart = useCallback((p: ProductRow, qty = 1) => {
     setCart((prev) => {
       const idx = prev.findIndex((l) => l.product.id === p.id);
       if (idx === -1) return [...prev, { product: p, quantity: qty, discount: 0 }];
@@ -551,7 +551,7 @@ function PosPage() {
       next[idx] = { ...line, quantity: line.quantity + qty };
       return next;
     });
-  }
+  }, []);
 
   function setQty(id: string, qty: number) {
     setCart((prev) =>
@@ -561,7 +561,7 @@ function PosPage() {
     );
   }
 
-  function scanCode(code: string) {
+  const scanCode = useCallback((code: string) => {
     const value = code.trim();
     if (!value) return;
     const exact = (productsQuery.data ?? []).find((p) => p.barcode === value || p.sku === value);
@@ -574,7 +574,7 @@ function PosPage() {
       setSearch(value);
       searchRef.current?.focus();
     }
-  }
+  }, [addToCart, productsQuery.data]);
 
   useEffect(() => {
     let buffer = "";
@@ -583,22 +583,20 @@ function PosPage() {
       if (Date.now() - lastKeyAt > 120) buffer = "";
     }, 150);
     const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      const editable =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        (target instanceof HTMLElement && target.isContentEditable);
+      if (editable && target !== searchRef.current) {
+        buffer = "";
+        return;
+      }
       const now = Date.now();
       if (event.key === "Enter") {
         if (buffer.length >= 4 && now - lastKeyAt < 120) {
           event.preventDefault();
-          const value = buffer.trim();
-          const exact = (productsQuery.data ?? []).find(
-            (product) => product.barcode === value || product.sku === value,
-          );
-          if (exact) {
-            addToCart(exact);
-            setSearch("");
-          } else {
-            toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
-            setSearch(value);
-          }
-          searchRef.current?.focus();
+          scanCode(buffer);
         }
         buffer = "";
         return;
@@ -613,7 +611,7 @@ function PosPage() {
       window.clearInterval(reset);
       document.removeEventListener("keydown", onKeyDown, true);
     };
-  }, [productsQuery.data]);
+  }, [scanCode]);
 
   function applyDiscount() {
     if (!discEditor) return;

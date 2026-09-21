@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
+import { PwaPrompt } from "@/components/PwaPrompt";
 import { registerOfflineSupport } from "@/lib/pwa";
 
 function NotFoundComponent() {
@@ -141,6 +142,7 @@ function RootComponent() {
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <Toaster richColors position="top-center" />
+        <PwaPrompt />
       </AuthProvider>
     </QueryClientProvider>
   );
