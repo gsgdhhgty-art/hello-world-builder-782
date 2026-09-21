@@ -264,6 +264,7 @@ function InventoryPage() {
               </SelectContent>
             </Select>
           </div>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -358,6 +359,7 @@ function InventoryPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </div>
 
         <div className="workspace-card overflow-hidden">
@@ -367,6 +369,7 @@ function InventoryPage() {
               الوارد والمنصرف والمرتجعات وتسويات الجرد
             </p>
           </div>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -408,6 +411,7 @@ function InventoryPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </div>
       </div>
 

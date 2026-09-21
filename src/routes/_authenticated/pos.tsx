@@ -587,7 +587,18 @@ function PosPage() {
       if (event.key === "Enter") {
         if (buffer.length >= 4 && now - lastKeyAt < 120) {
           event.preventDefault();
-          scanCode(buffer);
+          const value = buffer.trim();
+          const exact = (productsQuery.data ?? []).find(
+            (product) => product.barcode === value || product.sku === value,
+          );
+          if (exact) {
+            addToCart(exact);
+            setSearch("");
+          } else {
+            toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
+            setSearch(value);
+          }
+          searchRef.current?.focus();
         }
         buffer = "";
         return;

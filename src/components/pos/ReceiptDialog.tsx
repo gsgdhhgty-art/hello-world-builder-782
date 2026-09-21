@@ -126,11 +126,13 @@ export function ReceiptDialog({
           </DialogTitle>
         </DialogHeader>
         {receipt && (
-          <div className="space-y-2 text-sm">
-            <div className="rounded-xl border bg-muted/40 p-4 text-center">
-              <div className="text-xs text-muted-foreground">فاتورة</div>
+          <div className="space-y-4 text-sm">
+            <div className="rounded-lg border bg-muted/30 p-4 text-center">
+              <div className="font-black text-primary">{business.name}</div>
+              <div className="mt-2 text-xs text-muted-foreground">فاتورة مبيعات</div>
               <div className="text-xl font-black">{receipt.invoice_no}</div>
-              <div className="mt-2 text-2xl font-black text-primary">
+              <div className="mt-1 text-xs text-muted-foreground">{dateTime(receipt.created_at)}</div>
+              <div className="mt-3 text-3xl font-black text-primary">
                 {money(receipt.total, currency)}
               </div>
               {receipt.change_due > 0 && (
@@ -144,11 +146,26 @@ export function ReceiptDialog({
                 </div>
               )}
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">طريقة الدفع</span>
-              <span className="font-semibold">
-                {PAYMENT_LABELS[receipt.payment_method] ?? receipt.payment_method}
-              </span>
+            <div className="max-h-44 overflow-y-auto rounded-lg border">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 border-b bg-muted/40 px-3 py-2 text-xs font-bold text-muted-foreground">
+                <span>الصنف</span><span>الكمية</span><span>الإجمالي</span>
+              </div>
+              {receipt.items.map((item, index) => (
+                <div key={`${item.name}-${index}`} className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 border-b px-3 py-2 last:border-0">
+                  <span className="min-w-0 truncate font-semibold">{item.name}</span>
+                  <span className="tabular-nums">{num(item.quantity)}</span>
+                  <span className="font-bold tabular-nums">{money(item.line_total, currency)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-1 rounded-lg border p-3">
+              <ReceiptRow label="الإجمالي الفرعي" value={money(receipt.subtotal, currency)} />
+              <ReceiptRow label="الخصم" value={money(receipt.discount, currency)} />
+              <ReceiptRow label="الضريبة" value={money(receipt.tax, currency)} />
+              <ReceiptRow label="المدفوع" value={money(receipt.paid, currency)} />
+              {receipt.payments.map((payment, index) => (
+                <ReceiptRow key={`${payment.method}-${index}`} label={PAYMENT_LABELS[payment.method] ?? payment.method} value={money(payment.amount, currency)} />
+              ))}
             </div>
             {receipt.offline && (
               <p className="rounded-lg bg-amber-500/10 p-2 text-xs font-semibold text-amber-600 dark:text-amber-400">
@@ -168,4 +185,8 @@ export function ReceiptDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+function ReceiptRow({ label, value }: { label: string; value: string }) {
+  return <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{label}</span><span className="font-bold tabular-nums">{value}</span></div>;
 }
