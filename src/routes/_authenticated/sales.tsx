@@ -39,9 +39,9 @@ import { printReceipt, type ReceiptData } from "@/components/pos/ReceiptDialog";
 export const Route = createFileRoute("/_authenticated/sales")({
   head: () => ({
     meta: [
-      { title: "الفواتير — كاشير كلاود" },
+      { title: "الفواتير — SmartPOS" },
       { name: "description", content: "سجل مبيعات متقدم مع فلاتر وتفاصيل كاملة لكل فاتورة." },
-      { property: "og:title", content: "الفواتير — كاشير كلاود" },
+      { property: "og:title", content: "الفواتير — SmartPOS" },
       { property: "og:description", content: "استعراض الفواتير والعملاء والأصناف والدفعات." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

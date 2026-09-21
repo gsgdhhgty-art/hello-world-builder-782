@@ -31,9 +31,9 @@ import {
 export const Route = createFileRoute("/_authenticated/shifts")({
   head: () => ({
     meta: [
-      { title: "الورديات — كاشير كلاود" },
+      { title: "الورديات — SmartPOS" },
       { name: "description", content: "فتح وإغلاق ورديات الكاشير ومطابقة النقدية." },
-      { property: "og:title", content: "الورديات — كاشير كلاود" },
+      { property: "og:title", content: "الورديات — SmartPOS" },
       { property: "og:description", content: "إدارة ورديات الصندوق والنقدية." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

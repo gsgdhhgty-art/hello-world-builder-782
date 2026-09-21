@@ -16,12 +16,12 @@ import { dateTime } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/audit")({
   head: () => ({
     meta: [
-      { title: "سجل التدقيق — كاشير كلاود" },
+      { title: "سجل التدقيق — SmartPOS" },
       {
         name: "description",
         content: "سجل كل العمليات الحساسة: المبيعات، المرتجعات، الورديات والحسابات.",
       },
-      { property: "og:title", content: "سجل التدقيق — كاشير كلاود" },
+      { property: "og:title", content: "سجل التدقيق — SmartPOS" },
       { property: "og:description", content: "تتبع كل عملية داخل المتجر." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

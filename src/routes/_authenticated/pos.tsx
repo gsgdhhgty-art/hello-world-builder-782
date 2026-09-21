@@ -53,9 +53,9 @@ import { resolveProductImages } from "@/lib/product-images";
 export const Route = createFileRoute("/_authenticated/pos")({
   head: () => ({
     meta: [
-      { title: "الكاشير — كاشير كلاود" },
+      { title: "الكاشير — SmartPOS" },
       { name: "description", content: "شاشة نقاط البيع: بحث المنتجات، سلة الفاتورة والدفع." },
-      { property: "og:title", content: "الكاشير — كاشير كلاود" },
+      { property: "og:title", content: "الكاشير — SmartPOS" },
       { property: "og:description", content: "شاشة نقاط البيع وإتمام الفواتير." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

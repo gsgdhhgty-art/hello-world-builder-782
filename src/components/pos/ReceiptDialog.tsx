@@ -131,7 +131,9 @@ export function ReceiptDialog({
               <div className="font-black text-primary">{business.name}</div>
               <div className="mt-2 text-xs text-muted-foreground">فاتورة مبيعات</div>
               <div className="text-xl font-black">{receipt.invoice_no}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{dateTime(receipt.created_at)}</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                {dateTime(receipt.created_at)}
+              </div>
               <div className="mt-3 text-3xl font-black text-primary">
                 {money(receipt.total, currency)}
               </div>
@@ -148,10 +150,15 @@ export function ReceiptDialog({
             </div>
             <div className="max-h-44 overflow-y-auto rounded-lg border">
               <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 border-b bg-muted/40 px-3 py-2 text-xs font-bold text-muted-foreground">
-                <span>الصنف</span><span>الكمية</span><span>الإجمالي</span>
+                <span>الصنف</span>
+                <span>الكمية</span>
+                <span>الإجمالي</span>
               </div>
               {receipt.items.map((item, index) => (
-                <div key={`${item.name}-${index}`} className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 border-b px-3 py-2 last:border-0">
+                <div
+                  key={`${item.name}-${index}`}
+                  className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 border-b px-3 py-2 last:border-0"
+                >
                   <span className="min-w-0 truncate font-semibold">{item.name}</span>
                   <span className="tabular-nums">{num(item.quantity)}</span>
                   <span className="font-bold tabular-nums">{money(item.line_total, currency)}</span>
@@ -164,7 +171,11 @@ export function ReceiptDialog({
               <ReceiptRow label="الضريبة" value={money(receipt.tax, currency)} />
               <ReceiptRow label="المدفوع" value={money(receipt.paid, currency)} />
               {receipt.payments.map((payment, index) => (
-                <ReceiptRow key={`${payment.method}-${index}`} label={PAYMENT_LABELS[payment.method] ?? payment.method} value={money(payment.amount, currency)} />
+                <ReceiptRow
+                  key={`${payment.method}-${index}`}
+                  label={PAYMENT_LABELS[payment.method] ?? payment.method}
+                  value={money(payment.amount, currency)}
+                />
               ))}
             </div>
             {receipt.offline && (
@@ -188,5 +199,10 @@ export function ReceiptDialog({
 }
 
 function ReceiptRow({ label, value }: { label: string; value: string }) {
-  return <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{label}</span><span className="font-bold tabular-nums">{value}</span></div>;
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-bold tabular-nums">{value}</span>
+    </div>
+  );
 }

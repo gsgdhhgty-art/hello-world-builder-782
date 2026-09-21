@@ -13,12 +13,12 @@ import { dateTime } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/sync")({
   head: () => ({
     meta: [
-      { title: "المزامنة — كاشير كلاود" },
+      { title: "المزامنة — SmartPOS" },
       {
         name: "description",
         content: "المعاملات المعلقة، المزامنة اليدوية، وحل التعارضات بين الجهاز والسحابة.",
       },
-      { property: "og:title", content: "المزامنة — كاشير كلاود" },
+      { property: "og:title", content: "المزامنة — SmartPOS" },
       { property: "og:description", content: "إدارة قائمة انتظار المزامنة والتعارضات." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

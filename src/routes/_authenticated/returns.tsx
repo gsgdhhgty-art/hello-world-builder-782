@@ -16,12 +16,12 @@ import { round2 } from "@/lib/pos-math";
 export const Route = createFileRoute("/_authenticated/returns")({
   head: () => ({
     meta: [
-      { title: "المرتجعات — كاشير كلاود" },
+      { title: "المرتجعات — SmartPOS" },
       {
         name: "description",
         content: "إصدار مرتجع على فاتورة: إرجاع الأصناف للمخزون وتسجيل المبلغ المرتجع.",
       },
-      { property: "og:title", content: "المرتجعات — كاشير كلاود" },
+      { property: "og:title", content: "المرتجعات — SmartPOS" },
       { property: "og:description", content: "إرجاع أصناف من فاتورة مع تحديث المخزون." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

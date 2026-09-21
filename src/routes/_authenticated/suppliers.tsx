@@ -32,9 +32,9 @@ import { enqueue, isNetworkFailure, isOnline, REQUEST_TIMEOUT_MS } from "@/lib/o
 export const Route = createFileRoute("/_authenticated/suppliers")({
   head: () => ({
     meta: [
-      { title: "الموردون — كاشير كلاود" },
+      { title: "الموردون — SmartPOS" },
       { name: "description", content: "بيانات الموردين وأرصدة المستحقات عليهم." },
-      { property: "og:title", content: "الموردون — كاشير كلاود" },
+      { property: "og:title", content: "الموردون — SmartPOS" },
       { property: "og:description", content: "إدارة الموردين وأرصدتهم." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

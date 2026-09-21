@@ -36,9 +36,9 @@ import { dateTime, money } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/expenses")({
   head: () => ({
     meta: [
-      { title: "المصروفات — كاشير كلاود" },
+      { title: "المصروفات — SmartPOS" },
       { name: "description", content: "تسجيل مصروفات المتجر النقدية وربطها بالوردية." },
-      { property: "og:title", content: "المصروفات — كاشير كلاود" },
+      { property: "og:title", content: "المصروفات — SmartPOS" },
       { property: "og:description", content: "متابعة مصروفات التشغيل اليومية." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
