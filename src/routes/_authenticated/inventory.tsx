@@ -535,8 +535,23 @@ function InventoryPage() {
             <DialogTitle>إعداد تنبيهات المخزون</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border p-3"><Label htmlFor="alerts-enabled">إظهار تنبيهات المخزون</Label><Switch id="alerts-enabled" checked={alertsEnabled} onCheckedChange={setAlertsEnabled} /></div>
-            <div className="flex items-center justify-between rounded-lg border p-3"><Label htmlFor="include-out">تضمين الأصناف النافدة</Label><Switch id="include-out" checked={includeOut} onCheckedChange={setIncludeOut} disabled={!alertsEnabled} /></div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <Label htmlFor="alerts-enabled">إظهار تنبيهات المخزون</Label>
+              <Switch
+                id="alerts-enabled"
+                checked={alertsEnabled}
+                onCheckedChange={setAlertsEnabled}
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <Label htmlFor="include-out">تضمين الأصناف النافدة</Label>
+              <Switch
+                id="include-out"
+                checked={includeOut}
+                onCheckedChange={setIncludeOut}
+                disabled={!alertsEnabled}
+              />
+            </div>
             <Label htmlFor="restock-multiplier">مضاعف الكمية المقترحة</Label>
             <Input
               id="restock-multiplier"
