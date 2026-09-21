@@ -40,9 +40,9 @@ import { enqueue, isNetworkFailure, isOnline, REQUEST_TIMEOUT_MS } from "@/lib/o
 export const Route = createFileRoute("/_authenticated/purchase-orders")({
   head: () => ({
     meta: [
-      { title: "طلبات الشراء — كاشير كلاود" },
+      { title: "طلبات الشراء — SmartPOS" },
       { name: "description", content: "إنشاء ومتابعة طلبات الشراء ثم تحويلها إلى فواتير استلام." },
-      { property: "og:title", content: "طلبات الشراء — كاشير كلاود" },
+      { property: "og:title", content: "طلبات الشراء — SmartPOS" },
       { property: "og:description", content: "دورة شراء واضحة من الطلب حتى استلام المخزون." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

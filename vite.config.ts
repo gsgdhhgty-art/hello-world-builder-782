@@ -20,15 +20,20 @@ export default defineConfig({
         registerType: "autoUpdate",
         disable: process.env["NODE_ENV"] !== "production",
         manifest: {
-          name: "كاشير كلاود — نظام نقاط البيع",
-          short_name: "كاشير",
+          name: "SmartPOS — نظام نقاط البيع",
+          short_name: "SmartPOS",
           description: "نظام كاشير ومخازن يعمل بدون إنترنت مع مزامنة سحابية تلقائية.",
           lang: "ar",
           dir: "rtl",
           start_url: "/",
           display: "standalone",
           background_color: "#ffffff",
-          theme_color: "#0f766e",
+          theme_color: "#1e5fd6",
+          icons: [
+            { src: "/pwa-192.png", sizes: "192x192", type: "image/png" },
+            { src: "/pwa-512.png", sizes: "512x512", type: "image/png" },
+            { src: "/pwa-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+          ],
         },
         workbox: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],

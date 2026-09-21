@@ -40,12 +40,12 @@ import { dateTime, ROLE_LABELS } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/employees")({
   head: () => ({
     meta: [
-      { title: "الموظفون — كاشير كلاود" },
+      { title: "الموظفون — SmartPOS" },
       {
         name: "description",
         content: "إضافة موظفين، تحديد الأدوار والصلاحيات وتفعيل أو إيقاف الحسابات.",
       },
-      { property: "og:title", content: "الموظفون — كاشير كلاود" },
+      { property: "og:title", content: "الموظفون — SmartPOS" },
       { property: "og:description", content: "إدارة فريق المتجر وصلاحياتهم." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -29,12 +29,12 @@ import { money, num, PAYMENT_LABELS, dateTime } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
     meta: [
-      { title: "التقارير الشاملة — كاشير كلاود" },
+      { title: "التقارير الشاملة — SmartPOS" },
       {
         name: "description",
         content: "تقارير المبيعات والمخزون والمصروفات والنقدية حسب الفترة والفرع.",
       },
-      { property: "og:title", content: "التقارير الشاملة — كاشير كلاود" },
+      { property: "og:title", content: "التقارير الشاملة — SmartPOS" },
       { property: "og:description", content: "تحليل شامل لأداء المتجر والمخزون والصندوق." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

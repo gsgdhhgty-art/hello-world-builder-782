@@ -44,9 +44,9 @@ import {
 export const Route = createFileRoute("/_authenticated/purchases")({
   head: () => ({
     meta: [
-      { title: "المشتريات — كاشير كلاود" },
+      { title: "المشتريات — SmartPOS" },
       { name: "description", content: "استلام فواتير المشتريات وزيادة المخزون وتحديث التكاليف." },
-      { property: "og:title", content: "المشتريات — كاشير كلاود" },
+      { property: "og:title", content: "المشتريات — SmartPOS" },
       { property: "og:description", content: "تسجيل مشتريات الموردين واستلام المخزون." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

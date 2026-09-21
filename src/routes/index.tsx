@@ -15,13 +15,13 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "كاشير كلاود — نظام نقاط البيع للمتاجر والبقالات" },
+      { title: "SmartPOS — نظام نقاط البيع للمتاجر والبقالات" },
       {
         name: "description",
         content:
           "أنشئ متجرك في دقيقة: كاشير سريع بالباركود، مخزون لحظي لكل مستودع، ورديات وخزنة، مشتريات، تقارير أرباح وصلاحيات موظفين دقيقة.",
       },
-      { property: "og:title", content: "كاشير كلاود — نظام نقاط البيع للمتاجر والبقالات" },
+      { property: "og:title", content: "SmartPOS — نظام نقاط البيع للمتاجر والبقالات" },
       {
         property: "og:description",
         content: "كاشير سريع، مخزون لحظي، ورديات وتقارير أرباح لكل فرع.",
@@ -79,7 +79,7 @@ function Landing() {
           <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
             ك
           </span>
-          كاشير كلاود
+          SmartPOS
         </div>
         {signedIn ? (
           <Button asChild>
@@ -123,7 +123,7 @@ function Landing() {
       </section>
 
       <footer className="py-10 text-center text-sm text-muted-foreground">
-        كاشير كلاود — منصة نقاط بيع سحابية.
+        SmartPOS — منصة نقاط بيع سحابية.
       </footer>
     </main>
   );

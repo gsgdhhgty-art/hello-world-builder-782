@@ -23,12 +23,12 @@ import { PERMISSION_LIST, ROLE_LABELS } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
-      { title: "الإعدادات — كاشير كلاود" },
+      { title: "الإعدادات — SmartPOS" },
       {
         name: "description",
         content: "بيانات المتجر، الفروع، المستودعات، أجهزة الكاشير والأدوار المخصصة.",
       },
-      { property: "og:title", content: "الإعدادات — كاشير كلاود" },
+      { property: "og:title", content: "الإعدادات — SmartPOS" },
       { property: "og:description", content: "ضبط المتجر والفروع والأدوار." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -8,6 +8,7 @@ import {
   Package,
   Pencil,
   Plus,
+  RefreshCw,
   Search,
   Trash2,
   UploadCloud,
@@ -116,6 +117,7 @@ function ProductsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ ...EMPTY });
   const [newCategory, setNewCategory] = useState("");
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [storedImage, setStoredImage] = useState<string | null>(null);
@@ -183,12 +185,20 @@ function ProductsPage() {
       } else if (removeImage) {
         nextImage = null;
       }
+      let barcode = form.barcode.trim();
+      if (!barcode) {
+        const generated = await supabase.rpc("generate_product_barcode");
+        if (generated.error || !generated.data) {
+          throw new Error(generated.error?.message ?? "تعذر توليد باركود فريد");
+        }
+        barcode = generated.data;
+      }
       const payload = {
         id: productId,
         org_id: orgId,
         name: form.name.trim(),
         sku: form.sku.trim() || null,
-        barcode: form.barcode.trim() || null,
+        barcode,
         unit: form.unit.trim() || "piece",
         cost: Number(form.cost) || 0,
         price: Number(form.price) || 0,
@@ -228,17 +238,38 @@ function ProductsPage() {
     mutationFn: async () => {
       const orgId = profile?.org_id;
       if (!orgId) throw new Error("تعذر تحديد المؤسسة");
-      const { error } = await supabase
+      const name = newCategory.trim();
+      if (!name) throw new Error("اسم التصنيف مطلوب");
+      const { data, error } = await supabase
         .from("categories")
-        .insert({ org_id: orgId, name: newCategory.trim() });
+        .insert({ org_id: orgId, name })
+        .select("id, name")
+        .single();
       if (error) throw error;
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (category) => {
       setNewCategory("");
+      setCategoryDialogOpen(false);
+      setForm((current) => ({ ...current, category_id: category.id }));
       toast.success("تمت إضافة التصنيف");
       void qc.invalidateQueries({ queryKey: ["categories"] });
     },
-    onError: () => toast.error("تعذر إضافة التصنيف"),
+    onError: (error: { code?: string; message?: string }) =>
+      toast.error(error.code === "23505" ? "هذا التصنيف موجود بالفعل" : "تعذر إضافة التصنيف"),
+  });
+
+  const generateBarcode = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.rpc("generate_product_barcode");
+      if (error || !data) throw new Error(error?.message ?? "تعذر توليد الباركود");
+      return data;
+    },
+    onSuccess: (barcode) => {
+      setForm((current) => ({ ...current, barcode }));
+      toast.success("تم توليد باركود EAN-13 فريد");
+    },
+    onError: () => toast.error("تعذر توليد باركود فريد"),
   });
 
   const removeProduct = useMutation({
@@ -415,98 +446,100 @@ function ProductsPage() {
             )}
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>المنتج</TableHead>
-                <TableHead>الباركود</TableHead>
-                <TableHead>التصنيف</TableHead>
-                <TableHead>التكلفة</TableHead>
-                <TableHead>سعر البيع</TableHead>
-                <TableHead>حد الطلب</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>
-                    <div className="flex min-w-44 items-center gap-3">
-                      <div className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-lg border bg-muted/40">
-                        {product.image_src ? (
-                          <img
-                            src={product.image_src}
-                            alt={product.name}
-                            className="size-full object-contain p-1"
-                          />
-                        ) : (
-                          <Package className="size-5 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="truncate font-bold">{product.name}</div>
-                        <div className="truncate text-xs text-muted-foreground">
-                          {product.sku ?? "بدون SKU"}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>المنتج</TableHead>
+                  <TableHead>الباركود</TableHead>
+                  <TableHead>التصنيف</TableHead>
+                  <TableHead>التكلفة</TableHead>
+                  <TableHead>سعر البيع</TableHead>
+                  <TableHead>حد الطلب</TableHead>
+                  <TableHead>الحالة</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      <div className="flex min-w-44 items-center gap-3">
+                        <div className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-lg border bg-muted/40">
+                          {product.image_src ? (
+                            <img
+                              src={product.image_src}
+                              alt={product.name}
+                              className="size-full object-contain p-1"
+                            />
+                          ) : (
+                            <Package className="size-5 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate font-bold">{product.name}</div>
+                          <div className="truncate text-xs text-muted-foreground">
+                            {product.sku ?? "بدون SKU"}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell dir="ltr" className="tabular-nums text-muted-foreground">
-                    {product.barcode ?? "—"}
-                  </TableCell>
-                  <TableCell>
-                    {categories.data?.find((category) => category.id === product.category_id)
-                      ?.name ?? "غير مصنف"}
-                  </TableCell>
-                  <TableCell className="tabular-nums">{money(product.cost, currency)}</TableCell>
-                  <TableCell className="font-black tabular-nums text-primary">
-                    {money(product.price, currency)}
-                  </TableCell>
-                  <TableCell className="tabular-nums">{num(product.reorder_level)}</TableCell>
-                  <TableCell>
-                    <Badge
-                      className={product.is_active ? "status-success border-0" : ""}
-                      variant={product.is_active ? "outline" : "secondary"}
-                    >
-                      {product.is_active ? "متوفر" : "موقوف"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-end">
-                    {editable && (
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label={`تعديل ${product.name}`}
-                          onClick={() => openEdit(product)}
-                        >
-                          <Pencil />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label={`حذف ${product.name}`}
-                          disabled={removeProduct.isPending}
-                          onClick={() => removeProduct.mutate(product)}
-                        >
-                          <Trash2 className="text-destructive" />
-                        </Button>
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {!filtered.length && (
-                <TableRow>
-                  <TableCell colSpan={8} className="py-14 text-center text-muted-foreground">
-                    <Package className="mx-auto mb-2 size-8 opacity-40" />
-                    لا توجد منتجات مطابقة.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                    <TableCell dir="ltr" className="tabular-nums text-muted-foreground">
+                      {product.barcode ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      {categories.data?.find((category) => category.id === product.category_id)
+                        ?.name ?? "غير مصنف"}
+                    </TableCell>
+                    <TableCell className="tabular-nums">{money(product.cost, currency)}</TableCell>
+                    <TableCell className="font-black tabular-nums text-primary">
+                      {money(product.price, currency)}
+                    </TableCell>
+                    <TableCell className="tabular-nums">{num(product.reorder_level)}</TableCell>
+                    <TableCell>
+                      <Badge
+                        className={product.is_active ? "status-success border-0" : ""}
+                        variant={product.is_active ? "outline" : "secondary"}
+                      >
+                        {product.is_active ? "متوفر" : "موقوف"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-end">
+                      {editable && (
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label={`تعديل ${product.name}`}
+                            onClick={() => openEdit(product)}
+                          >
+                            <Pencil />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label={`حذف ${product.name}`}
+                            disabled={removeProduct.isPending}
+                            onClick={() => removeProduct.mutate(product)}
+                          >
+                            <Trash2 className="text-destructive" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {!filtered.length && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="py-14 text-center text-muted-foreground">
+                      <Package className="mx-auto mb-2 size-8 opacity-40" />
+                      لا توجد منتجات مطابقة.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
 
@@ -605,22 +638,34 @@ function ProductsPage() {
                 />
               </Field>
               <Field label="التصنيف">
-                <Select
-                  value={form.category_id}
-                  onValueChange={(value) => setForm({ ...form, category_id: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">بدون تصنيف</SelectItem>
-                    {(categories.data ?? []).map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                  <Select
+                    value={form.category_id}
+                    onValueChange={(value) => setForm({ ...form, category_id: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">بدون تصنيف</SelectItem>
+                      {(categories.data ?? []).map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label="إضافة تصنيف"
+                    title="إضافة تصنيف"
+                    onClick={() => setCategoryDialogOpen(true)}
+                  >
+                    <Plus />
+                  </Button>
+                </div>
               </Field>
               <Field label="SKU" id="p-sku">
                 <Input
@@ -631,15 +676,28 @@ function ProductsPage() {
                 />
               </Field>
               <Field label="الباركود" id="p-barcode">
-                <div className="relative">
-                  <Barcode className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="p-barcode"
-                    dir="ltr"
-                    className="pe-9"
-                    value={form.barcode}
-                    onChange={(event) => setForm({ ...form, barcode: event.target.value })}
-                  />
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                  <div className="relative">
+                    <Barcode className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="p-barcode"
+                      dir="ltr"
+                      className="pe-9"
+                      value={form.barcode}
+                      onChange={(event) => setForm({ ...form, barcode: event.target.value })}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    disabled={generateBarcode.isPending}
+                    aria-label="توليد باركود فريد"
+                    title="توليد باركود EAN-13 فريد"
+                    onClick={() => generateBarcode.mutate()}
+                  >
+                    <RefreshCw className={cn(generateBarcode.isPending && "animate-spin")} />
+                  </Button>
                 </div>
               </Field>
               <Field label="سعر التكلفة" id="p-cost">
@@ -758,6 +816,37 @@ function ProductsPage() {
             </Button>
             <Button disabled={!form.name.trim() || save.isPending} onClick={() => save.mutate()}>
               {save.isPending ? "جارٍ الحفظ..." : "حفظ المنتج"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>إضافة تصنيف جديد</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="new-product-category">اسم التصنيف</Label>
+            <Input
+              id="new-product-category"
+              autoFocus
+              value={newCategory}
+              onChange={(event) => setNewCategory(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && newCategory.trim()) addCategory.mutate();
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCategoryDialogOpen(false)}>
+              إلغاء
+            </Button>
+            <Button
+              disabled={!newCategory.trim() || addCategory.isPending}
+              onClick={() => addCategory.mutate()}
+            >
+              <Plus /> إضافة التصنيف
             </Button>
           </DialogFooter>
         </DialogContent>

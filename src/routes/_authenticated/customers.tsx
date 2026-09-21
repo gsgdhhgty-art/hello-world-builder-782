@@ -29,9 +29,9 @@ import { money } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/customers")({
   head: () => ({
     meta: [
-      { title: "العملاء — كاشير كلاود" },
+      { title: "العملاء — SmartPOS" },
       { name: "description", content: "سجل العملاء وأرصدة البيع الآجل وبيانات التواصل." },
-      { property: "og:title", content: "العملاء — كاشير كلاود" },
+      { property: "og:title", content: "العملاء — SmartPOS" },
       { property: "og:description", content: "إدارة عملاء المتجر وأرصدتهم." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

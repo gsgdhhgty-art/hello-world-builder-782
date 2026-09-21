@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { BrowserMultiFormatReader, type IScannerControls } from "@zxing/browser";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-/** Camera barcode scanning for tablets and phones (native BarcodeDetector). */
+/** Camera barcode scanning for tablets and phones, with a Safari-compatible fallback. */
 export function CameraScanner({
   open,
   onOpenChange,
@@ -20,14 +21,27 @@ export function CameraScanner({
     if (!open) return;
     let stream: MediaStream | null = null;
     let timer: ReturnType<typeof setInterval> | null = null;
+    let controls: IScannerControls | null = null;
     let cancelled = false;
 
     async function start() {
       const Detector = (globalThis as any).BarcodeDetector;
       if (!Detector) {
-        setError(
-          "الكاميرا لا تدعم قراءة الباركود على هذا الجهاز. استخدم الماسح أو أدخل الرقم يدويًا.",
-        );
+        try {
+          if (!videoRef.current) return;
+          const reader = new BrowserMultiFormatReader();
+          controls = await reader.decodeFromConstraints(
+            { video: { facingMode: { ideal: "environment" } } },
+            videoRef.current,
+            (result) => {
+              if (!result || cancelled) return;
+              onDetected(result.getText());
+              onOpenChange(false);
+            },
+          );
+        } catch {
+          setError("تعذر تشغيل ماسح الكاميرا. استخدم قارئ USB أو أدخل الباركود يدويًا.");
+        }
         return;
       }
       try {
@@ -62,6 +76,7 @@ export function CameraScanner({
     return () => {
       cancelled = true;
       if (timer) clearInterval(timer);
+      controls?.stop();
       stream?.getTracks().forEach((t) => t.stop());
     };
   }, [open, onDetected, onOpenChange]);
@@ -75,7 +90,12 @@ export function CameraScanner({
         {error ? (
           <p className="py-6 text-center text-sm text-muted-foreground">{error}</p>
         ) : (
-          <video ref={videoRef} className="w-full rounded-lg bg-black" muted playsInline />
+          <div className="overflow-hidden rounded-lg bg-foreground">
+            <video ref={videoRef} className="aspect-[4/3] w-full object-cover" muted playsInline />
+            <p className="bg-foreground px-3 py-2 text-center text-xs text-background">
+              وجّه الكاميرا نحو الباركود حتى يظهر كاملًا داخل الإطار
+            </p>
+          </div>
         )}
       </DialogContent>
     </Dialog>

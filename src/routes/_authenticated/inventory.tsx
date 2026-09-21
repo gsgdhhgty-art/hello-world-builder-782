@@ -264,100 +264,102 @@ function InventoryPage() {
               </SelectContent>
             </Select>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>المنتج</TableHead>
-                <TableHead>الرصيد الحالي</TableHead>
-                <TableHead>حد الطلب</TableHead>
-                <TableHead>قيمة المخزون</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((product) => {
-                const low = product.qty > 0 && product.qty <= Number(product.reorder_level);
-                const out = product.qty <= 0;
-                return (
-                  <TableRow key={product.id}>
-                    <TableCell>
-                      <div className="flex min-w-44 items-center gap-3">
-                        <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-lg border bg-muted/40">
-                          {product.image_url ? (
-                            <img
-                              src={product.image_url}
-                              alt={product.name}
-                              className="size-full object-contain p-1"
-                            />
-                          ) : (
-                            <Package className="size-5 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="truncate font-bold">{product.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {product.sku ?? product.unit}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>المنتج</TableHead>
+                  <TableHead>الرصيد الحالي</TableHead>
+                  <TableHead>حد الطلب</TableHead>
+                  <TableHead>قيمة المخزون</TableHead>
+                  <TableHead>الحالة</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((product) => {
+                  const low = product.qty > 0 && product.qty <= Number(product.reorder_level);
+                  const out = product.qty <= 0;
+                  return (
+                    <TableRow key={product.id}>
+                      <TableCell>
+                        <div className="flex min-w-44 items-center gap-3">
+                          <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-lg border bg-muted/40">
+                            {product.image_url ? (
+                              <img
+                                src={product.image_url}
+                                alt={product.name}
+                                className="size-full object-contain p-1"
+                              />
+                            ) : (
+                              <Package className="size-5 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="truncate font-bold">{product.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {product.sku ?? product.unit}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        "font-black tabular-nums",
-                        out ? "text-destructive" : low ? "text-warning" : "text-success",
-                      )}
-                    >
-                      {num(product.qty)} {product.unit}
-                    </TableCell>
-                    <TableCell className="tabular-nums">{num(product.reorder_level)}</TableCell>
-                    <TableCell className="font-semibold tabular-nums">
-                      {money(product.qty * Number(product.cost), currency)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={
-                          out
-                            ? "border-destructive/20 bg-destructive/10 text-destructive"
-                            : low
-                              ? "status-warning border-0"
-                              : "status-success border-0"
-                        }
+                      </TableCell>
+                      <TableCell
+                        className={cn(
+                          "font-black tabular-nums",
+                          out ? "text-destructive" : low ? "text-warning" : "text-success",
+                        )}
                       >
-                        {out ? "نافد" : low ? "منخفض" : "متوفر"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-end">
-                      {canEdit && product.track_stock ? (
-                        <Button
-                          size="sm"
+                        {num(product.qty)} {product.unit}
+                      </TableCell>
+                      <TableCell className="tabular-nums">{num(product.reorder_level)}</TableCell>
+                      <TableCell className="font-semibold tabular-nums">
+                        {money(product.qty * Number(product.cost), currency)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
                           variant="outline"
-                          onClick={() => {
-                            setAdjust({
-                              productId: product.id,
-                              name: product.name,
-                              current: product.qty,
-                            });
-                            setNewQty(String(product.qty));
-                          }}
+                          className={
+                            out
+                              ? "border-destructive/20 bg-destructive/10 text-destructive"
+                              : low
+                                ? "status-warning border-0"
+                                : "status-success border-0"
+                          }
                         >
-                          <SlidersHorizontal /> جرد
-                        </Button>
-                      ) : null}
+                          {out ? "نافد" : low ? "منخفض" : "متوفر"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {canEdit && product.track_stock ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setAdjust({
+                                productId: product.id,
+                                name: product.name,
+                                current: product.qty,
+                              });
+                              setNewQty(String(product.qty));
+                            }}
+                          >
+                            <SlidersHorizontal /> جرد
+                          </Button>
+                        ) : null}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {!rows.length && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
+                      لا توجد منتجات مطابقة.
                     </TableCell>
                   </TableRow>
-                );
-              })}
-              {!rows.length && (
-                <TableRow>
-                  <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
-                    لا توجد منتجات مطابقة.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
 
         <div className="workspace-card overflow-hidden">
@@ -367,47 +369,49 @@ function InventoryPage() {
               الوارد والمنصرف والمرتجعات وتسويات الجرد
             </p>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>المنتج</TableHead>
-                <TableHead>نوع الحركة</TableHead>
-                <TableHead>التغيير</TableHead>
-                <TableHead>السبب</TableHead>
-                <TableHead>التاريخ والوقت</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(movements.data ?? []).map((movement) => (
-                <TableRow key={movement.id}>
-                  <TableCell className="font-bold">{nameOf(movement.product_id)}</TableCell>
-                  <TableCell>
-                    {MOVEMENT_LABELS[movement.movement_type] ?? movement.movement_type}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "font-black tabular-nums",
-                      Number(movement.qty_change) < 0 ? "text-destructive" : "text-success",
-                    )}
-                  >
-                    {Number(movement.qty_change) > 0 ? "+" : ""}
-                    {num(movement.qty_change)}
-                  </TableCell>
-                  <TableCell className="max-w-64 truncate text-muted-foreground">
-                    {movement.note ?? "—"}
-                  </TableCell>
-                  <TableCell className="tabular-nums">{dateTime(movement.created_at)}</TableCell>
-                </TableRow>
-              ))}
-              {!movements.data?.length && (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
-                    لا توجد حركات بعد.
-                  </TableCell>
+                  <TableHead>المنتج</TableHead>
+                  <TableHead>نوع الحركة</TableHead>
+                  <TableHead>التغيير</TableHead>
+                  <TableHead>السبب</TableHead>
+                  <TableHead>التاريخ والوقت</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {(movements.data ?? []).map((movement) => (
+                  <TableRow key={movement.id}>
+                    <TableCell className="font-bold">{nameOf(movement.product_id)}</TableCell>
+                    <TableCell>
+                      {MOVEMENT_LABELS[movement.movement_type] ?? movement.movement_type}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        "font-black tabular-nums",
+                        Number(movement.qty_change) < 0 ? "text-destructive" : "text-success",
+                      )}
+                    >
+                      {Number(movement.qty_change) > 0 ? "+" : ""}
+                      {num(movement.qty_change)}
+                    </TableCell>
+                    <TableCell className="max-w-64 truncate text-muted-foreground">
+                      {movement.note ?? "—"}
+                    </TableCell>
+                    <TableCell className="tabular-nums">{dateTime(movement.created_at)}</TableCell>
+                  </TableRow>
+                ))}
+                {!movements.data?.length && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
+                      لا توجد حركات بعد.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
 
