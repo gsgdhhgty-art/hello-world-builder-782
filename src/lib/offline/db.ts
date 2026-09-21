@@ -120,13 +120,12 @@ export function hasLocalDb(): boolean {
   return typeof indexedDB !== "undefined";
 }
 
-export function deviceId(): string {
-  const key = "kashir_device_id";
-  let id = localStorage.getItem(key);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(key, id);
-  }
+export async function deviceId(): Promise<string> {
+  const key = "device_id";
+  const existing = await getMeta<string>(key);
+  if (existing) return existing;
+  const id = crypto.randomUUID();
+  await setMeta(key, id);
   return id;
 }
 

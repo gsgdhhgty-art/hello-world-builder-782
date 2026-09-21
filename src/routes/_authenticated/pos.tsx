@@ -44,7 +44,7 @@ import { ReceiptDialog, type ReceiptData } from "@/components/pos/ReceiptDialog"
 import { money, num } from "@/lib/format";
 import { calculateCartTotals, round2 } from "@/lib/pos-math";
 import { cn } from "@/lib/utils";
-import { db, hasLocalDb, type HeldOrder } from "@/lib/offline/db";
+import { db, getMeta, hasLocalDb, setMeta, type HeldOrder } from "@/lib/offline/db";
 import { localFirst } from "@/lib/offline/local-first";
 import { enqueue, isOnline, localStockMap, recordLocalSale } from "@/lib/offline/sync";
 import { useOffline } from "@/hooks/useOffline";
@@ -82,7 +82,7 @@ interface CartLine {
   discount: number;
 }
 
-const FAV_KEY = "kashir_favorites";
+const FAV_KEY = "pos_favorites";
 /** إذا لم يستجب الخادم خلال هذه المدة نُكمل الفاتورة محليًا ثم نزامنها لاحقًا. */
 const SALE_TIMEOUT_MS = 7000;
 
@@ -91,15 +91,6 @@ function isNetworkFailure(message: string): boolean {
   return (
     /fetch|network|timeout|abort|signal|Failed to fetch|NetworkError/i.test(message) || !isOnline()
   );
-}
-
-function readFavorites(): string[] {
-  if (typeof localStorage === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(FAV_KEY) ?? "[]") as string[];
-  } catch {
-    return [];
-  }
 }
 
 function PosPage() {
@@ -133,7 +124,10 @@ function PosPage() {
   const [cartDiscount, setCartDiscount] = useState(0);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
-  useEffect(() => setFavorites(readFavorites()), []);
+  useEffect(() => {
+    if (!hasLocalDb()) return;
+    void getMeta<string[]>(FAV_KEY).then((saved) => setFavorites(saved ?? []));
+  }, []);
 
   // بعد إغلاق نوافذ الدفع/الإيصال نضمن بقاء الشاشة قابلة للنقر فورًا
   useEffect(() => {
@@ -147,7 +141,7 @@ function PosPage() {
   function toggleFavorite(id: string) {
     setFavorites((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-      localStorage.setItem(FAV_KEY, JSON.stringify(next));
+      if (hasLocalDb()) void setMeta(FAV_KEY, next);
       return next;
     });
   }
@@ -571,14 +565,44 @@ function PosPage() {
     const value = code.trim();
     if (!value) return;
     const exact = (productsQuery.data ?? []).find((p) => p.barcode === value || p.sku === value);
-    const target = exact ?? filtered[0];
-    if (target) {
-      addToCart(target);
+    if (exact) {
+      addToCart(exact);
       setSearch("");
+      searchRef.current?.focus();
     } else {
-      toast.error("لا يوجد منتج بهذا الباركود");
+      toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
+      setSearch(value);
+      searchRef.current?.focus();
     }
   }
+
+  useEffect(() => {
+    let buffer = "";
+    let lastKeyAt = 0;
+    const reset = window.setInterval(() => {
+      if (Date.now() - lastKeyAt > 120) buffer = "";
+    }, 150);
+    const onKeyDown = (event: KeyboardEvent) => {
+      const now = Date.now();
+      if (event.key === "Enter") {
+        if (buffer.length >= 4 && now - lastKeyAt < 120) {
+          event.preventDefault();
+          scanCode(buffer);
+        }
+        buffer = "";
+        return;
+      }
+      if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (now - lastKeyAt > 80) buffer = "";
+      buffer += event.key;
+      lastKeyAt = now;
+    };
+    document.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      window.clearInterval(reset);
+      document.removeEventListener("keydown", onKeyDown, true);
+    };
+  }, [productsQuery.data]);
 
   function applyDiscount() {
     if (!discEditor) return;
@@ -682,6 +706,8 @@ function PosPage() {
             size="icon"
             className="size-12 shrink-0 border-primary/20 text-primary"
             onClick={() => setScannerOpen(true)}
+              aria-label="فتح ماسح الباركود بالكاميرا"
+              title="مسح الباركود بالكاميرا"
           >
             <Camera className="size-5" />
           </Button>

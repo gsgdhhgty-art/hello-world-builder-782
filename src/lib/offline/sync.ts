@@ -106,7 +106,7 @@ export async function enqueue(
     operation,
     payload,
     idempotency_key: opts.idempotency_key ?? crypto.randomUUID(),
-    device_id: deviceId(),
+    device_id: await deviceId(),
     created_at: now,
     retry_count: 0,
     next_attempt_at: now,
