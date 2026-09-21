@@ -706,8 +706,8 @@ function PosPage() {
             size="icon"
             className="size-12 shrink-0 border-primary/20 text-primary"
             onClick={() => setScannerOpen(true)}
-              aria-label="فتح ماسح الباركود بالكاميرا"
-              title="مسح الباركود بالكاميرا"
+            aria-label="فتح ماسح الباركود بالكاميرا"
+            title="مسح الباركود بالكاميرا"
           >
             <Camera className="size-5" />
           </Button>

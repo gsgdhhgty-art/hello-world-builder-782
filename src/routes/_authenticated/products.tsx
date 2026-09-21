@@ -447,98 +447,98 @@ function ProductsPage() {
           </div>
 
           <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>المنتج</TableHead>
-                <TableHead>الباركود</TableHead>
-                <TableHead>التصنيف</TableHead>
-                <TableHead>التكلفة</TableHead>
-                <TableHead>سعر البيع</TableHead>
-                <TableHead>حد الطلب</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>
-                    <div className="flex min-w-44 items-center gap-3">
-                      <div className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-lg border bg-muted/40">
-                        {product.image_src ? (
-                          <img
-                            src={product.image_src}
-                            alt={product.name}
-                            className="size-full object-contain p-1"
-                          />
-                        ) : (
-                          <Package className="size-5 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="truncate font-bold">{product.name}</div>
-                        <div className="truncate text-xs text-muted-foreground">
-                          {product.sku ?? "بدون SKU"}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>المنتج</TableHead>
+                  <TableHead>الباركود</TableHead>
+                  <TableHead>التصنيف</TableHead>
+                  <TableHead>التكلفة</TableHead>
+                  <TableHead>سعر البيع</TableHead>
+                  <TableHead>حد الطلب</TableHead>
+                  <TableHead>الحالة</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      <div className="flex min-w-44 items-center gap-3">
+                        <div className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-lg border bg-muted/40">
+                          {product.image_src ? (
+                            <img
+                              src={product.image_src}
+                              alt={product.name}
+                              className="size-full object-contain p-1"
+                            />
+                          ) : (
+                            <Package className="size-5 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate font-bold">{product.name}</div>
+                          <div className="truncate text-xs text-muted-foreground">
+                            {product.sku ?? "بدون SKU"}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell dir="ltr" className="tabular-nums text-muted-foreground">
-                    {product.barcode ?? "—"}
-                  </TableCell>
-                  <TableCell>
-                    {categories.data?.find((category) => category.id === product.category_id)
-                      ?.name ?? "غير مصنف"}
-                  </TableCell>
-                  <TableCell className="tabular-nums">{money(product.cost, currency)}</TableCell>
-                  <TableCell className="font-black tabular-nums text-primary">
-                    {money(product.price, currency)}
-                  </TableCell>
-                  <TableCell className="tabular-nums">{num(product.reorder_level)}</TableCell>
-                  <TableCell>
-                    <Badge
-                      className={product.is_active ? "status-success border-0" : ""}
-                      variant={product.is_active ? "outline" : "secondary"}
-                    >
-                      {product.is_active ? "متوفر" : "موقوف"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-end">
-                    {editable && (
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label={`تعديل ${product.name}`}
-                          onClick={() => openEdit(product)}
-                        >
-                          <Pencil />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label={`حذف ${product.name}`}
-                          disabled={removeProduct.isPending}
-                          onClick={() => removeProduct.mutate(product)}
-                        >
-                          <Trash2 className="text-destructive" />
-                        </Button>
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {!filtered.length && (
-                <TableRow>
-                  <TableCell colSpan={8} className="py-14 text-center text-muted-foreground">
-                    <Package className="mx-auto mb-2 size-8 opacity-40" />
-                    لا توجد منتجات مطابقة.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                    <TableCell dir="ltr" className="tabular-nums text-muted-foreground">
+                      {product.barcode ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      {categories.data?.find((category) => category.id === product.category_id)
+                        ?.name ?? "غير مصنف"}
+                    </TableCell>
+                    <TableCell className="tabular-nums">{money(product.cost, currency)}</TableCell>
+                    <TableCell className="font-black tabular-nums text-primary">
+                      {money(product.price, currency)}
+                    </TableCell>
+                    <TableCell className="tabular-nums">{num(product.reorder_level)}</TableCell>
+                    <TableCell>
+                      <Badge
+                        className={product.is_active ? "status-success border-0" : ""}
+                        variant={product.is_active ? "outline" : "secondary"}
+                      >
+                        {product.is_active ? "متوفر" : "موقوف"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-end">
+                      {editable && (
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label={`تعديل ${product.name}`}
+                            onClick={() => openEdit(product)}
+                          >
+                            <Pencil />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label={`حذف ${product.name}`}
+                            disabled={removeProduct.isPending}
+                            onClick={() => removeProduct.mutate(product)}
+                          >
+                            <Trash2 className="text-destructive" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {!filtered.length && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="py-14 text-center text-muted-foreground">
+                      <Package className="mx-auto mb-2 size-8 opacity-40" />
+                      لا توجد منتجات مطابقة.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>
@@ -678,14 +678,14 @@ function ProductsPage() {
               <Field label="الباركود" id="p-barcode">
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
                   <div className="relative">
-                  <Barcode className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="p-barcode"
-                    dir="ltr"
-                    className="pe-9"
-                    value={form.barcode}
-                    onChange={(event) => setForm({ ...form, barcode: event.target.value })}
-                  />
+                    <Barcode className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="p-barcode"
+                      dir="ltr"
+                      className="pe-9"
+                      value={form.barcode}
+                      onChange={(event) => setForm({ ...form, barcode: event.target.value })}
+                    />
                   </div>
                   <Button
                     type="button"
