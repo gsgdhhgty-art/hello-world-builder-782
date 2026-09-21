@@ -81,7 +81,7 @@ function ReportsPage() {
       let q = supabase
         .from("sales")
         .select(
-          "id, total, cost_total, discount, tax, payment_method, created_at, status, branch_id, cashier_id",
+          "id, total, discount, tax, payment_method, created_at, status, branch_id, cashier_id",
         )
         .gte("created_at", fromIso)
         .lte("created_at", toIso);
@@ -92,16 +92,15 @@ function ReportsPage() {
       return data ?? [];
     },
   });
-  const items = useQuery({
-    queryKey: ["rep-items", sales.data?.map((sale) => sale.id).join(",")],
-    enabled: Boolean(sales.data),
+  const topProductsQuery = useQuery({
+    queryKey: ["report-top-products", fromIso, toIso, branchId, cashierId],
     queryFn: async () => {
-      const ids = (sales.data ?? []).map((sale) => sale.id);
-      if (!ids.length) return [];
-      const { data, error } = await supabase
-        .from("sale_items")
-        .select("product_name, quantity, line_total, unit_cost")
-        .in("sale_id", ids);
+      const { data, error } = await supabase.rpc("report_top_products", {
+        _from: fromIso,
+        _to: toIso,
+        ...(branchId !== "all" ? { _branch_id: branchId } : {}),
+        ...(cashierId !== "all" ? { _cashier_id: cashierId } : {}),
+      });
       if (error) throw error;
       return data ?? [];
     },
@@ -170,7 +169,6 @@ function ReportsPage() {
   });
 
   const revenue = (sales.data ?? []).reduce((sum, sale) => sum + Number(sale.total), 0);
-  const cost = (sales.data ?? []).reduce((sum, sale) => sum + Number(sale.cost_total), 0);
   const expenseTotal = (expenses.data ?? []).reduce(
     (sum, expense) => sum + Number(expense.amount),
     0,
@@ -190,19 +188,10 @@ function ReportsPage() {
         .sort((a, b) => a.qty - b.qty),
     [products.data, inventory.data],
   );
-  const topProducts = useMemo(() => {
-    const map: Record<string, { qty: number; total: number; profit: number }> = {};
-    for (const item of items.data ?? []) {
-      const row = map[item.product_name] ?? { qty: 0, total: 0, profit: 0 };
-      row.qty += Number(item.quantity);
-      row.total += Number(item.line_total);
-      row.profit += Number(item.line_total) - Number(item.unit_cost) * Number(item.quantity);
-      map[item.product_name] = row;
-    }
-    return Object.entries(map)
-      .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 20);
-  }, [items.data]);
+  const reportedProfit = (topProductsQuery.data ?? []).reduce(
+    (sum, item) => sum + Number(item.profit ?? 0),
+    0,
+  );
   const exportHeaders = ["التاريخ", "عدد الفواتير", "المبيعات", "الضريبة"];
   const dailyRows = useMemo(() => {
     const map = new Map<string, { count: number; total: number; tax: number }>();
@@ -305,7 +294,7 @@ function ReportsPage() {
           <Stat
             icon={TrendingUp}
             label="صافي الأداء"
-            value={money(revenue - cost - expenseTotal, currency)}
+             value={money(reportedProfit - expenseTotal, currency)}
             sub={`مصروفات ${money(expenseTotal, currency)}`}
           />
           <Stat
@@ -343,11 +332,11 @@ function ReportsPage() {
             <ReportTable
               title="أفضل المنتجات"
               heads={["الصنف", "الكمية", "المبيعات", ...(can("profit.view") ? ["الربح"] : [])]}
-              rows={topProducts.map(([name, value]) => [
-                name,
-                num(value.qty),
-                money(value.total, currency),
-                ...(can("profit.view") ? [money(value.profit, currency)] : []),
+               rows={(topProductsQuery.data ?? []).map((value) => [
+                 value.product_name,
+                 num(value.quantity),
+                 money(value.sales_total, currency),
+                 ...(can("profit.view") ? [money(value.profit ?? 0, currency)] : []),
               ])}
             />
           </TabsContent>
