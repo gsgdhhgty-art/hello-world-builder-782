@@ -28,7 +28,7 @@ export const suggestCatalogProducts = createServerFn({ method: "POST" })
           {
             role: "system",
             content:
-              "أنت مساعد مبيعات. اختر حتى 6 منتجات مناسبة فقط من الكتالوج المرسل. أعد JSON فقط بالشكل {\"suggestions\":[{\"productId\":\"uuid\",\"reason\":\"سبب عربي موجز\"}]}. لا تختر أي معرف غير موجود.",
+              'أنت مساعد مبيعات. اختر حتى 6 منتجات مناسبة فقط من الكتالوج المرسل. أعد JSON فقط بالشكل {"suggestions":[{"productId":"uuid","reason":"سبب عربي موجز"}]}. لا تختر أي معرف غير موجود.',
           },
           {
             role: "user",
@@ -39,8 +39,17 @@ export const suggestCatalogProducts = createServerFn({ method: "POST" })
       }),
     });
     if (!response.ok) throw new Error("تعذر الحصول على اقتراحات الآن");
-    const result = (await response.json()) as { output_text?: string; output?: Array<{ content?: Array<{ text?: string }> }> };
-    const raw = result.output_text ?? result.output?.flatMap((item) => item.content ?? []).map((item) => item.text ?? "").join("") ?? "{}";
+    const result = (await response.json()) as {
+      output_text?: string;
+      output?: Array<{ content?: Array<{ text?: string }> }>;
+    };
+    const raw =
+      result.output_text ??
+      result.output
+        ?.flatMap((item) => item.content ?? [])
+        .map((item) => item.text ?? "")
+        .join("") ??
+      "{}";
     const parsed = JSON.parse(raw) as { suggestions?: Suggestion[] };
     const validIds = new Set(products.map((product) => product.id));
     return (parsed.suggestions ?? [])

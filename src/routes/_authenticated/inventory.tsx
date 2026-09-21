@@ -179,10 +179,19 @@ function InventoryPage() {
   const saveAlerts = useMutation({
     mutationFn: async () => {
       if (!org?.id) throw new Error("تعذر تحديد المؤسسة");
-      const { error } = await supabase.from("organizations").update({ reorder_suggestion_multiplier: Math.max(1, Number(multiplier) || 2), low_stock_alerts_enabled: true }).eq("id", org.id);
+      const { error } = await supabase
+        .from("organizations")
+        .update({
+          reorder_suggestion_multiplier: Math.max(1, Number(multiplier) || 2),
+          low_stock_alerts_enabled: true,
+        })
+        .eq("id", org.id);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("تم حفظ إعدادات التنبيه"); setSettingsOpen(false); },
+    onSuccess: () => {
+      toast.success("تم حفظ إعدادات التنبيه");
+      setSettingsOpen(false);
+    },
     onError: () => toast.error("تعذر حفظ الإعدادات"),
   });
 
@@ -223,7 +232,11 @@ function InventoryPage() {
 
   return (
     <div className="pb-8">
-      <PageHeader title="إدارة المخزون" description="الأرصدة الفعلية وحركة كل مستودع"><Button variant="outline" onClick={() => setSettingsOpen(true)}><Settings2 /> إعداد التنبيهات</Button></PageHeader>
+      <PageHeader title="إدارة المخزون" description="الأرصدة الفعلية وحركة كل مستودع">
+        <Button variant="outline" onClick={() => setSettingsOpen(true)}>
+          <Settings2 /> إعداد التنبيهات
+        </Button>
+      </PageHeader>
       <div className="space-y-4 px-4 sm:px-6">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Metric
@@ -374,8 +387,46 @@ function InventoryPage() {
           </div>
         </div>
         <div className="workspace-card overflow-hidden">
-          <div className="border-b p-4"><h2 className="font-black">قائمة إعادة التوريد</h2><p className="mt-1 text-xs text-muted-foreground">الأصناف التي بلغت حد الطلب والكمية المقترحة للشراء</p></div>
-          <div className="overflow-x-auto"><Table><TableHeader><TableRow><TableHead>الصنف</TableHead><TableHead>المتوفر</TableHead><TableHead>حد الطلب</TableHead><TableHead>الكمية المقترحة</TableHead></TableRow></TableHeader><TableBody>{allRows.filter((product) => product.qty <= Number(product.reorder_level)).map((product) => <TableRow key={product.id}><TableCell className="font-bold">{product.name}</TableCell><TableCell>{num(product.qty)}</TableCell><TableCell>{num(product.reorder_level)}</TableCell><TableCell className="font-black text-primary">{num(Math.max(0, Number(product.reorder_level) * Number(org?.reorder_suggestion_multiplier ?? 2) - product.qty))} {product.unit}</TableCell></TableRow>)}</TableBody></Table></div>
+          <div className="border-b p-4">
+            <h2 className="font-black">قائمة إعادة التوريد</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              الأصناف التي بلغت حد الطلب والكمية المقترحة للشراء
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>الصنف</TableHead>
+                  <TableHead>المتوفر</TableHead>
+                  <TableHead>حد الطلب</TableHead>
+                  <TableHead>الكمية المقترحة</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allRows
+                  .filter((product) => product.qty <= Number(product.reorder_level))
+                  .map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-bold">{product.name}</TableCell>
+                      <TableCell>{num(product.qty)}</TableCell>
+                      <TableCell>{num(product.reorder_level)}</TableCell>
+                      <TableCell className="font-black text-primary">
+                        {num(
+                          Math.max(
+                            0,
+                            Number(product.reorder_level) *
+                              Number(org?.reorder_suggestion_multiplier ?? 2) -
+                              product.qty,
+                          ),
+                        )}{" "}
+                        {product.unit}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
 
         <div className="workspace-card overflow-hidden">
@@ -474,7 +525,36 @@ function InventoryPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}><DialogContent className="max-w-sm"><DialogHeader><DialogTitle>إعداد تنبيهات المخزون</DialogTitle></DialogHeader><div className="space-y-2"><Label htmlFor="restock-multiplier">مضاعف الكمية المقترحة</Label><Input id="restock-multiplier" type="number" min="1" max="100" step="0.5" value={multiplier} onChange={(event) => setMultiplier(event.target.value)} /><p className="text-xs text-muted-foreground">مثال: حد الطلب 10 ومضاعف 2 يقترح رفع الرصيد إلى 20.</p></div><DialogFooter><Button variant="outline" onClick={() => setSettingsOpen(false)}>إلغاء</Button><Button disabled={saveAlerts.isPending} onClick={() => saveAlerts.mutate()}>حفظ</Button></DialogFooter></DialogContent></Dialog>
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>إعداد تنبيهات المخزون</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="restock-multiplier">مضاعف الكمية المقترحة</Label>
+            <Input
+              id="restock-multiplier"
+              type="number"
+              min="1"
+              max="100"
+              step="0.5"
+              value={multiplier}
+              onChange={(event) => setMultiplier(event.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              مثال: حد الطلب 10 ومضاعف 2 يقترح رفع الرصيد إلى 20.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSettingsOpen(false)}>
+              إلغاء
+            </Button>
+            <Button disabled={saveAlerts.isPending} onClick={() => saveAlerts.mutate()}>
+              حفظ
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

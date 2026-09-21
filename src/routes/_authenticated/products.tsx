@@ -172,7 +172,10 @@ function ProductsPage() {
   const brands = useQuery({
     queryKey: ["brands"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("brands").select("id, name, description").order("name");
+      const { data, error } = await supabase
+        .from("brands")
+        .select("id, name, description")
+        .order("name");
       if (error) throw error;
       return data ?? [];
     },
@@ -790,9 +793,21 @@ function ProductsPage() {
                 </Select>
               </Field>
               <Field label="العلامة التجارية">
-                <Select value={form.brand_id} onValueChange={(value) => setForm({ ...form, brand_id: value })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="none">بدون علامة</SelectItem>{(brands.data ?? []).map((brand) => <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>)}</SelectContent>
+                <Select
+                  value={form.brand_id}
+                  onValueChange={(value) => setForm({ ...form, brand_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">بدون علامة</SelectItem>
+                    {(brands.data ?? []).map((brand) => (
+                      <SelectItem key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </Field>
               <Field label="تاريخ الصلاحية" id="p-expiry">

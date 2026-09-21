@@ -738,7 +738,16 @@ function PosPage() {
           >
             <Camera className="size-5" />
           </Button>
-          <Button variant="outline" size="icon" className="size-12 shrink-0 border-primary/20 text-primary" onClick={() => setAiOpen(true)} aria-label="اقتراح منتجات بالذكاء الاصطناعي" title="اقتراح منتجات من وصف العميل"><Sparkles className="size-5" /></Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-12 shrink-0 border-primary/20 text-primary"
+            onClick={() => setAiOpen(true)}
+            aria-label="اقتراح منتجات بالذكاء الاصطناعي"
+            title="اقتراح منتجات من وصف العميل"
+          >
+            <Sparkles className="size-5" />
+          </Button>
         </div>
 
         <div className="flex gap-2 overflow-x-auto border-y border-border/70 bg-muted/30 p-2 scroll-slim">
@@ -1005,7 +1014,17 @@ function PosPage() {
       </aside>
 
       <CameraScanner open={scannerOpen} onOpenChange={setScannerOpen} onDetected={scanCode} />
-      <AiSuggestDialog open={aiOpen} onOpenChange={setAiOpen} products={productsQuery.data ?? []} currency={currency} online={online} onAdd={(id) => { const product = productsQuery.data?.find((item) => item.id === id); if (product) addToCart(product); }} />
+      <AiSuggestDialog
+        open={aiOpen}
+        onOpenChange={setAiOpen}
+        products={productsQuery.data ?? []}
+        currency={currency}
+        online={online}
+        onAdd={(id) => {
+          const product = productsQuery.data?.find((item) => item.id === id);
+          if (product) addToCart(product);
+        }}
+      />
 
       <PaymentDialog
         open={payOpen}

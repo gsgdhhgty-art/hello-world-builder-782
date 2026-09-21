@@ -103,6 +103,7 @@ function SalesPage() {
   const [status, setStatus] = useState("all");
   const [payment, setPayment] = useState("all");
   const [cashierId, setCashierId] = useState("all");
+  const [paper, setPaper] = useState<"58" | "80">("80");
   const [search, setSearch] = useState("");
   const [openSale, setOpenSale] = useState<SaleRow | null>(null);
   const [returnQty, setReturnQty] = useState<Record<string, string>>({});
@@ -286,6 +287,7 @@ function SalesPage() {
         tax_number: org?.tax_number,
       },
       currency,
+      paper,
     );
   }
 
@@ -526,7 +528,7 @@ function SalesPage() {
             <Button variant="outline" onClick={() => setOpenSale(null)}>
               إغلاق
             </Button>
-            <Select defaultValue="80" onValueChange={(value) => { if (openSale && detail.data) { const original = printSelected; void original; } }}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="58">58 مم</SelectItem><SelectItem value="80">80 مم</SelectItem></SelectContent></Select>
+            <Select value={paper} onValueChange={(value) => setPaper(value as "58" | "80")}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="58">58 مم</SelectItem><SelectItem value="80">80 مم</SelectItem></SelectContent></Select>
             <Button variant="outline" onClick={printSelected} disabled={!detail.data}>
               <Printer className="size-4" /> طباعة
             </Button>

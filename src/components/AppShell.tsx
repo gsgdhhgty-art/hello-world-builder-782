@@ -104,12 +104,27 @@ function AppShellInner() {
     refetchInterval: 60000,
     queryFn: async () => {
       const [productsResult, inventoryResult] = await Promise.all([
-        supabase.from("products").select("id, name, reorder_level").eq("is_active", true).eq("track_stock", true),
+        supabase
+          .from("products")
+          .select("id, name, reorder_level")
+          .eq("is_active", true)
+          .eq("track_stock", true),
         supabase.from("inventory").select("product_id, quantity"),
       ]);
       if (productsResult.error) throw productsResult.error;
       if (inventoryResult.error) throw inventoryResult.error;
-      return (productsResult.data ?? []).map((product) => ({ ...product, quantity: (inventoryResult.data ?? []).filter((row) => row.product_id === product.id).reduce((sum, row) => sum + Number(row.quantity), 0) })).filter((product) => product.quantity <= Number(product.reorder_level) && (org?.low_stock_include_out_of_stock || product.quantity > 0));
+      return (productsResult.data ?? [])
+        .map((product) => ({
+          ...product,
+          quantity: (inventoryResult.data ?? [])
+            .filter((row) => row.product_id === product.id)
+            .reduce((sum, row) => sum + Number(row.quantity), 0),
+        }))
+        .filter(
+          (product) =>
+            product.quantity <= Number(product.reorder_level) &&
+            (org?.low_stock_include_out_of_stock || product.quantity > 0),
+        );
     },
   });
 
@@ -331,7 +346,45 @@ function AppShellInner() {
           <div className="flex items-center gap-2">
             <SyncBadge className="hidden shrink-0 border bg-secondary text-secondary-foreground sm:flex" />
             <PwaInstallControl />
-            <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="تنبيهات المخزون" className="relative"><Bell className="size-5" />{(lowStock.data?.length ?? 0) > 0 ? <span className="absolute end-0 top-0 grid min-w-4 place-items-center rounded-full bg-destructive px-1 text-[9px] font-bold text-destructive-foreground">{lowStock.data?.length}</span> : null}</Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="w-80"><DropdownMenuLabel>تنبيهات المخزون</DropdownMenuLabel><DropdownMenuSeparator />{(lowStock.data ?? []).slice(0, 6).map((product) => <DropdownMenuItem key={product.id} asChild><Link to="/inventory"><AlertStock name={product.name} quantity={product.quantity} /></Link></DropdownMenuItem>)}{!lowStock.data?.length ? <DropdownMenuItem disabled>لا توجد أصناف تحتاج لإعادة التوريد</DropdownMenuItem> : null}{(lowStock.data?.length ?? 0) > 0 ? <><DropdownMenuSeparator /><DropdownMenuItem asChild><Link to="/inventory">عرض قائمة إعادة التوريد</Link></DropdownMenuItem></> : null}</DropdownMenuContent></DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="تنبيهات المخزون"
+                  className="relative"
+                >
+                  <Bell className="size-5" />
+                  {(lowStock.data?.length ?? 0) > 0 ? (
+                    <span className="absolute end-0 top-0 grid min-w-4 place-items-center rounded-full bg-destructive px-1 text-[9px] font-bold text-destructive-foreground">
+                      {lowStock.data?.length}
+                    </span>
+                  ) : null}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel>تنبيهات المخزون</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {(lowStock.data ?? []).slice(0, 6).map((product) => (
+                  <DropdownMenuItem key={product.id} asChild>
+                    <Link to="/inventory">
+                      <AlertStock name={product.name} quantity={product.quantity} />
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+                {!lowStock.data?.length ? (
+                  <DropdownMenuItem disabled>لا توجد أصناف تحتاج لإعادة التوريد</DropdownMenuItem>
+                ) : null}
+                {(lowStock.data?.length ?? 0) > 0 ? (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/inventory">عرض قائمة إعادة التوريد</Link>
+                    </DropdownMenuItem>
+                  </>
+                ) : null}
+              </DropdownMenuContent>
+            </DropdownMenu>
             {can("sales.create") ? (
               <Button asChild className="hidden gradient-primary sm:inline-flex">
                 <Link to="/pos">
@@ -370,7 +423,12 @@ function AppShellInner() {
 }
 
 function AlertStock({ name, quantity }: { name: string; quantity: number }) {
-  return <div className="min-w-0"><div className="truncate font-semibold">{name}</div><div className="text-xs text-muted-foreground">المتوفر: {quantity}</div></div>;
+  return (
+    <div className="min-w-0">
+      <div className="truncate font-semibold">{name}</div>
+      <div className="text-xs text-muted-foreground">المتوفر: {quantity}</div>
+    </div>
+  );
 }
 
 export function PageHeader({

@@ -66,7 +66,11 @@ function ReportsPage() {
   const staff = useQuery({
     queryKey: ["report-staff"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("id, full_name").eq("is_active", true).order("full_name");
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .eq("is_active", true)
+        .order("full_name");
       if (error) throw error;
       return data ?? [];
     },
@@ -205,9 +209,14 @@ function ReportsPage() {
     for (const sale of sales.data ?? []) {
       const key = sale.created_at.slice(0, 10);
       const row = map.get(key) ?? { count: 0, total: 0, tax: 0 };
-      row.count += 1; row.total += Number(sale.total); row.tax += Number(sale.tax); map.set(key, row);
+      row.count += 1;
+      row.total += Number(sale.total);
+      row.tax += Number(sale.tax);
+      map.set(key, row);
     }
-    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, row]) => [date, row.count, row.total, row.tax]);
+    return [...map.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, row]) => [date, row.count, row.total, row.tax]);
   }, [sales.data]);
   const byMethod = useMemo(() => {
     const map: Record<string, number> = {};
@@ -230,8 +239,20 @@ function ReportsPage() {
         title="التقارير الشاملة"
         description="المبيعات والمخزون والمصروفات والنقدية في مكان واحد."
       >
-        <Button variant="outline" onClick={() => exportCsv(`sales-report-${from}-${to}`, exportHeaders, dailyRows)}><Download /> CSV</Button>
-        <Button variant="outline" onClick={() => exportExcel(`sales-report-${from}-${to}`, "المبيعات", exportHeaders, dailyRows)}><FileSpreadsheet /> Excel</Button>
+        <Button
+          variant="outline"
+          onClick={() => exportCsv(`sales-report-${from}-${to}`, exportHeaders, dailyRows)}
+        >
+          <Download /> CSV
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            exportExcel(`sales-report-${from}-${to}`, "المبيعات", exportHeaders, dailyRows)
+          }
+        >
+          <FileSpreadsheet /> Excel
+        </Button>
       </PageHeader>
       <div className="space-y-5 p-4 sm:p-6" id="report-print-area">
         <div className="surface-card flex flex-wrap items-center gap-3 p-4 print:hidden">
@@ -261,8 +282,17 @@ function ReportsPage() {
             </SelectContent>
           </Select>
           <Select value={cashierId} onValueChange={setCashierId}>
-            <SelectTrigger className="w-48"><SelectValue placeholder="الكاشير" /></SelectTrigger>
-            <SelectContent><SelectItem value="all">كل الكاشيرين</SelectItem>{(staff.data ?? []).map((person) => <SelectItem key={person.id} value={person.id}>{person.full_name}</SelectItem>)}</SelectContent>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="الكاشير" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الكاشيرين</SelectItem>
+              {(staff.data ?? []).map((person) => (
+                <SelectItem key={person.id} value={person.id}>
+                  {person.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

@@ -56,7 +56,12 @@ function escapeHtml(value: string) {
 }
 
 /** Local receipt printing — works with no internet (browser print dialog only). */
-export function printReceipt(receipt: ReceiptData, business: ReceiptBusiness, currency: string, paper: "58" | "80" = "80") {
+export function printReceipt(
+  receipt: ReceiptData,
+  business: ReceiptBusiness,
+  currency: string,
+  paper: "58" | "80" = "80",
+) {
   const rows = receipt.items
     .map(
       (i) =>
@@ -193,13 +198,30 @@ export function ReceiptDialog({
         )}
         <DialogFooter>
           <div className="me-auto flex rounded-md border p-1">
-            <Button size="sm" variant={paper === "58" ? "default" : "ghost"} onClick={() => setPaper("58")}>58 مم</Button>
-            <Button size="sm" variant={paper === "80" ? "default" : "ghost"} onClick={() => setPaper("80")}>80 مم</Button>
+            <Button
+              size="sm"
+              variant={paper === "58" ? "default" : "ghost"}
+              onClick={() => setPaper("58")}
+            >
+              58 مم
+            </Button>
+            <Button
+              size="sm"
+              variant={paper === "80" ? "default" : "ghost"}
+              onClick={() => setPaper("80")}
+            >
+              80 مم
+            </Button>
           </div>
           <Button variant="outline" onClick={onClose}>
             فاتورة جديدة
           </Button>
-          <Button onClick={() => { if (receipt && !printReceipt(receipt, business, currency, paper)) window.alert("اسمح بالنوافذ المنبثقة لطباعة الإيصال."); }}>
+          <Button
+            onClick={() => {
+              if (receipt && !printReceipt(receipt, business, currency, paper))
+                window.alert("اسمح بالنوافذ المنبثقة لطباعة الإيصال.");
+            }}
+          >
             <Printer className="size-4" /> طباعة الإيصال
           </Button>
         </DialogFooter>
