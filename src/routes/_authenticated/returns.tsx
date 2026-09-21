@@ -303,13 +303,16 @@ function ReturnsPage() {
                           <span>{money(sale.total, currency)}</span>
                         </span>
                         <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                          {dateTime(sale.created_at)} · {sale.status === "COMPLETED" ? "متاحة" : "مرتجع جزئي"}
+                          {dateTime(sale.created_at)} ·{" "}
+                          {sale.status === "COMPLETED" ? "متاحة" : "مرتجع جزئي"}
                         </span>
                       </span>
                     </Button>
                   ))}
                   {!filteredSales.length && (
-                    <p className="py-8 text-center text-sm text-muted-foreground">لا توجد فاتورة مطابقة.</p>
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      لا توجد فاتورة مطابقة.
+                    </p>
                   )}
                 </div>
               </CardContent>
@@ -319,25 +322,41 @@ function ReturnsPage() {
               <CardHeader className="gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <CardTitle>{mode === "return" ? "أصناف المرتجع" : "أصناف الاستبدال"}</CardTitle>
                 <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
-                  <Button size="sm" variant={mode === "return" ? "default" : "ghost"} onClick={() => setMode("return")}>
+                  <Button
+                    size="sm"
+                    variant={mode === "return" ? "default" : "ghost"}
+                    onClick={() => setMode("return")}
+                  >
                     مرتجع
                   </Button>
-                  <Button size="sm" variant={mode === "exchange" ? "default" : "ghost"} onClick={() => setMode("exchange")}>
+                  <Button
+                    size="sm"
+                    variant={mode === "exchange" ? "default" : "ghost"}
+                    onClick={() => setMode("exchange")}
+                  >
                     استبدال
                   </Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {!saleId && <p className="py-12 text-center text-sm text-muted-foreground">اختر فاتورة للبدء.</p>}
+                {!saleId && (
+                  <p className="py-12 text-center text-sm text-muted-foreground">
+                    اختر فاتورة للبدء.
+                  </p>
+                )}
                 {(itemsQuery.data ?? []).map((item) => {
                   const already = returnedQuery.data?.[item.id] ?? 0;
                   const max = Number(item.quantity) - already;
                   return (
-                    <div key={item.id} className="grid grid-cols-[minmax(0,1fr)_88px] items-center gap-3 rounded-lg border p-3">
+                    <div
+                      key={item.id}
+                      className="grid grid-cols-[minmax(0,1fr)_88px] items-center gap-3 rounded-lg border p-3"
+                    >
                       <div className="min-w-0">
                         <div className="truncate font-semibold">{item.product_name}</div>
                         <div className="text-xs text-muted-foreground">
-                          مباع {num(item.quantity)} · مرتجع {num(already)} · متاح {num(max)} · {money(item.unit_price, currency)}
+                          مباع {num(item.quantity)} · مرتجع {num(already)} · متاح {num(max)} ·{" "}
+                          {money(item.unit_price, currency)}
                         </div>
                       </div>
                       <Input
@@ -348,7 +367,9 @@ function ReturnsPage() {
                         step="0.001"
                         disabled={max <= 0}
                         value={qty[item.id] ?? ""}
-                        onChange={(event) => setQty((current) => ({ ...current, [item.id]: event.target.value }))}
+                        onChange={(event) =>
+                          setQty((current) => ({ ...current, [item.id]: event.target.value }))
+                        }
                       />
                     </div>
                   );
@@ -359,14 +380,24 @@ function ReturnsPage() {
                     <Label>الأصناف البديلة</Label>
                     <div className="flex gap-2">
                       <Select value={replacementProductId} onValueChange={setReplacementProductId}>
-                        <SelectTrigger className="min-w-0 flex-1"><SelectValue placeholder="اختر صنفًا بديلًا" /></SelectTrigger>
+                        <SelectTrigger className="min-w-0 flex-1">
+                          <SelectValue placeholder="اختر صنفًا بديلًا" />
+                        </SelectTrigger>
                         <SelectContent>
                           {(productsQuery.data ?? []).map((product) => (
-                            <SelectItem key={product.id} value={product.id}>{product.name} — {money(product.price, currency)}</SelectItem>
+                            <SelectItem key={product.id} value={product.id}>
+                              {product.name} — {money(product.price, currency)}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button type="button" variant="outline" size="icon" aria-label="إضافة الصنف البديل" onClick={addReplacement}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        aria-label="إضافة الصنف البديل"
+                        onClick={addReplacement}
+                      >
                         <Plus className="size-4" />
                       </Button>
                     </div>
@@ -374,10 +405,15 @@ function ReturnsPage() {
                       const product = productsQuery.data?.find((item) => item.id === productId);
                       if (!product) return null;
                       return (
-                        <div key={productId} className="flex items-center gap-3 rounded-lg border p-3">
+                        <div
+                          key={productId}
+                          className="flex items-center gap-3 rounded-lg border p-3"
+                        >
                           <div className="min-w-0 flex-1">
                             <div className="truncate font-semibold">{product.name}</div>
-                            <div className="text-xs text-muted-foreground">{money(product.price, currency)}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {money(product.price, currency)}
+                            </div>
                           </div>
                           <Input
                             className="w-20"
@@ -385,9 +421,26 @@ function ReturnsPage() {
                             min={1}
                             step="0.001"
                             value={amount}
-                            onChange={(event) => setReplacementQty((current) => ({ ...current, [productId]: Math.max(Number(event.target.value) || 0, 0) }))}
+                            onChange={(event) =>
+                              setReplacementQty((current) => ({
+                                ...current,
+                                [productId]: Math.max(Number(event.target.value) || 0, 0),
+                              }))
+                            }
                           />
-                          <Button type="button" size="icon" variant="ghost" aria-label={`حذف ${product.name}`} onClick={() => setReplacementQty((current) => { const next = { ...current }; delete next[productId]; return next; })}>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            aria-label={`حذف ${product.name}`}
+                            onClick={() =>
+                              setReplacementQty((current) => {
+                                const next = { ...current };
+                                delete next[productId];
+                                return next;
+                              })
+                            }
+                          >
                             <Trash2 className="size-4" />
                           </Button>
                         </div>
@@ -396,11 +449,17 @@ function ReturnsPage() {
                     <div className="space-y-2">
                       <Label>طريقة تسوية الفرق</Label>
                       <Select value={settlementMethod} onValueChange={setSettlementMethod}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
-                          {Object.entries(PAYMENT_LABELS).filter(([key]) => ["CASH", "CARD", "TRANSFER", "CREDIT"].includes(key)).map(([key, label]) => (
-                            <SelectItem key={key} value={key}>{label}</SelectItem>
-                          ))}
+                          {Object.entries(PAYMENT_LABELS)
+                            .filter(([key]) => ["CASH", "CARD", "TRANSFER", "CREDIT"].includes(key))
+                            .map(([key, label]) => (
+                              <SelectItem key={key} value={key}>
+                                {label}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -411,18 +470,55 @@ function ReturnsPage() {
                   <>
                     <div className="space-y-1">
                       <Label htmlFor="return-reason">سبب العملية</Label>
-                      <Textarea id="return-reason" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="مقاس غير مناسب، صنف تالف..." />
+                      <Textarea
+                        id="return-reason"
+                        value={reason}
+                        onChange={(event) => setReason(event.target.value)}
+                        placeholder="مقاس غير مناسب، صنف تالف..."
+                      />
                     </div>
                     <div className="grid gap-2 rounded-lg bg-muted/50 p-3 text-sm sm:grid-cols-3">
                       <Summary label="قيمة المرتجع" value={refundEstimate} currency={currency} />
-                      {mode === "exchange" && <Summary label="قيمة البديل" value={replacementEstimate} currency={currency} />}
-                      {mode === "exchange" && <Summary label={replacementEstimate >= refundEstimate ? "المطلوب تحصيله" : "المطلوب رده"} value={Math.abs(replacementEstimate - refundEstimate)} currency={currency} />}
+                      {mode === "exchange" && (
+                        <Summary
+                          label="قيمة البديل"
+                          value={replacementEstimate}
+                          currency={currency}
+                        />
+                      )}
+                      {mode === "exchange" && (
+                        <Summary
+                          label={
+                            replacementEstimate >= refundEstimate ? "المطلوب تحصيله" : "المطلوب رده"
+                          }
+                          value={Math.abs(replacementEstimate - refundEstimate)}
+                          currency={currency}
+                        />
+                      )}
                     </div>
-                    <Button className="w-full" disabled={submit.isPending || refundEstimate <= 0 || (mode === "exchange" && replacementEstimate <= 0)} onClick={() => submit.mutate()}>
-                      {mode === "exchange" ? <ArrowLeftRight className="size-4" /> : <RotateCcw className="size-4" />}
-                      {submit.isPending ? "جارٍ التنفيذ..." : mode === "exchange" ? "تنفيذ الاستبدال" : "إصدار المرتجع"}
+                    <Button
+                      className="w-full"
+                      disabled={
+                        submit.isPending ||
+                        refundEstimate <= 0 ||
+                        (mode === "exchange" && replacementEstimate <= 0)
+                      }
+                      onClick={() => submit.mutate()}
+                    >
+                      {mode === "exchange" ? (
+                        <ArrowLeftRight className="size-4" />
+                      ) : (
+                        <RotateCcw className="size-4" />
+                      )}
+                      {submit.isPending
+                        ? "جارٍ التنفيذ..."
+                        : mode === "exchange"
+                          ? "تنفيذ الاستبدال"
+                          : "إصدار المرتجع"}
                     </Button>
-                    <p className="text-xs text-muted-foreground">تُراجع الكميات والأسعار في النظام، ويتحدث المخزون وتُسجل العملية تلقائيًا.</p>
+                    <p className="text-xs text-muted-foreground">
+                      تُراجع الكميات والأسعار في النظام، ويتحدث المخزون وتُسجل العملية تلقائيًا.
+                    </p>
                   </>
                 )}
               </CardContent>
@@ -432,22 +528,42 @@ function ReturnsPage() {
 
         <TabsContent value="history">
           <Card>
-            <CardHeader><CardTitle>سجل عمليات الاستبدال</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>سجل عمليات الاستبدال</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-2">
               {(historyQuery.data ?? []).map((exchange) => (
-                <div key={exchange.id} className="grid gap-3 rounded-lg border p-3 text-sm sm:grid-cols-[1fr_repeat(3,auto)] sm:items-center">
+                <div
+                  key={exchange.id}
+                  className="grid gap-3 rounded-lg border p-3 text-sm sm:grid-cols-[1fr_repeat(3,auto)] sm:items-center"
+                >
                   <div>
                     <div className="font-bold">استبدال {exchange.original_sale_id.slice(0, 8)}</div>
-                    <div className="text-xs text-muted-foreground">{dateTime(exchange.created_at)}{exchange.note ? ` · ${exchange.note}` : ""}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {dateTime(exchange.created_at)}
+                      {exchange.note ? ` · ${exchange.note}` : ""}
+                    </div>
                   </div>
-                  <div><span className="text-muted-foreground">مرتجع </span><b>{money(exchange.returned_total, currency)}</b></div>
-                  <div><span className="text-muted-foreground">بديل </span><b>{money(exchange.replacement_total, currency)}</b></div>
+                  <div>
+                    <span className="text-muted-foreground">مرتجع </span>
+                    <b>{money(exchange.returned_total, currency)}</b>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">بديل </span>
+                    <b>{money(exchange.replacement_total, currency)}</b>
+                  </div>
                   <Badge variant={Number(exchange.amount_due) > 0 ? "default" : "secondary"}>
-                    {Number(exchange.amount_due) > 0 ? `تحصيل ${money(exchange.amount_due, currency)}` : `رد ${money(exchange.refund_due, currency)}`}
+                    {Number(exchange.amount_due) > 0
+                      ? `تحصيل ${money(exchange.amount_due, currency)}`
+                      : `رد ${money(exchange.refund_due, currency)}`}
                   </Badge>
                 </div>
               ))}
-              {!historyQuery.data?.length && <p className="py-12 text-center text-sm text-muted-foreground">لا توجد عمليات استبدال بعد.</p>}
+              {!historyQuery.data?.length && (
+                <p className="py-12 text-center text-sm text-muted-foreground">
+                  لا توجد عمليات استبدال بعد.
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -457,5 +573,10 @@ function ReturnsPage() {
 }
 
 function Summary({ label, value, currency }: { label: string; value: number; currency: string }) {
-  return <div className="flex justify-between gap-2 sm:block"><span className="text-muted-foreground">{label}</span><div className="font-black text-primary">{money(value, currency)}</div></div>;
+  return (
+    <div className="flex justify-between gap-2 sm:block">
+      <span className="text-muted-foreground">{label}</span>
+      <div className="font-black text-primary">{money(value, currency)}</div>
+    </div>
+  );
 }
