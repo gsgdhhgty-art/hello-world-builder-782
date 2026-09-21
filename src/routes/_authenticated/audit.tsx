@@ -34,6 +34,7 @@ const ACTION_LABELS: Record<string, string> = {
   ORG_CREATED: "إنشاء المتجر",
   SALE_CREATED: "فاتورة بيع",
   SALE_RETURNED: "مرتجع",
+  SALE_EXCHANGED: "استبدال بيع",
   PURCHASE_RECEIVED: "استلام مشتريات",
   SHIFT_CLOSED: "إغلاق وردية",
   STAFF_CREATED: "إضافة موظف",

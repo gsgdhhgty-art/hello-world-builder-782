@@ -30,20 +30,21 @@ export function PwaInstallControl() {
     <>
       <Button
         variant="ghost"
-        size="icon"
         aria-label="تثبيت التطبيق"
         title="تثبيت التطبيق"
+        className="gap-2 px-2 sm:px-3"
         onClick={() => void handleInstall()}
       >
         <Download className="size-5" />
+        <span className="hidden sm:inline">تثبيت التطبيق</span>
       </Button>
       <Dialog open={instructionsOpen} onOpenChange={setInstructionsOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>إضافة SmartPOS إلى الشاشة الرئيسية</DialogTitle>
+            <DialogTitle>تثبيت SmartPOS على جهازك</DialogTitle>
             <DialogDescription>
               هذا المتصفح لا يوفّر نافذة تثبيت تلقائية. افتح قائمة المتصفح ثم اختر «إضافة إلى الشاشة
-              الرئيسية» أو «تثبيت التطبيق».
+              الرئيسية» أو «تثبيت التطبيق». سيظهر SmartPOS كتطبيق مستقل دون الحاجة إلى ملف APK.
             </DialogDescription>
           </DialogHeader>
           <Button variant="outline" onClick={() => setInstructionsOpen(false)}>
