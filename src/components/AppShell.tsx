@@ -28,6 +28,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { OfflineProvider } from "@/hooks/useOffline";
 import { SyncBadge } from "@/components/SyncBadge";
+import { PwaInstallControl } from "@/components/PwaInstallControl";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -311,6 +312,7 @@ function AppShellInner() {
 
           <div className="flex items-center gap-2">
             <SyncBadge className="hidden shrink-0 border bg-secondary text-secondary-foreground sm:flex" />
+            <PwaInstallControl />
             <Button variant="ghost" size="icon" aria-label="الإشعارات" className="relative">
               <Bell className="size-5" />
               <span className="absolute end-1.5 top-1.5 size-2 rounded-full bg-destructive ring-2 ring-card" />

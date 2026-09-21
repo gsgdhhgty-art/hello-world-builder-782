@@ -2,6 +2,7 @@ import { registerSW } from "virtual:pwa-register";
 
 export type PwaState = {
   canInstall: boolean;
+  installed: boolean;
   updateReady: boolean;
   updating: boolean;
 };
@@ -15,7 +16,12 @@ const EVENT_NAME = "smartpos:pwa-state";
 let installPrompt: InstallPromptEvent | null = null;
 let updateServiceWorker: ((reloadPage?: boolean) => Promise<void>) | null = null;
 let initialized = false;
-let state: PwaState = { canInstall: false, updateReady: false, updating: false };
+let state: PwaState = {
+  canInstall: false,
+  installed: false,
+  updateReady: false,
+  updating: false,
+};
 
 function publish(patch: Partial<PwaState>) {
   state = { ...state, ...patch };
@@ -36,6 +42,10 @@ export function subscribePwaState(listener: (state: PwaState) => void): () => vo
 export function registerOfflineSupport(): void {
   if (typeof window === "undefined" || initialized) return;
   initialized = true;
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
+  publish({ installed: standalone });
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
@@ -44,7 +54,7 @@ export function registerOfflineSupport(): void {
   });
   window.addEventListener("appinstalled", () => {
     installPrompt = null;
-    publish({ canInstall: false });
+    publish({ canInstall: false, installed: true });
   });
 
   if (!("serviceWorker" in navigator) || import.meta.env.DEV) return;
