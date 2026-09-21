@@ -66,13 +66,13 @@ function CatalogPage() {
   const save = useMutation({
     mutationFn: async () => {
       if (!editor || !profile?.org_id || !name.trim()) throw new Error("اسم السجل مطلوب");
-      const payload =
-        editor.kind === "brands"
-          ? { name: name.trim(), description: description.trim() || null }
-          : { name: name.trim() };
       const result = editor.row
-        ? await supabase.from(editor.kind).update(payload).eq("id", editor.row.id)
-        : await supabase.from(editor.kind).insert({ ...payload, org_id: profile.org_id });
+        ? editor.kind === "brands"
+          ? await supabase.from("brands").update({ name: name.trim(), description: description.trim() || null }).eq("id", editor.row.id)
+          : await supabase.from("categories").update({ name: name.trim() }).eq("id", editor.row.id)
+        : editor.kind === "brands"
+          ? await supabase.from("brands").insert({ name: name.trim(), description: description.trim() || null, org_id: profile.org_id })
+          : await supabase.from("categories").insert({ name: name.trim(), org_id: profile.org_id });
       if (result.error) throw result.error;
     },
     onSuccess: () => {

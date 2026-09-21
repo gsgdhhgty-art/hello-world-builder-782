@@ -248,8 +248,26 @@ function SalesPage() {
     staff.data?.find((item) => item.id === openSale?.cashier_id)?.full_name ?? "—";
   const selectedBranch =
     branches.data?.find((item) => item.id === openSale?.branch_id)?.name ?? "—";
-  const exportHeaders = ["الفاتورة", "التاريخ", "الفرع", "الكاشير", "طريقة الدفع", "الضريبة", "الإجمالي", "الحالة"];
-  const exportRows = filtered.map((sale) => [sale.invoice_no, dateTime(sale.created_at), branches.data?.find((item) => item.id === sale.branch_id)?.name ?? "محلي", staff.data?.find((item) => item.id === sale.cashier_id)?.full_name ?? "—", PAYMENT_LABELS[sale.payment_method] ?? sale.payment_method, Number(sale.tax), Number(sale.total), STATUS_LABELS[sale.status] ?? sale.status]);
+  const exportHeaders = [
+    "الفاتورة",
+    "التاريخ",
+    "الفرع",
+    "الكاشير",
+    "طريقة الدفع",
+    "الضريبة",
+    "الإجمالي",
+    "الحالة",
+  ];
+  const exportRows = filtered.map((sale) => [
+    sale.invoice_no,
+    dateTime(sale.created_at),
+    branches.data?.find((item) => item.id === sale.branch_id)?.name ?? "محلي",
+    staff.data?.find((item) => item.id === sale.cashier_id)?.full_name ?? "—",
+    PAYMENT_LABELS[sale.payment_method] ?? sale.payment_method,
+    Number(sale.tax),
+    Number(sale.total),
+    STATUS_LABELS[sale.status] ?? sale.status,
+  ]);
 
   function printSelected() {
     if (!openSale || !detail.data) return;
@@ -293,7 +311,22 @@ function SalesPage() {
 
   return (
     <div>
-      <PageHeader title="المبيعات" description="ابحث وصفِّ وراجع كل فاتورة ودفعاتها."><Button variant="outline" onClick={() => exportCsv(`invoices-${from}-${to}`, exportHeaders, exportRows)}><Download /> CSV</Button><Button variant="outline" onClick={() => exportExcel(`invoices-${from}-${to}`, "الفواتير", exportHeaders, exportRows)}><FileSpreadsheet /> Excel</Button></PageHeader>
+      <PageHeader title="المبيعات" description="ابحث وصفِّ وراجع كل فاتورة ودفعاتها.">
+        <Button
+          variant="outline"
+          onClick={() => exportCsv(`invoices-${from}-${to}`, exportHeaders, exportRows)}
+        >
+          <Download /> CSV
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            exportExcel(`invoices-${from}-${to}`, "الفواتير", exportHeaders, exportRows)
+          }
+        >
+          <FileSpreadsheet /> Excel
+        </Button>
+      </PageHeader>
       <div className="space-y-4 p-4 sm:p-6">
         <div className="surface-card grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-7">
           <div className="relative md:col-span-2">
@@ -330,7 +363,19 @@ function SalesPage() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={cashierId} onValueChange={setCashierId}><SelectTrigger><SelectValue placeholder="الكاشير" /></SelectTrigger><SelectContent><SelectItem value="all">كل الكاشيرين</SelectItem>{(staff.data ?? []).map((person) => <SelectItem key={person.id} value={person.id}>{person.full_name}</SelectItem>)}</SelectContent></Select>
+          <Select value={cashierId} onValueChange={setCashierId}>
+            <SelectTrigger>
+              <SelectValue placeholder="الكاشير" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الكاشيرين</SelectItem>
+              {(staff.data ?? []).map((person) => (
+                <SelectItem key={person.id} value={person.id}>
+                  {person.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <div className="grid grid-cols-2 gap-2">
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger>
@@ -528,7 +573,15 @@ function SalesPage() {
             <Button variant="outline" onClick={() => setOpenSale(null)}>
               إغلاق
             </Button>
-            <Select value={paper} onValueChange={(value) => setPaper(value as "58" | "80")}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="58">58 مم</SelectItem><SelectItem value="80">80 مم</SelectItem></SelectContent></Select>
+            <Select value={paper} onValueChange={(value) => setPaper(value as "58" | "80")}>
+              <SelectTrigger className="w-28">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="58">58 مم</SelectItem>
+                <SelectItem value="80">80 مم</SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="outline" onClick={printSelected} disabled={!detail.data}>
               <Printer className="size-4" /> طباعة
             </Button>
