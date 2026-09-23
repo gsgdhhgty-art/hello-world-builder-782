@@ -374,6 +374,7 @@ export type Database = {
           name: string
           owner_id: string
           phone: string | null
+          profit_calculation_method: string
           reorder_suggestion_multiplier: number
           tax_number: string | null
           tax_rate: number
@@ -391,6 +392,7 @@ export type Database = {
           name: string
           owner_id: string
           phone?: string | null
+          profit_calculation_method?: string
           reorder_suggestion_multiplier?: number
           tax_number?: string | null
           tax_rate?: number
@@ -408,6 +410,7 @@ export type Database = {
           name?: string
           owner_id?: string
           phone?: string | null
+          profit_calculation_method?: string
           reorder_suggestion_multiplier?: number
           tax_number?: string | null
           tax_rate?: number
