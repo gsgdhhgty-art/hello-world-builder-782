@@ -206,9 +206,21 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.67 0.16 153);
 
-  --gradient-primary: linear-gradient(135deg, var(--color-primary), color-mix(in oklab, var(--color-primary) 86%, var(--color-success)));
-  --gradient-sidebar: linear-gradient(180deg, var(--color-sidebar), color-mix(in oklab, var(--color-sidebar) 90%, black));
-  --gradient-surface: linear-gradient(180deg, var(--color-card), color-mix(in oklab, var(--color-card) 96%, var(--color-background)));
+  --gradient-primary: linear-gradient(
+    135deg,
+    var(--color-primary),
+    color-mix(in oklab, var(--color-primary) 86%, var(--color-success))
+  );
+  --gradient-sidebar: linear-gradient(
+    180deg,
+    var(--color-sidebar),
+    color-mix(in oklab, var(--color-sidebar) 90%, black)
+  );
+  --gradient-surface: linear-gradient(
+    180deg,
+    var(--color-card),
+    color-mix(in oklab, var(--color-card) 96%, var(--color-background))
+  );
   --shadow-soft: 0 1px 2px oklch(0.2 0.04 255 / 6%);
   --shadow-card: 0 1px 2px oklch(0.2 0.04 255 / 5%), 0 8px 24px -18px oklch(0.2 0.04 255 / 22%);
   --shadow-glow: 0 8px 18px -10px color-mix(in oklab, var(--color-primary) 45%, transparent);

@@ -538,7 +538,9 @@ function ProductsPage() {
                                   currency,
                                 });
                               } catch (error) {
-                                toast.error(error instanceof Error ? error.message : "تعذرت الطباعة");
+                                toast.error(
+                                  error instanceof Error ? error.message : "تعذرت الطباعة",
+                                );
                               }
                             }}
                           >

@@ -226,7 +226,7 @@ function AppShellInner() {
         {groups.map((group) => (
           <div key={group.title}>
             {!collapsed && (
-                <div className="px-3 pb-1.5 text-[10px] font-extrabold text-sidebar-foreground/45">
+              <div className="px-3 pb-1.5 text-[10px] font-extrabold text-sidebar-foreground/45">
                 {group.title}
               </div>
             )}
@@ -477,7 +477,9 @@ export function PageHeader({
         <div className="min-w-0">
           <h1 className="truncate text-xl font-black text-foreground sm:text-[1.65rem]">{title}</h1>
           {description ? (
-            <p className="mt-1 truncate text-xs font-medium text-muted-foreground sm:text-sm">{description}</p>
+            <p className="mt-1 truncate text-xs font-medium text-muted-foreground sm:text-sm">
+              {description}
+            </p>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">{children}</div>

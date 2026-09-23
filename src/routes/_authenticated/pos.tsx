@@ -949,7 +949,7 @@ function PosPage() {
             variant="outline"
             size="icon"
             className="shrink-0"
-              aria-label="إضافة عميل جديد"
+            aria-label="إضافة عميل جديد"
             onClick={() => setNewCustomer({ open: true, name: "", phone: "" })}
           >
             <UserPlus className="size-4" />
