@@ -292,7 +292,7 @@ function AppShellInner() {
             <div className="truncate text-base font-black text-sidebar-foreground">
               Smart<span className="text-primary">POS</span>
             </div>
-            <div className="truncate text-[10px] font-semibold text-muted-foreground">
+            <div className="truncate text-[11px] font-semibold text-sidebar-foreground/60">
               {org?.name ?? "إدارة أسهل، مبيعات أكثر"}
             </div>
           </div>
