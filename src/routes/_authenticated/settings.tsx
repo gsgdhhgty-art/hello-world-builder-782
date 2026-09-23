@@ -327,7 +327,8 @@ function SettingsPage() {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                يُحسب الربح من تكلفة الصنف المحفوظة وقت إغلاق الفاتورة، فلا تتغير أرباح المبيعات القديمة.
+                يُحسب الربح من تكلفة الصنف المحفوظة وقت إغلاق الفاتورة، فلا تتغير أرباح المبيعات
+                القديمة.
               </p>
             </div>
             <Button disabled={saveOrg.isPending} onClick={() => saveOrg.mutate()}>

@@ -178,10 +178,12 @@ function AppShellInner() {
   }
 
   const availableGroups = profile.role === "CASHIER" ? NAV_GROUPS.slice(0, 1) : NAV_GROUPS;
-  const groups = availableGroups.map((g) => ({
-    ...g,
-    items: g.items.filter((i) => !i.perm || (i.perm === "*" ? permissions["*"] : can(i.perm))),
-  })).filter((g) => g.items.length);
+  const groups = availableGroups
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((i) => !i.perm || (i.perm === "*" ? permissions["*"] : can(i.perm))),
+    }))
+    .filter((g) => g.items.length);
 
   const current = groups.flatMap((g) => g.items).find((i) => i.to === location.pathname);
 

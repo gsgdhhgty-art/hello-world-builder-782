@@ -865,7 +865,9 @@ function PosPage() {
           </span>
           <span className="min-w-0 text-start">
             <span className="block truncate text-xs opacity-85">عرض الفاتورة وإغلاق البيع</span>
-            <span className="block truncate text-base font-black">{money(grandTotal, currency)}</span>
+            <span className="block truncate text-base font-black">
+              {money(grandTotal, currency)}
+            </span>
           </span>
           <span className="shrink-0 text-sm font-black">متابعة</span>
         </Button>
@@ -885,7 +887,9 @@ function PosPage() {
       <aside
         className={cn(
           "workspace-card fixed inset-x-2 bottom-2 top-20 z-50 flex w-auto shrink-0 flex-col overflow-hidden transition-transform duration-200 lg:static lg:h-full lg:w-[390px] lg:translate-y-0 xl:w-[420px]",
-          mobileCartOpen ? "translate-y-0" : "pointer-events-none translate-y-[110%] lg:pointer-events-auto",
+          mobileCartOpen
+            ? "translate-y-0"
+            : "pointer-events-none translate-y-[110%] lg:pointer-events-auto",
         )}
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b p-4">
