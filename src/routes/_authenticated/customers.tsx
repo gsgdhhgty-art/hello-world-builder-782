@@ -194,17 +194,25 @@ function CustomersPage() {
               {!filtered.length && (
                 <TableRow>
                   <TableCell colSpan={5} className="p-0">
-                    <EmptyState
-                      icon={Users}
-                      title={search ? "لا توجد نتائج مطابقة" : "لا يوجد عملاء بعد"}
-                      description={
-                        search
-                          ? "جرّب البحث باسم أو رقم مختلف."
-                          : "أضف أول عميل لربط مشترياته وأرصدة البيع الآجل."
-                      }
-                      actionLabel={!search && editable ? "إضافة عميل" : undefined}
-                      onAction={!search && editable ? () => setOpen(true) : undefined}
-                    />
+                    {!search && editable ? (
+                      <EmptyState
+                        icon={Users}
+                        title="لا يوجد عملاء بعد"
+                        description="أضف أول عميل لربط مشترياته وأرصدة البيع الآجل."
+                        actionLabel="إضافة عميل"
+                        onAction={() => setOpen(true)}
+                      />
+                    ) : (
+                      <EmptyState
+                        icon={Users}
+                        title={search ? "لا توجد نتائج مطابقة" : "لا يوجد عملاء بعد"}
+                        description={
+                          search
+                            ? "جرّب البحث باسم أو رقم مختلف."
+                            : "سيظهر العملاء المسجلون هنا."
+                        }
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               )}

@@ -44,6 +44,7 @@ import { ROLE_LABELS } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; perm?: string };
 
@@ -97,6 +98,7 @@ function AppShellInner() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [navigationSearch, setNavigationSearch] = useState("");
   const onOnboarding = location.pathname.startsWith("/onboarding");
   const lowStock = useQuery({
     queryKey: ["header-low-stock", org?.id],
@@ -186,6 +188,9 @@ function AppShellInner() {
     .filter((g) => g.items.length);
 
   const current = groups.flatMap((g) => g.items).find((i) => i.to === location.pathname);
+  const searchableItems = groups
+    .flatMap((group) => group.items)
+    .filter((item) => item.label.includes(navigationSearch.trim()));
 
   async function handleSignOut() {
     await signOut();
@@ -335,13 +340,36 @@ function AppShellInner() {
             )}
           </Button>
 
-          <div className="relative hidden min-w-0 max-w-lg flex-1 lg:block">
-            <Search className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              className="h-10 w-full rounded-md border border-input bg-background px-4 pe-10 text-sm outline-hidden transition focus:border-primary focus:ring-3 focus:ring-primary/10"
-              placeholder="ابحث عن فاتورة، منتج أو عميل..."
-            />
-          </div>
+          <DropdownMenu
+            open={Boolean(navigationSearch.trim())}
+            onOpenChange={(open) => !open && setNavigationSearch("")}
+          >
+            <DropdownMenuTrigger asChild>
+              <div className="relative hidden min-w-0 max-w-lg flex-1 lg:block">
+                <Search className="pointer-events-none absolute end-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="pe-10"
+                  placeholder="انتقل إلى صفحة أو وظيفة..."
+                  value={navigationSearch}
+                  onChange={(event) => setNavigationSearch(event.target.value)}
+                />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-80">
+              <DropdownMenuLabel>نتائج التنقل</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {searchableItems.slice(0, 8).map((item) => (
+                <DropdownMenuItem key={item.to} asChild>
+                  <Link to={item.to} onClick={() => setNavigationSearch("")}>
+                    <item.icon className="size-4" /> {item.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+              {!searchableItems.length ? (
+                <DropdownMenuItem disabled>لا توجد صفحة مطابقة</DropdownMenuItem>
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div className="min-w-0 lg:hidden">
             <h2 className="truncate text-base font-extrabold">{current?.label ?? "SmartPOS"}</h2>
           </div>
@@ -389,7 +417,7 @@ function AppShellInner() {
               </DropdownMenuContent>
             </DropdownMenu>
             {can("sales.create") ? (
-              <Button asChild className="hidden gradient-primary sm:inline-flex">
+              <Button asChild className="hidden sm:inline-flex">
                 <Link to="/pos">
                   <ScanBarcode className="size-4" /> الكاشير
                 </Link>
@@ -397,7 +425,7 @@ function AppShellInner() {
             ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" aria-label="حسابي" className="rounded-full gradient-primary">
+                <Button size="icon" aria-label="حسابي" className="rounded-full">
                   {initials}
                 </Button>
               </DropdownMenuTrigger>
