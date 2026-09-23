@@ -241,12 +241,14 @@ function SettingsPage() {
 
   return (
     <div>
-      <PageHeader title="الإعدادات" description="بيانات المتجر والفروع والأدوار." />
+      <PageHeader title="الإعدادات" description="إعدادات الكاشير والفواتير والفروع والأدوار." />
       <div className="grid gap-6 p-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>بيانات المتجر</CardTitle>
-            <CardDescription>الهوية والبيانات التي تظهر على الفاتورة الضريبية.</CardDescription>
+            <CardTitle>إعدادات الكاشير والفواتير</CardTitle>
+            <CardDescription>
+              هوية المتجر والعملة وضريبة المبيعات وطريقة حساب الربح في كل الفروع.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">

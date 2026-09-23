@@ -872,9 +872,10 @@ function PosPage() {
       </div>
 
       {mobileCartOpen ? (
-        <button
+        <Button
           type="button"
-          className="fixed inset-0 z-40 bg-foreground/30 lg:hidden"
+          variant="ghost"
+          className="fixed inset-0 z-40 h-auto rounded-none bg-foreground/30 p-0 hover:bg-foreground/30 lg:hidden"
           aria-label="إغلاق سلة المشتريات"
           onClick={() => setMobileCartOpen(false)}
         />
