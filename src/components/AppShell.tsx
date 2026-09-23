@@ -303,15 +303,20 @@ function AppShellInner() {
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      "group relative flex h-10 items-center gap-3 rounded-md px-3 text-sm font-semibold transition-colors",
+                      "group relative flex h-11 touch-target items-center gap-3 rounded-md px-2.5 text-sm font-semibold transition-colors",
                       collapsed && "justify-center px-0",
                       active
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        ? "bg-sidebar-primary/95 text-sidebar-primary-foreground shadow-sm"
+                        : "text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     )}
                     title={collapsed ? item.label : undefined}
                   >
-                    <span className="grid size-7 shrink-0 place-items-center">
+                    <span
+                      className={cn(
+                        "grid size-8 shrink-0 place-items-center rounded-[6px] transition-colors",
+                        active ? "bg-white/18 text-sidebar-primary-foreground" : item.tone,
+                      )}
+                    >
                       <item.icon className="size-4" />
                     </span>
                     {!collapsed && <span className="truncate">{item.label}</span>}
