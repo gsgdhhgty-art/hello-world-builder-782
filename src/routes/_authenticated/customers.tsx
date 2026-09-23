@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Search, Users } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { money } from "@/lib/format";
+import { EmptyState } from "@/components/EmptyState";
 
 export const Route = createFileRoute("/_authenticated/customers")({
   head: () => ({
@@ -50,6 +51,7 @@ function CustomersPage() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ ...EMPTY });
+  const [search, setSearch] = useState("");
 
   const customers = useQuery({
     queryKey: ["customers"],
@@ -62,6 +64,19 @@ function CustomersPage() {
       return data ?? [];
     },
   });
+  const filtered = (customers.data ?? []).filter((customer) => {
+    const query = search.trim().toLowerCase();
+    return (
+      !query ||
+      customer.name.toLowerCase().includes(query) ||
+      (customer.phone ?? "").includes(query) ||
+      (customer.email ?? "").toLowerCase().includes(query)
+    );
+  });
+  const totalBalance = (customers.data ?? []).reduce(
+    (sum, customer) => sum + Number(customer.balance),
+    0,
+  );
 
   const save = useMutation({
     mutationFn: async () => {
@@ -105,8 +120,36 @@ function CustomersPage() {
         )}
       </PageHeader>
 
-      <div className="p-6">
-        <div className="overflow-x-auto rounded-xl border bg-card">
+      <div className="page-canvas space-y-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="workspace-card flex items-center gap-3 p-4">
+            <span className="grid size-10 place-items-center rounded-md bg-primary/10 text-primary">
+              <Users className="size-5" />
+            </span>
+            <div>
+              <p className="text-xs font-bold text-muted-foreground">العملاء المسجلون</p>
+              <p className="text-xl font-black">{customers.data?.length ?? 0}</p>
+            </div>
+          </div>
+          <div className="workspace-card p-4">
+            <p className="text-xs font-bold text-muted-foreground">إجمالي الأرصدة المستحقة</p>
+            <p className="mt-1 text-xl font-black text-destructive">
+              {money(totalBalance, currency)}
+            </p>
+          </div>
+        </div>
+        <div className="data-panel">
+          <div className="border-b border-border p-3">
+            <div className="relative max-w-lg">
+              <Search className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pe-9"
+                placeholder="ابحث بالاسم أو الجوال أو البريد"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </div>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -118,7 +161,7 @@ function CustomersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(customers.data ?? []).map((c) => (
+              {filtered.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.name}</TableCell>
                   <TableCell dir="ltr">{c.phone ?? "—"}</TableCell>
@@ -148,10 +191,20 @@ function CustomersPage() {
                   </TableCell>
                 </TableRow>
               ))}
-              {!customers.data?.length && (
+              {!filtered.length && (
                 <TableRow>
-                  <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
-                    لا يوجد عملاء بعد.
+                  <TableCell colSpan={5} className="p-0">
+                    <EmptyState
+                      icon={Users}
+                      title={search ? "لا توجد نتائج مطابقة" : "لا يوجد عملاء بعد"}
+                      description={
+                        search
+                          ? "جرّب البحث باسم أو رقم مختلف."
+                          : "أضف أول عميل لربط مشترياته وأرصدة البيع الآجل."
+                      }
+                      actionLabel={!search && editable ? "إضافة عميل" : undefined}
+                      onAction={!search && editable ? () => setOpen(true) : undefined}
+                    />
                   </TableCell>
                 </TableRow>
               )}

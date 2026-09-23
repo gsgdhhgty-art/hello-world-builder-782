@@ -241,7 +241,7 @@ function InventoryPage() {
           <Settings2 /> إعداد التنبيهات
         </Button>
       </PageHeader>
-      <div className="space-y-4 px-4 sm:px-6">
+      <div className="page-canvas space-y-4">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Metric
             icon={Package}
