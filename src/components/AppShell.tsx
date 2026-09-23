@@ -44,6 +44,7 @@ import { ROLE_LABELS } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; perm?: string };
 
@@ -97,6 +98,7 @@ function AppShellInner() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [navigationSearch, setNavigationSearch] = useState("");
   const onOnboarding = location.pathname.startsWith("/onboarding");
   const lowStock = useQuery({
     queryKey: ["header-low-stock", org?.id],
@@ -186,6 +188,9 @@ function AppShellInner() {
     .filter((g) => g.items.length);
 
   const current = groups.flatMap((g) => g.items).find((i) => i.to === location.pathname);
+  const searchableItems = groups
+    .flatMap((group) => group.items)
+    .filter((item) => item.label.includes(navigationSearch.trim()));
 
   async function handleSignOut() {
     await signOut();
@@ -198,16 +203,16 @@ function AppShellInner() {
     <>
       <div
         className={cn(
-          "flex h-[72px] items-center gap-3 border-b border-sidebar-border px-4",
+          "flex h-16 items-center gap-3 border-b border-sidebar-border px-4",
           collapsed && "justify-center px-2",
         )}
       >
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl gradient-primary text-lg font-black glow-primary">
-          S
+        <span className="grid size-9 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+          <ScanBarcode className="size-5" />
         </span>
         {!collapsed && (
           <div className="min-w-0">
-            <div className="truncate text-lg font-black text-sidebar-foreground">
+            <div className="truncate text-base font-black text-sidebar-foreground">
               Smart<span className="text-primary">POS</span>
             </div>
             <div className="truncate text-[10px] font-semibold text-muted-foreground">
@@ -217,11 +222,11 @@ function AppShellInner() {
         )}
       </div>
 
-      <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4 scroll-slim">
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4 scroll-slim">
         {groups.map((group) => (
           <div key={group.title}>
             {!collapsed && (
-              <div className="px-3 pb-1.5 text-[10px] font-bold text-muted-foreground">
+              <div className="px-3 pb-1.5 text-[10px] font-extrabold text-sidebar-foreground/45">
                 {group.title}
               </div>
             )}
@@ -233,10 +238,10 @@ function AppShellInner() {
                     key={item.to}
                     to={item.to}
                     className={cn(
-                      "group relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-all",
+                      "group relative flex h-10 items-center gap-3 rounded-md px-3 text-sm font-semibold transition-colors",
                       collapsed && "justify-center px-0",
                       active
-                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
                         : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     )}
                     title={collapsed ? item.label : undefined}
@@ -260,7 +265,7 @@ function AppShellInner() {
         {!collapsed && <SyncBadge className="mb-2 w-full justify-center" />}
         <div
           className={cn(
-            "flex items-center gap-3 rounded-xl bg-sidebar-accent/60 px-2 py-2",
+            "flex items-center gap-3 rounded-md border border-sidebar-border bg-sidebar-accent px-2 py-2",
             collapsed && "justify-center",
           )}
         >
@@ -297,15 +302,15 @@ function AppShellInner() {
     <div className="flex min-h-screen bg-background">
       <aside
         className={cn(
-          "sticky top-0 hidden h-screen shrink-0 flex-col border-l border-sidebar-border gradient-sidebar text-sidebar-foreground transition-[width] duration-200 md:flex",
-          collapsed ? "w-[76px]" : "w-60",
+          "sticky top-0 hidden h-screen shrink-0 flex-col border-l border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 md:flex",
+          collapsed ? "w-[72px]" : "w-64",
         )}
       >
         {nav}
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 grid h-[72px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-card/95 px-4 backdrop-blur-md">
+        <header className="sticky top-0 z-30 grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-card/95 px-3 shadow-xs backdrop-blur-md sm:px-4">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden" aria-label="القائمة">
@@ -314,7 +319,7 @@ function AppShellInner() {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="flex w-72 flex-col gap-0 gradient-sidebar p-0 text-sidebar-foreground"
+              className="flex w-72 flex-col gap-0 bg-sidebar p-0 text-sidebar-foreground"
             >
               <SheetTitle className="sr-only">القائمة</SheetTitle>
               {nav}
@@ -335,13 +340,36 @@ function AppShellInner() {
             )}
           </Button>
 
-          <div className="relative hidden min-w-0 max-w-lg flex-1 lg:block">
-            <Search className="pointer-events-none absolute end-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              className="h-10 w-full rounded-xl border border-input bg-background px-4 pe-10 text-sm outline-hidden transition focus:border-primary focus:ring-3 focus:ring-primary/10"
-              placeholder="ابحث عن فاتورة، منتج أو عميل..."
-            />
-          </div>
+          <DropdownMenu
+            open={Boolean(navigationSearch.trim())}
+            onOpenChange={(open) => !open && setNavigationSearch("")}
+          >
+            <DropdownMenuTrigger asChild>
+              <div className="relative hidden min-w-0 max-w-lg flex-1 lg:block">
+                <Search className="pointer-events-none absolute end-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="pe-10"
+                  placeholder="انتقل إلى صفحة أو وظيفة..."
+                  value={navigationSearch}
+                  onChange={(event) => setNavigationSearch(event.target.value)}
+                />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-80">
+              <DropdownMenuLabel>نتائج التنقل</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {searchableItems.slice(0, 8).map((item) => (
+                <DropdownMenuItem key={item.to} asChild>
+                  <Link to={item.to} onClick={() => setNavigationSearch("")}>
+                    <item.icon className="size-4" /> {item.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+              {!searchableItems.length ? (
+                <DropdownMenuItem disabled>لا توجد صفحة مطابقة</DropdownMenuItem>
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div className="min-w-0 lg:hidden">
             <h2 className="truncate text-base font-extrabold">{current?.label ?? "SmartPOS"}</h2>
           </div>
@@ -389,7 +417,7 @@ function AppShellInner() {
               </DropdownMenuContent>
             </DropdownMenu>
             {can("sales.create") ? (
-              <Button asChild className="hidden gradient-primary sm:inline-flex">
+              <Button asChild className="hidden sm:inline-flex">
                 <Link to="/pos">
                   <ScanBarcode className="size-4" /> الكاشير
                 </Link>
@@ -397,7 +425,7 @@ function AppShellInner() {
             ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" aria-label="حسابي" className="rounded-full gradient-primary">
+                <Button size="icon" aria-label="حسابي" className="rounded-full">
                   {initials}
                 </Button>
               </DropdownMenuTrigger>
@@ -444,12 +472,14 @@ export function PageHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="px-4 pb-3 pt-6 sm:px-6">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:flex-wrap sm:justify-between">
+    <div className="px-4 pb-4 pt-6 sm:px-6 sm:pt-7">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border pb-4 sm:flex sm:flex-wrap sm:justify-between">
         <div className="min-w-0">
-          <h1 className="truncate text-xl font-black text-foreground sm:text-2xl">{title}</h1>
+          <h1 className="truncate text-xl font-black text-foreground sm:text-[1.65rem]">{title}</h1>
           {description ? (
-            <p className="mt-1 truncate text-sm text-muted-foreground">{description}</p>
+            <p className="mt-1 truncate text-xs font-medium text-muted-foreground sm:text-sm">
+              {description}
+            </p>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">{children}</div>

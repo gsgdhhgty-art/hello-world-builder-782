@@ -133,13 +133,13 @@ function ExpensesPage() {
         </Button>
       </PageHeader>
 
-      <div className="space-y-4 p-6">
-        <div className="rounded-xl border bg-card p-4">
+      <div className="page-canvas space-y-4">
+        <div className="workspace-card p-4">
           <span className="text-sm text-muted-foreground">إجمالي المصروفات المعروضة</span>
           <div className="text-2xl font-extrabold tabular-nums">{money(total, currency)}</div>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border bg-card">
+        <div className="data-panel">
           <Table>
             <TableHeader>
               <TableRow>

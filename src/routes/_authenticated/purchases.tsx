@@ -224,8 +224,8 @@ function PurchasesPage() {
         </Button>
       </PageHeader>
 
-      <div className="p-6">
-        <div className="overflow-x-auto rounded-xl border bg-card">
+      <div className="page-canvas">
+        <div className="data-panel">
           <Table>
             <TableHeader>
               <TableRow>
@@ -380,6 +380,7 @@ function PurchasesPage() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label="حذف الصنف من فاتورة الشراء"
                     onClick={() => setLines(lines.filter((_, xi) => xi !== i))}
                   >
                     <X className="size-4" />

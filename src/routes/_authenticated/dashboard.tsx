@@ -197,7 +197,7 @@ function Dashboard() {
         </Button>
       </PageHeader>
 
-      <div className="space-y-5 px-4 sm:px-6">
+      <div className="page-canvas space-y-5">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Stat
             icon={Banknote}

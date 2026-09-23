@@ -242,7 +242,7 @@ function SettingsPage() {
   return (
     <div>
       <PageHeader title="الإعدادات" description="إعدادات الكاشير والفواتير والفروع والأدوار." />
-      <div className="grid gap-6 p-6 lg:grid-cols-2">
+      <div className="page-canvas grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>إعدادات الكاشير والفواتير</CardTitle>

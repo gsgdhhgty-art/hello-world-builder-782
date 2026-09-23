@@ -82,8 +82,8 @@ function AuditPage() {
   return (
     <div>
       <PageHeader title="سجل التدقيق" description="كل عملية حساسة مسجلة بالوقت والمستخدم." />
-      <div className="p-6">
-        <div className="overflow-x-auto rounded-xl border bg-card">
+      <div className="page-canvas">
+        <div className="data-panel">
           <Table>
             <TableHeader>
               <TableRow>

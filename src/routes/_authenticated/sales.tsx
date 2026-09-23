@@ -328,7 +328,7 @@ function SalesPage() {
           <FileSpreadsheet /> Excel
         </Button>
       </PageHeader>
-      <div className="space-y-4 p-4 sm:p-6">
+      <div className="page-canvas space-y-4">
         <div className="surface-card grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-7">
           <div className="relative md:col-span-2">
             <Search className="absolute start-3 top-3 size-4 text-muted-foreground" />
@@ -406,7 +406,7 @@ function SalesPage() {
             </Select>
           </div>
         </div>
-        <div className="overflow-x-auto rounded-xl border bg-card">
+        <div className="data-panel">
           <Table>
             <TableHeader>
               <TableRow>
