@@ -36,6 +36,7 @@ export interface Organization {
   low_stock_alerts_enabled: boolean;
   low_stock_include_out_of_stock: boolean;
   reorder_suggestion_multiplier: number;
+  profit_calculation_method: "AVERAGE_COST";
 }
 
 interface AuthValue {
@@ -79,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         supabase
           .from("organizations")
           .select(
-            "id, name, currency, tax_rate, business_type, address, phone, tax_number, low_stock_alerts_enabled, low_stock_include_out_of_stock, reorder_suggestion_multiplier",
+            "id, name, currency, tax_rate, business_type, address, phone, tax_number, low_stock_alerts_enabled, low_stock_include_out_of_stock, reorder_suggestion_multiplier, profit_calculation_method",
           )
           .eq("id", prof.org_id)
           .maybeSingle(),

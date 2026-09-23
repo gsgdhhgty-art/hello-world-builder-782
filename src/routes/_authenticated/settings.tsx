@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
@@ -51,6 +51,7 @@ function SettingsPage() {
     address: org?.address ?? "",
     phone: org?.phone ?? "",
     tax_number: org?.tax_number ?? "",
+    profit_calculation_method: org?.profit_calculation_method ?? "AVERAGE_COST",
   });
   const [branchName, setBranchName] = useState("");
   const [warehouseName, setWarehouseName] = useState("");
@@ -60,6 +61,19 @@ function SettingsPage() {
   const [roleName, setRoleName] = useState("");
   const [roleBase, setRoleBase] = useState<(typeof BASE_ROLES)[number]>("CASHIER");
   const [rolePerms, setRolePerms] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!org) return;
+    setOrgForm({
+      name: org.name,
+      currency: org.currency,
+      tax_rate: String(org.tax_rate),
+      address: org.address ?? "",
+      phone: org.phone ?? "",
+      tax_number: org.tax_number ?? "",
+      profit_calculation_method: org.profit_calculation_method,
+    });
+  }, [org]);
 
   const branches = useQuery({
     queryKey: ["branches"],
@@ -111,15 +125,20 @@ function SettingsPage() {
 
   const saveOrg = useMutation({
     mutationFn: async () => {
+      const currency = orgForm.currency.trim().toUpperCase();
+      const taxRate = Number(orgForm.tax_rate);
+      if (!/^[A-Z]{3}$/.test(currency)) throw new Error("currency");
+      if (!Number.isFinite(taxRate) || taxRate < 0 || taxRate > 100) throw new Error("tax");
       const { error } = await supabase
         .from("organizations")
         .update({
           name: orgForm.name.trim(),
-          currency: orgForm.currency.trim() || "SAR",
-          tax_rate: Number(orgForm.tax_rate) || 0,
+          currency,
+          tax_rate: taxRate,
           address: orgForm.address.trim() || null,
           phone: orgForm.phone.trim() || null,
           tax_number: orgForm.tax_number.trim() || null,
+          profit_calculation_method: orgForm.profit_calculation_method,
         })
         .eq("id", org!.id);
       if (error) throw error;
@@ -127,8 +146,16 @@ function SettingsPage() {
     onSuccess: async () => {
       toast.success("تم حفظ بيانات المتجر");
       await refresh();
+      await qc.invalidateQueries();
     },
-    onError: () => toast.error("تعذر الحفظ"),
+    onError: (error: Error) =>
+      toast.error(
+        error.message === "currency"
+          ? "أدخل رمز عملة من 3 أحرف مثل SAR"
+          : error.message === "tax"
+            ? "يجب أن تكون الضريبة بين 0 و100"
+            : "تعذر الحفظ",
+      ),
   });
 
   const addBranch = useMutation({
@@ -238,7 +265,7 @@ function SettingsPage() {
                 onChange={(e) => setOrgForm({ ...orgForm, address: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="o-phone">الهاتف</Label>
                 <Input
@@ -264,7 +291,11 @@ function SettingsPage() {
                 <Input
                   id="o-cur"
                   value={orgForm.currency}
-                  onChange={(e) => setOrgForm({ ...orgForm, currency: e.target.value })}
+                  maxLength={3}
+                  dir="ltr"
+                  onChange={(e) =>
+                    setOrgForm({ ...orgForm, currency: e.target.value.toUpperCase() })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -277,6 +308,25 @@ function SettingsPage() {
                   onChange={(e) => setOrgForm({ ...orgForm, tax_rate: e.target.value })}
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>نظام حساب الربح</Label>
+              <Select
+                value={orgForm.profit_calculation_method}
+                onValueChange={(value) =>
+                  setOrgForm({ ...orgForm, profit_calculation_method: value as "AVERAGE_COST" })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="AVERAGE_COST">متوسط التكلفة</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                يُحسب الربح من تكلفة الصنف المحفوظة وقت إغلاق الفاتورة، فلا تتغير أرباح المبيعات القديمة.
+              </p>
             </div>
             <Button disabled={saveOrg.isPending} onClick={() => saveOrg.mutate()}>
               حفظ
