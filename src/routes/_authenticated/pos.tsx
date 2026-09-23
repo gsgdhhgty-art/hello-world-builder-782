@@ -780,7 +780,7 @@ function PosPage() {
                   type="button"
                   onClick={() => addToCart(p)}
                   className={cn(
-                    "group flex h-full w-full flex-col gap-1 overflow-hidden rounded-lg border border-border bg-card text-start shadow-xs transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-card active:scale-[0.98]",
+                    "group flex h-full w-full touch-target select-none flex-col gap-1 overflow-hidden rounded-lg border border-border bg-card text-start shadow-xs transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-card active:scale-[0.98]",
                     out && "opacity-60",
                   )}
                 >
