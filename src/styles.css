@@ -366,3 +366,29 @@ body {
     border-radius: 9999px;
   }
 }
+
+/* ── Touch terminals & navigation tiles ─────────────────────────────────── */
+@utility touch-target {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@utility nav-tile {
+  display: grid;
+  place-items: center;
+  height: 1.75rem;
+  width: 1.75rem;
+  flex-shrink: 0;
+  border-radius: calc(var(--radius) - 2px);
+  background: color-mix(in oklab, currentColor 16%, transparent);
+  color: inherit;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+a:hover > .nav-tile {
+  transform: translateY(-1px);
+}
