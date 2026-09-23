@@ -9,7 +9,8 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "check:mobile-hook": "node scripts/check-mobile-hook.mjs",
+    "typecheck": "bun run check:mobile-hook && tsc --noEmit",
     "test": "vitest run",
     "format": "prettier --write ."
   },

@@ -949,6 +949,7 @@ function PosPage() {
             variant="outline"
             size="icon"
             className="shrink-0"
+              aria-label="إضافة عميل جديد"
             onClick={() => setNewCustomer({ open: true, name: "", phone: "" })}
           >
             <UserPlus className="size-4" />
@@ -985,6 +986,7 @@ function PosPage() {
                   size="icon"
                   variant="outline"
                   className="size-8"
+                  aria-label={`تقليل كمية ${l.product.name}`}
                   onClick={() => setQty(l.product.id, l.quantity - 1)}
                 >
                   <Minus className="size-3.5" />
@@ -993,6 +995,7 @@ function PosPage() {
                   type="button"
                   variant="secondary"
                   className="h-8 w-10 px-0 text-center text-sm font-bold"
+                  aria-label={`تعديل كمية ${l.product.name}`}
                   onClick={() => setQtyEditor({ id: l.product.id, value: "" })}
                 >
                   {num(l.quantity)}
@@ -1001,6 +1004,7 @@ function PosPage() {
                   size="icon"
                   variant="outline"
                   className="size-8"
+                  aria-label={`زيادة كمية ${l.product.name}`}
                   onClick={() => setQty(l.product.id, l.quantity + 1)}
                 >
                   <Plus className="size-3.5" />
@@ -1015,6 +1019,7 @@ function PosPage() {
                     size="icon"
                     variant="ghost"
                     className="size-7"
+                    aria-label={`إضافة خصم إلى ${l.product.name}`}
                     onClick={() => setDiscEditor({ id: l.product.id, mode: "percent", value: "" })}
                   >
                     <Percent className="size-3.5" />
@@ -1024,6 +1029,7 @@ function PosPage() {
                   size="icon"
                   variant="ghost"
                   className="size-7"
+                  aria-label={`حذف ${l.product.name} من السلة`}
                   onClick={() => setQty(l.product.id, 0)}
                 >
                   <X className="size-3.5" />

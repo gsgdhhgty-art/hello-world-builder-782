@@ -7,6 +7,7 @@ import {
   ImagePlus,
   Package,
   Pencil,
+  Printer,
   Plus,
   RefreshCw,
   Search,
@@ -48,6 +49,7 @@ import { Badge } from "@/components/ui/badge";
 import { money, num } from "@/lib/format";
 import { removeProductImage, resolveProductImages, uploadProductImage } from "@/lib/product-images";
 import { cn } from "@/lib/utils";
+import { printProductLabel } from "@/lib/barcode-label";
 
 export const Route = createFileRoute("/_authenticated/products")({
   head: () => ({
@@ -522,6 +524,26 @@ function ProductsPage() {
                     <TableCell className="text-end">
                       {editable && (
                         <div className="flex justify-end gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label={`طباعة ملصق ${product.name}`}
+                            disabled={!product.barcode}
+                            onClick={() => {
+                              try {
+                                printProductLabel({
+                                  name: product.name,
+                                  barcode: product.barcode,
+                                  price: product.price,
+                                  currency,
+                                });
+                              } catch (error) {
+                                toast.error(error instanceof Error ? error.message : "تعذرت الطباعة");
+                              }
+                            }}
+                          >
+                            <Printer />
+                          </Button>
                           <Button
                             size="icon"
                             variant="ghost"
