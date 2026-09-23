@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.report_daily_sales(timestamptz, timestamptz, uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.report_top_products(timestamptz, timestamptz, uuid, uuid) FROM anon;
