@@ -197,14 +197,15 @@
   --chart-4: oklch(0.62 0.2 305);
   --chart-5: oklch(0.66 0.15 234);
 
-  --sidebar: oklch(0.245 0.045 255);
-  --sidebar-foreground: oklch(0.94 0.012 245);
-  --sidebar-primary: oklch(0.67 0.16 153);
+  /* Charcoal ink sidebar with a blue action accent (no grey flatness). */
+  --sidebar: oklch(0.223 0.026 256);
+  --sidebar-foreground: oklch(0.955 0.008 245);
+  --sidebar-primary: oklch(0.55 0.185 258);
   --sidebar-primary-foreground: oklch(0.99 0.005 250);
-  --sidebar-accent: oklch(0.31 0.05 255);
-  --sidebar-accent-foreground: oklch(0.98 0.005 245);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.67 0.16 153);
+  --sidebar-accent: oklch(0.295 0.032 256);
+  --sidebar-accent-foreground: oklch(0.985 0.005 245);
+  --sidebar-border: oklch(1 0 0 / 9%);
+  --sidebar-ring: oklch(0.6 0.17 258);
 
   --gradient-primary: linear-gradient(
     135deg,
