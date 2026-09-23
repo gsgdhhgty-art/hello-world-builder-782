@@ -129,7 +129,7 @@ function ShiftsPage() {
   return (
     <div>
       <PageHeader title="الورديات" description="فتح وإغلاق الصندوق ومطابقة النقدية." />
-      <div className="space-y-6 p-6">
+      <div className="page-canvas space-y-6">
         {open && can("shift.close") && (
           <Card>
             <CardHeader>

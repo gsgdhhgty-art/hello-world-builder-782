@@ -9,8 +9,9 @@ export function printProductLabel(product: {
   if (!product.barcode) throw new Error("لا يوجد باركود لهذا المنتج");
 
   const canvas = document.createElement("canvas");
+  const format = /^\d{13}$/.test(product.barcode) ? "EAN13" : "CODE128";
   JsBarcode(canvas, product.barcode, {
-    format: "EAN13",
+    format,
     width: 2,
     height: 64,
     margin: 8,

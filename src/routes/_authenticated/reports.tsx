@@ -243,7 +243,7 @@ function ReportsPage() {
           <FileSpreadsheet /> Excel
         </Button>
       </PageHeader>
-      <div className="space-y-5 p-4 sm:p-6" id="report-print-area">
+      <div className="page-canvas space-y-5" id="report-print-area">
         <div className="surface-card flex flex-wrap items-center gap-3 p-4 print:hidden">
           <Input
             className="w-40"
