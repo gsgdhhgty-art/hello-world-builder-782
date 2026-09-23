@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   BarChart3,
   Boxes,
@@ -70,7 +71,14 @@ const FEATURES = [
 
 function Landing() {
   const { session, profile, loading } = useAuth();
+  const navigate = useNavigate();
   const signedIn = Boolean(session && !loading);
+
+  useEffect(() => {
+    if (!loading && session && profile?.role === "CASHIER") {
+      navigate({ to: "/pos", replace: true });
+    }
+  }, [loading, session, profile?.role, navigate]);
 
   return (
     <main className="min-h-screen bg-background">

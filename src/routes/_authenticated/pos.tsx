@@ -11,6 +11,7 @@ import {
   PlayCircle,
   Plus,
   Search,
+  ShoppingCart,
   Star,
   Sparkles,
   Trash2,
@@ -126,6 +127,7 @@ function PosPage() {
   const [cartDiscount, setCartDiscount] = useState(0);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
+  const [mobileCartOpen, setMobileCartOpen] = useState(false);
 
   useEffect(() => {
     if (!hasLocalDb()) return;
@@ -484,6 +486,7 @@ function PosPage() {
     },
     onSuccess: (data) => {
       setPayOpen(false);
+      setMobileCartOpen(false);
       // نفتح الإيصال بعد إغلاق نافذة الدفع لتجنّب تعطّل التفاعل عند تراكب النوافذ
       window.setTimeout(() => setReceipt(data), 180);
       setCart([]);
@@ -698,9 +701,10 @@ function PosPage() {
 
   const stock = stockQuery.data ?? {};
   const cats = categoriesQuery.data ?? [];
+  const cartUnits = cart.reduce((sum, line) => sum + line.quantity, 0);
 
   return (
-    <div className="flex min-h-[calc(100vh-72px)] flex-col gap-3 bg-background p-3 lg:h-[calc(100vh-72px)] lg:flex-row lg:overflow-hidden">
+    <div className="flex min-h-[calc(100vh-72px)] flex-col gap-3 bg-background p-2 pb-24 sm:p-3 lg:h-[calc(100vh-72px)] lg:flex-row lg:overflow-hidden lg:pb-3">
       {/* ===== catalog ===== */}
       <section className="workspace-card flex min-w-0 flex-1 flex-col overflow-hidden">
         {!online && (
@@ -780,7 +784,7 @@ function PosPage() {
           ))}
         </div>
 
-        <div className="grid flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto p-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 scroll-slim">
+        <div className="grid flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto p-2 min-[480px]:grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 scroll-slim">
           {filtered.map((p) => {
             const qty = stock[p.id] ?? 0;
             const out = p.track_stock && qty <= 0;
@@ -847,8 +851,47 @@ function PosPage() {
         </div>
       </section>
 
+      <div className="fixed inset-x-3 bottom-3 z-30 lg:hidden">
+        <Button
+          className="grid h-16 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-success px-4 text-success-foreground shadow-lg hover:bg-success/90"
+          disabled={!cart.length}
+          onClick={() => setMobileCartOpen(true)}
+        >
+          <span className="relative grid size-10 shrink-0 place-items-center rounded-lg bg-success-foreground/15">
+            <ShoppingCart className="size-5" />
+            <span className="absolute -end-1 -top-1 grid min-w-5 place-items-center rounded-full bg-card px-1 text-[10px] font-black text-foreground">
+              {num(cartUnits)}
+            </span>
+          </span>
+          <span className="min-w-0 text-start">
+            <span className="block truncate text-xs opacity-85">عرض الفاتورة وإغلاق البيع</span>
+            <span className="block truncate text-base font-black">
+              {money(grandTotal, currency)}
+            </span>
+          </span>
+          <span className="shrink-0 text-sm font-black">متابعة</span>
+        </Button>
+      </div>
+
+      {mobileCartOpen ? (
+        <Button
+          type="button"
+          variant="ghost"
+          className="fixed inset-0 z-40 h-auto rounded-none bg-foreground/30 p-0 hover:bg-foreground/30 lg:hidden"
+          aria-label="إغلاق سلة المشتريات"
+          onClick={() => setMobileCartOpen(false)}
+        />
+      ) : null}
+
       {/* ===== cart ===== */}
-      <aside className="workspace-card flex w-full shrink-0 flex-col overflow-hidden lg:h-full lg:w-[390px] xl:w-[420px]">
+      <aside
+        className={cn(
+          "workspace-card fixed inset-x-2 bottom-2 top-20 z-50 flex w-auto shrink-0 flex-col overflow-hidden transition-transform duration-200 lg:static lg:h-full lg:w-[390px] lg:translate-y-0 xl:w-[420px]",
+          mobileCartOpen
+            ? "translate-y-0"
+            : "pointer-events-none translate-y-[110%] lg:pointer-events-auto",
+        )}
+      >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b p-4">
           <div className="min-w-0">
             <div className="truncate text-lg font-black">
@@ -862,6 +905,15 @@ function PosPage() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              aria-label="إغلاق السلة"
+              onClick={() => setMobileCartOpen(false)}
+            >
+              <X className="size-4" />
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => setHeldOpen(true)}>
               <PlayCircle className="size-4" />
               {(heldQuery.data ?? []).length || ""}

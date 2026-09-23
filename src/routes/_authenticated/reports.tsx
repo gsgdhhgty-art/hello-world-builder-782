@@ -226,7 +226,7 @@ function ReportsPage() {
     <div>
       <PageHeader
         title="التقارير الشاملة"
-        description="المبيعات والمخزون والمصروفات والنقدية في مكان واحد."
+        description={`المبيعات والمخزون والمصروفات والنقدية في مكان واحد${can("profit.view") ? " · الربح حسب متوسط التكلفة" : ""}.`}
       >
         <Button
           variant="outline"
