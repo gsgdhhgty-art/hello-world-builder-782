@@ -44,6 +44,8 @@ import { CameraScanner } from "@/components/pos/CameraScanner";
 import { PaymentDialog, type PaymentLine } from "@/components/pos/PaymentDialog";
 import { ReceiptDialog, type ReceiptData } from "@/components/pos/ReceiptDialog";
 import { money, num } from "@/lib/format";
+import { beep } from "@/lib/feedback";
+import { useBarcodeScanner } from "@/hooks/useBarcodeScanner";
 import { calculateCartTotals, round2 } from "@/lib/pos-math";
 import { cn } from "@/lib/utils";
 import { db, getMeta, hasLocalDb, setMeta, type HeldOrder } from "@/lib/offline/db";
@@ -583,56 +585,40 @@ function PosPage() {
     (code: string) => {
       const value = code.trim();
       if (!value) return;
-      const exact = (productsQuery.data ?? []).find((p) => p.barcode === value || p.sku === value);
-      if (exact) {
-        addToCart(exact);
+      const local = (productsQuery.data ?? []).find((p) => p.barcode === value || p.sku === value);
+      if (local) {
+        addToCart(local);
+        beep("ok");
         setSearch("");
         searchRef.current?.focus();
-      } else {
-        toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
-        setSearch(value);
-        searchRef.current?.focus();
+        return;
       }
+      // Not in the cached catalog yet: ask the server before rejecting the scan.
+      void (async () => {
+        const { data } = await supabase
+          .from("products")
+          .select("id, name, barcode, sku, price, unit, track_stock, category_id, image_url")
+          .or(`barcode.eq.${value},sku.eq.${value}`)
+          .eq("is_active", true)
+          .limit(1)
+          .maybeSingle();
+        if (data) {
+          addToCart(data as ProductRow);
+          beep("ok");
+          setSearch("");
+          void productsQuery.refetch();
+        } else {
+          beep("error");
+          toast.error(`الباركود ${value} غير مسجل — لم تتم إضافة أي منتج`);
+          setSearch(value);
+        }
+        searchRef.current?.focus();
+      })();
     },
-    [addToCart, productsQuery.data],
+    [addToCart, productsQuery],
   );
 
-  useEffect(() => {
-    let buffer = "";
-    let lastKeyAt = 0;
-    const reset = window.setInterval(() => {
-      if (Date.now() - lastKeyAt > 120) buffer = "";
-    }, 150);
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target;
-      const editable =
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        (target instanceof HTMLElement && target.isContentEditable);
-      if (editable && target !== searchRef.current) {
-        buffer = "";
-        return;
-      }
-      const now = Date.now();
-      if (event.key === "Enter") {
-        if (buffer.length >= 4 && now - lastKeyAt < 120) {
-          event.preventDefault();
-          scanCode(buffer);
-        }
-        buffer = "";
-        return;
-      }
-      if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
-      if (now - lastKeyAt > 80) buffer = "";
-      buffer += event.key;
-      lastKeyAt = now;
-    };
-    document.addEventListener("keydown", onKeyDown, true);
-    return () => {
-      window.clearInterval(reset);
-      document.removeEventListener("keydown", onKeyDown, true);
-    };
-  }, [scanCode]);
+  useBarcodeScanner({ onScan: scanCode, allowedTarget: searchRef });
 
   function applyDiscount() {
     if (!discEditor) return;
@@ -794,7 +780,7 @@ function PosPage() {
                   type="button"
                   onClick={() => addToCart(p)}
                   className={cn(
-                    "group flex h-full w-full flex-col gap-1 overflow-hidden rounded-lg border border-border bg-card text-start shadow-xs transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-card active:scale-[0.98]",
+                    "group flex h-full w-full touch-target select-none flex-col gap-1 overflow-hidden rounded-lg border border-border bg-card text-start shadow-xs transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-card active:scale-[0.98]",
                     out && "opacity-60",
                   )}
                 >
