@@ -46,40 +46,105 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 
-type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; perm?: string };
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  perm?: string;
+  tone: string;
+};
+
+// Each destination carries its own icon colour so the sidebar reads as a
+// labelled control panel instead of a flat grey list.
+const TONE = {
+  blue: "bg-[oklch(0.55_0.17_258)]/22 text-[oklch(0.82_0.11_258)]",
+  green: "bg-[oklch(0.6_0.14_155)]/22 text-[oklch(0.84_0.12_158)]",
+  amber: "bg-[oklch(0.72_0.15_72)]/22 text-[oklch(0.86_0.13_80)]",
+  violet: "bg-[oklch(0.6_0.17_300)]/22 text-[oklch(0.84_0.12_300)]",
+  teal: "bg-[oklch(0.62_0.12_200)]/22 text-[oklch(0.85_0.1_200)]",
+  rose: "bg-[oklch(0.62_0.18_18)]/22 text-[oklch(0.84_0.13_22)]",
+} as const;
 
 const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: "البيع",
     items: [
-      { to: "/dashboard", label: "الرئيسية", icon: LayoutDashboard, perm: "reports.view" },
-      { to: "/pos", label: "البيع السريع", icon: ScanBarcode, perm: "sales.create" },
-      { to: "/sales", label: "الفواتير", icon: Receipt },
-      { to: "/returns", label: "المرتجعات", icon: RotateCcw, perm: "sales.refund" },
-      { to: "/shifts", label: "الورديات", icon: Clock },
+      {
+        to: "/dashboard",
+        label: "الرئيسية",
+        icon: LayoutDashboard,
+        perm: "reports.view",
+        tone: TONE.blue,
+      },
+      { to: "/pos", label: "البيع السريع", icon: ScanBarcode, perm: "sales.create", tone: TONE.green },
+      { to: "/sales", label: "الفواتير", icon: Receipt, tone: TONE.teal },
+      { to: "/returns", label: "المرتجعات", icon: RotateCcw, perm: "sales.refund", tone: TONE.rose },
+      { to: "/shifts", label: "الورديات", icon: Clock, tone: TONE.amber },
     ],
   },
   {
     title: "المخزون والشراء",
     items: [
-      { to: "/products", label: "المنتجات", icon: Package, perm: "products.view" },
-      { to: "/catalog", label: "الفئات والعلامات", icon: Tags, perm: "products.view" },
-      { to: "/inventory", label: "المخزون", icon: Boxes, perm: "inventory.view" },
-      { to: "/purchases", label: "المشتريات", icon: ShoppingCart, perm: "purchases.manage" },
-      { to: "/purchase-orders", label: "طلبات الشراء", icon: FileInput, perm: "purchases.manage" },
-      { to: "/suppliers", label: "الموردون", icon: Truck, perm: "suppliers.manage" },
+      { to: "/products", label: "المنتجات", icon: Package, perm: "products.view", tone: TONE.blue },
+      {
+        to: "/catalog",
+        label: "الفئات والعلامات",
+        icon: Tags,
+        perm: "products.view",
+        tone: TONE.violet,
+      },
+      {
+        to: "/inventory",
+        label: "المخزون",
+        icon: Boxes,
+        perm: "inventory.view",
+        tone: TONE.teal,
+      },
+      {
+        to: "/purchases",
+        label: "المشتريات",
+        icon: ShoppingCart,
+        perm: "purchases.manage",
+        tone: TONE.green,
+      },
+      {
+        to: "/purchase-orders",
+        label: "طلبات الشراء",
+        icon: FileInput,
+        perm: "purchases.manage",
+        tone: TONE.amber,
+      },
+      {
+        to: "/suppliers",
+        label: "الموردون",
+        icon: Truck,
+        perm: "suppliers.manage",
+        tone: TONE.violet,
+      },
     ],
   },
   {
     title: "الإدارة",
     items: [
-      { to: "/customers", label: "العملاء", icon: Users, perm: "customers.manage" },
-      { to: "/expenses", label: "المصروفات", icon: Wallet, perm: "expenses.manage" },
-      { to: "/reports", label: "التقارير", icon: BarChart3, perm: "reports.view" },
-      { to: "/employees", label: "الموظفون", icon: Users, perm: "*" },
-      { to: "/settings", label: "الإعدادات", icon: Building2, perm: "*" },
-      { to: "/sync", label: "المزامنة", icon: RefreshCw },
-      { to: "/audit", label: "سجل التدقيق", icon: ClipboardList, perm: "*" },
+      {
+        to: "/customers",
+        label: "العملاء",
+        icon: Users,
+        perm: "customers.manage",
+        tone: TONE.blue,
+      },
+      {
+        to: "/expenses",
+        label: "المصروفات",
+        icon: Wallet,
+        perm: "expenses.manage",
+        tone: TONE.rose,
+      },
+      { to: "/reports", label: "التقارير", icon: BarChart3, perm: "reports.view", tone: TONE.teal },
+      { to: "/employees", label: "الموظفون", icon: Users, perm: "*", tone: TONE.green },
+      { to: "/settings", label: "الإعدادات", icon: Building2, perm: "*", tone: TONE.violet },
+      { to: "/sync", label: "المزامنة", icon: RefreshCw, tone: TONE.amber },
+      { to: "/audit", label: "سجل التدقيق", icon: ClipboardList, perm: "*", tone: TONE.blue },
     ],
   },
 ];
