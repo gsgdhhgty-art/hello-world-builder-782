@@ -44,6 +44,8 @@ import { CameraScanner } from "@/components/pos/CameraScanner";
 import { PaymentDialog, type PaymentLine } from "@/components/pos/PaymentDialog";
 import { ReceiptDialog, type ReceiptData } from "@/components/pos/ReceiptDialog";
 import { money, num } from "@/lib/format";
+import { beep } from "@/lib/feedback";
+import { useBarcodeScanner } from "@/hooks/useBarcodeScanner";
 import { calculateCartTotals, round2 } from "@/lib/pos-math";
 import { cn } from "@/lib/utils";
 import { db, getMeta, hasLocalDb, setMeta, type HeldOrder } from "@/lib/offline/db";
