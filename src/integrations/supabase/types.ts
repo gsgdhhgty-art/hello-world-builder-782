@@ -376,6 +376,7 @@ export type Database = {
           phone: string | null
           profit_calculation_method: string
           reorder_suggestion_multiplier: number
+          tax_enabled: boolean
           tax_number: string | null
           tax_rate: number
           updated_at: string
@@ -394,6 +395,7 @@ export type Database = {
           phone?: string | null
           profit_calculation_method?: string
           reorder_suggestion_multiplier?: number
+          tax_enabled?: boolean
           tax_number?: string | null
           tax_rate?: number
           updated_at?: string
@@ -412,6 +414,7 @@ export type Database = {
           phone?: string | null
           profit_calculation_method?: string
           reorder_suggestion_multiplier?: number
+          tax_enabled?: boolean
           tax_number?: string | null
           tax_rate?: number
           updated_at?: string
