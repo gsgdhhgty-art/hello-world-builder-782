@@ -1,1 +1,0 @@
-DROP POLICY IF EXISTS "profiles insert self" ON public.profiles;

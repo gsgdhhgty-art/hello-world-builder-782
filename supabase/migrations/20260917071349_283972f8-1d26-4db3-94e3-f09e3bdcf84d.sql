@@ -1,1 +1,0 @@
-REVOKE ALL ON FUNCTION public.close_open_shift(numeric, text) FROM anon;
