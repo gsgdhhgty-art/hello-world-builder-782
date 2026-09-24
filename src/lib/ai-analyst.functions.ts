@@ -15,6 +15,15 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
     const sb = context.supabase;
     const since = new Date(Date.now() - data.days * 86400000).toISOString();
 
+    const { data: rawPermissions, error: permissionError } = await sb.rpc("my_permissions");
+    if (permissionError) throw new Error("تعذر التحقق من صلاحية التقارير");
+    const permissions =
+      rawPermissions && typeof rawPermissions === "object" && !Array.isArray(rawPermissions)
+        ? (rawPermissions as Record<string, unknown>)
+        : {};
+    if (!permissions["*"] && !permissions["reports.view"])
+      throw new Error("لا تملك صلاحية استخدام المحلل الذكي");
+
     const [org, sales, items, products, stock, expenses] = await Promise.all([
       sb.from("organizations").select("name, currency, tax_enabled, tax_rate").limit(1).maybeSingle(),
       sb
@@ -31,7 +40,17 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       sb.from("inventory").select("product_id, quantity").limit(5000),
       sb.from("expenses").select("amount, created_at").gte("created_at", since).limit(2000),
     ]);
-    if (sales.error) throw new Error("تعذر قراءة المبيعات");
+    if (
+      org.error ||
+      sales.error ||
+      items.error ||
+      products.error ||
+      stock.error ||
+      expenses.error
+    )
+      throw new Error("تعذر تجهيز بيانات التحليل");
+
+    const mayViewProfit = Boolean(permissions["*"] || permissions["profit.view"]);
 
     const done = (sales.data ?? []).filter((s) => s.status !== "VOIDED");
     const revenue = done.reduce((a, s) => a + Number(s.total), 0);
@@ -76,12 +95,16 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       periodDays: data.days,
       invoices: done.length,
       revenue,
-      grossProfit: revenue - cost,
+      ...(mayViewProfit ? { grossProfit: revenue - cost } : {}),
       avgTicket: done.length ? revenue / done.length : 0,
       expenses: (expenses.data ?? []).reduce((a, e) => a + Number(e.amount), 0),
       byDay,
       byPaymentMethod: byPay,
-      topProducts: top,
+      topProducts: top.map((product) =>
+        mayViewProfit
+          ? product
+          : { name: product.name, qty: product.qty, revenue: product.revenue },
+      ),
       lowStock,
       deadStock,
       productCount: active.length,
@@ -103,7 +126,7 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       stats: {
         invoices: done.length,
         revenue,
-        grossProfit: revenue - cost,
+        grossProfit: mayViewProfit ? revenue - cost : null,
         lowStock: lowStock.length,
         currency: snapshot.currency,
       },

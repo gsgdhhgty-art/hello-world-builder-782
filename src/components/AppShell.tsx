@@ -25,6 +25,7 @@ import {
   Users,
   Wallet,
   Tags,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { OfflineProvider } from "@/hooks/useOffline";
@@ -153,6 +154,13 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         tone: TONE.rose,
       },
       { to: "/reports", label: "التقارير", icon: BarChart3, perm: "reports.view", tone: TONE.teal },
+      {
+        to: "/ai-analyst",
+        label: "المحلل الذكي",
+        icon: Sparkles,
+        perm: "reports.view",
+        tone: TONE.violet,
+      },
       { to: "/employees", label: "الموظفون", icon: Users, perm: "*", tone: TONE.green },
       { to: "/settings", label: "الإعدادات", icon: Building2, perm: "*", tone: TONE.violet },
       { to: "/sync", label: "المزامنة", icon: RefreshCw, tone: TONE.amber },
