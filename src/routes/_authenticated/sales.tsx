@@ -67,6 +67,7 @@ type SaleRow = {
   subtotal: number;
   discount: number;
   tax: number;
+  cost_total: number;
   paid: number;
   change_due: number;
   payment_method: string;
@@ -96,7 +97,7 @@ type SaleDetail = {
 function SalesPage() {
   const { org, can } = useAuth();
   const qc = useQueryClient();
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
   const [from, setFrom] = useState(monthAgo);
   const [to, setTo] = useState(today);
   const [branchId, setBranchId] = useState("all");
@@ -147,7 +148,7 @@ function SalesPage() {
       let query = supabase
         .from("sales")
         .select(
-          "id, invoice_no, total, subtotal, discount, tax, paid, change_due, payment_method, status, created_at, customer_id, cashier_id, branch_id, note",
+          "id, invoice_no, total, subtotal, discount, tax, cost_total, paid, change_due, payment_method, status, created_at, customer_id, cashier_id, branch_id, note",
         )
         .gte("created_at", new Date(`${from}T00:00:00`).toISOString())
         .lte("created_at", new Date(`${to}T23:59:59`).toISOString())
@@ -166,7 +167,11 @@ function SalesPage() {
       const cloud = (data ?? []) as SaleRow[];
       if (!hasLocalDb()) return cloud;
       const local = (await db().sales.toArray()).filter((sale) => sale.sync_status !== "SYNCED");
-      const pending: SaleRow[] = local.map((sale) => ({ ...sale, branch_id: null }));
+      const pending: SaleRow[] = local.map((sale) => ({
+        ...sale,
+        cost_total: sale.cost_total ?? 0,
+        branch_id: null,
+      }));
       const ids = new Set(cloud.map((sale) => sale.id));
       return [...pending.filter((sale) => !ids.has(sale.id)), ...cloud];
     },
@@ -289,6 +294,14 @@ function SalesPage() {
         amount: Number(item.amount),
         reference: item.reference,
       })),
+      ...(can("profit.view")
+        ? {
+            profit:
+              Number(openSale.subtotal) -
+              Number(openSale.discount) -
+              Number(openSale.cost_total ?? 0),
+          }
+        : {}),
       items: detail.data.items.map((item) => ({
         name: item.product_name,
         quantity: Number(item.quantity),
@@ -552,6 +565,12 @@ function SalesPage() {
                   <Info label="الإجمالي الفرعي" value={money(openSale.subtotal, currency)} />
                   <Info label="الخصم" value={money(openSale.discount, currency)} />
                   <Info label="الضريبة" value={money(openSale.tax, currency)} />
+                  {can("profit.view") && (
+                    <Info
+                      label="الربح"
+                      value={money(Number(openSale.subtotal) - Number(openSale.discount) - Number(openSale.cost_total ?? 0), currency)}
+                    />
+                  )}
                   <div className="mt-2 flex justify-between border-t pt-2 text-lg font-black">
                     <span>الإجمالي</span>
                     <span>{money(openSale.total, currency)}</span>

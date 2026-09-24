@@ -16,6 +16,7 @@ export interface ReceiptData {
   subtotal: number;
   discount: number;
   tax: number;
+  profit?: number;
   paid: number;
   change_due: number;
   credit?: number;
@@ -91,6 +92,7 @@ export function printReceipt(
     <tr><td colspan="3">الإجمالي الفرعي</td><td>${money(receipt.subtotal, currency)}</td></tr>
     <tr><td colspan="3">الخصم</td><td>${money(receipt.discount, currency)}</td></tr>
     <tr><td colspan="3">الضريبة</td><td>${money(receipt.tax, currency)}</td></tr>
+    ${receipt.profit !== undefined ? `<tr><td colspan="3">الربح</td><td>${money(receipt.profit, currency)}</td></tr>` : ""}
      <tr class="total"><td colspan="3">الإجمالي شامل الضريبة</td><td>${money(receipt.total, currency)}</td></tr>
     <tr><td colspan="3">المدفوع</td><td>${money(receipt.paid, currency)}</td></tr>
     <tr><td colspan="3">الباقي</td><td>${money(receipt.change_due, currency)}</td></tr>

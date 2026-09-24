@@ -70,7 +70,7 @@ function InventoryPage() {
   const { can, profile, org } = useAuth();
   const qc = useQueryClient();
   const canEdit = can("inventory.edit");
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
   const [search, setSearch] = useState("");
   const [warehouseId, setWarehouseId] = useState("");
   const [stockFilter, setStockFilter] = useState("all");

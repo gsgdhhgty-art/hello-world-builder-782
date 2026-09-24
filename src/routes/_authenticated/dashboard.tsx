@@ -68,7 +68,7 @@ const CHART_COLORS = [
 
 function Dashboard() {
   const { org, can, profile } = useAuth();
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
 
   const today = useQuery({
     queryKey: ["dash-today"],

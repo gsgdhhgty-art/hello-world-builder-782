@@ -46,7 +46,7 @@ const EMPTY = { name: "", phone: "", email: "", address: "" };
 function CustomersPage() {
   const { org, can, profile } = useAuth();
   const qc = useQueryClient();
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
   const editable = can("customers.manage");
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);

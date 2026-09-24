@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -27,8 +28,8 @@ function Onboarding() {
   const navigate = useNavigate();
   const [orgName, setOrgName] = useState("");
   const [fullName, setFullName] = useState("");
-  const [currency, setCurrency] = useState("SAR");
-  const [taxRate, setTaxRate] = useState("15");
+  const [currency, setCurrency] = useState("EGP");
+  const [taxRate, setTaxRate] = useState("0");
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.FormEvent) {
@@ -82,7 +83,16 @@ function Onboarding() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="cur">العملة</Label>
-                <Input id="cur" value={currency} onChange={(e) => setCurrency(e.target.value)} />
+                <Select value={currency} onValueChange={setCurrency}>
+                  <SelectTrigger id="cur"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EGP">الجنيه المصري (EGP)</SelectItem>
+                    <SelectItem value="SAR">الريال السعودي (SAR)</SelectItem>
+                    <SelectItem value="AED">الدرهم الإماراتي (AED)</SelectItem>
+                    <SelectItem value="MAD">الدرهم المغربي (MAD)</SelectItem>
+                    <SelectItem value="KWD">الدينار الكويتي (KWD)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="tax">نسبة الضريبة %</Label>
