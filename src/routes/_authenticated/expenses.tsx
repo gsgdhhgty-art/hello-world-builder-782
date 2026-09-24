@@ -59,7 +59,7 @@ const CATEGORIES = [
 function ExpensesPage() {
   const { org, can, profile } = useAuth();
   const qc = useQueryClient();
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState("GENERAL");
   const [amount, setAmount] = useState("");

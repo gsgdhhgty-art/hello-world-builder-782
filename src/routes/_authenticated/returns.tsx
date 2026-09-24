@@ -66,7 +66,7 @@ type ExchangeResult = {
 function ReturnsPage() {
   const { org, can } = useAuth();
   const qc = useQueryClient();
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
   const [invoice, setInvoice] = useState("");
   const [saleId, setSaleId] = useState<string | null>(null);
   const [mode, setMode] = useState<"return" | "exchange">("return");

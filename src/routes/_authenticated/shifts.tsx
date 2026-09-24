@@ -45,7 +45,7 @@ export const Route = createFileRoute("/_authenticated/shifts")({
 function ShiftsPage() {
   const { org, can } = useAuth();
   const qc = useQueryClient();
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
   const [closingCash, setClosingCash] = useState("");
   const [note, setNote] = useState("");
 

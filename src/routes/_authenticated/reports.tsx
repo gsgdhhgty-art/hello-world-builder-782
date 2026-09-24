@@ -47,7 +47,7 @@ const day = (date: Date) => date.toISOString().slice(0, 10);
 
 function ReportsPage() {
   const { org, can } = useAuth();
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
   const [from, setFrom] = useState(day(new Date(Date.now() - 29 * 86400000)));
   const [to, setTo] = useState(day(new Date()));
   const [branchId, setBranchId] = useState("all");

@@ -112,7 +112,7 @@ function ProductsPage() {
   const { org, can, profile } = useAuth();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
   const editable = can("products.edit");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");

@@ -89,7 +89,6 @@ type SaleDetail = {
     unit_price: number;
     discount: number;
     tax: number;
-    unit_cost: number;
     line_total: number;
   }>;
   payments: Array<{ method: string; amount: number; reference: string | null }>;
@@ -168,7 +167,11 @@ function SalesPage() {
       const cloud = (data ?? []) as SaleRow[];
       if (!hasLocalDb()) return cloud;
       const local = (await db().sales.toArray()).filter((sale) => sale.sync_status !== "SYNCED");
-      const pending: SaleRow[] = local.map((sale) => ({ ...sale, branch_id: null }));
+      const pending: SaleRow[] = local.map((sale) => ({
+        ...sale,
+        cost_total: sale.cost_total ?? 0,
+        branch_id: null,
+      }));
       const ids = new Set(cloud.map((sale) => sale.id));
       return [...pending.filter((sale) => !ids.has(sale.id)), ...cloud];
     },
@@ -187,7 +190,7 @@ function SalesPage() {
       const [itemResult, paymentResult] = await Promise.all([
         supabase
           .from("sale_items")
-          .select("id, product_name, quantity, unit_price, unit_cost, discount, tax, line_total")
+          .select("id, product_name, quantity, unit_price, discount, tax, line_total")
           .eq("sale_id", openSale.id),
         supabase
           .from("sale_payments")
@@ -291,6 +294,9 @@ function SalesPage() {
         amount: Number(item.amount),
         reference: item.reference,
       })),
+      profit: can("profit.view")
+        ? Number(openSale.subtotal) - Number(openSale.discount) - Number(openSale.cost_total ?? 0)
+        : undefined,
       items: detail.data.items.map((item) => ({
         name: item.product_name,
         quantity: Number(item.quantity),
