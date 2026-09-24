@@ -1,4 +1,4 @@
-export function money(value: number | string | null | undefined, currency = "SAR") {
+export function money(value: number | string | null | undefined, currency = "EGP") {
   const n = Number(value ?? 0);
   return `${n.toLocaleString("ar-EG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
 }

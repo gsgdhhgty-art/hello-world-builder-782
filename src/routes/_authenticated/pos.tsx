@@ -102,7 +102,8 @@ function PosPage() {
   const { org, profile, can, session } = useAuth();
   const { online, pending } = useOffline();
   const qc = useQueryClient();
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
+  const taxRate = org?.tax_enabled ? Number(org.tax_rate) : 0;
   const searchRef = useRef<HTMLInputElement | null>(null);
 
   const [search, setSearch] = useState("");
@@ -333,9 +334,9 @@ function PosPage() {
           quantity: l.quantity,
           discount: l.discount,
         })),
-        Number(org?.tax_rate ?? 0),
+        taxRate,
       ),
-    [cart, org?.tax_rate],
+    [cart, taxRate],
   );
 
   const gross = useMemo(
@@ -344,7 +345,7 @@ function PosPage() {
   );
   const effCartDiscount = Math.min(cartDiscount, Math.max(gross - totals.discount, 0));
   const netAfterCartDiscount = round2(totals.subtotal - totals.discount - effCartDiscount);
-  const taxTotal = round2((netAfterCartDiscount * Number(org?.tax_rate ?? 0)) / 100);
+  const taxTotal = round2((netAfterCartDiscount * taxRate) / 100);
   const grandTotal = round2(netAfterCartDiscount + taxTotal);
 
   const checkout = useMutation({
@@ -589,6 +590,7 @@ function PosPage() {
       if (local) {
         addToCart(local);
         beep("ok");
+        toast.success(`تمت إضافة ${local.name} — ${money(local.price, currency)}`);
         setSearch("");
         searchRef.current?.focus();
         return;
@@ -605,6 +607,7 @@ function PosPage() {
         if (data) {
           addToCart(data as ProductRow);
           beep("ok");
+          toast.success(`تمت إضافة ${data.name} — ${money(data.price, currency)}`);
           setSearch("");
           void productsQuery.refetch();
         } else {
@@ -615,7 +618,7 @@ function PosPage() {
         searchRef.current?.focus();
       })();
     },
-    [addToCart, productsQuery],
+    [addToCart, currency, productsQuery],
   );
 
   useBarcodeScanner({ onScan: scanCode, allowedTarget: searchRef });
@@ -1042,7 +1045,10 @@ function PosPage() {
               ) : null
             }
           />
-          <Row label="الضريبة" value={money(taxTotal, currency)} />
+          <Row
+            label={org?.tax_enabled ? `الضريبة (${num(org.tax_rate, 2)}%)` : "الضريبة (متوقفة)"}
+            value={money(taxTotal, currency)}
+          />
           <div className="flex items-center justify-between rounded-xl bg-primary/8 px-3 py-2 text-xl font-black">
             <span>الإجمالي</span>
             <span className="text-primary">{money(grandTotal, currency)}</span>

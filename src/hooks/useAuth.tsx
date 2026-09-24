@@ -29,6 +29,7 @@ export interface Organization {
   name: string;
   currency: string;
   tax_rate: number;
+  tax_enabled: boolean;
   business_type: string;
   address: string | null;
   phone: string | null;
@@ -80,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         supabase
           .from("organizations")
           .select(
-            "id, name, currency, tax_rate, business_type, address, phone, tax_number, low_stock_alerts_enabled, low_stock_include_out_of_stock, reorder_suggestion_multiplier, profit_calculation_method",
+            "id, name, currency, tax_rate, tax_enabled, business_type, address, phone, tax_number, low_stock_alerts_enabled, low_stock_include_out_of_stock, reorder_suggestion_multiplier, profit_calculation_method",
           )
           .eq("id", prof.org_id)
           .maybeSingle(),

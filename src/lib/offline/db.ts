@@ -27,6 +27,7 @@ export interface LocalSale {
   subtotal: number;
   discount: number;
   tax: number;
+  cost_total?: number;
   paid: number;
   change_due: number;
   payment_method: string;

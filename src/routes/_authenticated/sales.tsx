@@ -67,6 +67,7 @@ type SaleRow = {
   subtotal: number;
   discount: number;
   tax: number;
+  cost_total: number;
   paid: number;
   change_due: number;
   payment_method: string;
@@ -88,6 +89,7 @@ type SaleDetail = {
     unit_price: number;
     discount: number;
     tax: number;
+    unit_cost: number;
     line_total: number;
   }>;
   payments: Array<{ method: string; amount: number; reference: string | null }>;
@@ -96,7 +98,7 @@ type SaleDetail = {
 function SalesPage() {
   const { org, can } = useAuth();
   const qc = useQueryClient();
-  const currency = org?.currency ?? "SAR";
+  const currency = org?.currency ?? "EGP";
   const [from, setFrom] = useState(monthAgo);
   const [to, setTo] = useState(today);
   const [branchId, setBranchId] = useState("all");
@@ -147,7 +149,7 @@ function SalesPage() {
       let query = supabase
         .from("sales")
         .select(
-          "id, invoice_no, total, subtotal, discount, tax, paid, change_due, payment_method, status, created_at, customer_id, cashier_id, branch_id, note",
+          "id, invoice_no, total, subtotal, discount, tax, cost_total, paid, change_due, payment_method, status, created_at, customer_id, cashier_id, branch_id, note",
         )
         .gte("created_at", new Date(`${from}T00:00:00`).toISOString())
         .lte("created_at", new Date(`${to}T23:59:59`).toISOString())
@@ -185,7 +187,7 @@ function SalesPage() {
       const [itemResult, paymentResult] = await Promise.all([
         supabase
           .from("sale_items")
-          .select("id, product_name, quantity, unit_price, discount, tax, line_total")
+          .select("id, product_name, quantity, unit_price, unit_cost, discount, tax, line_total")
           .eq("sale_id", openSale.id),
         supabase
           .from("sale_payments")
@@ -552,6 +554,12 @@ function SalesPage() {
                   <Info label="الإجمالي الفرعي" value={money(openSale.subtotal, currency)} />
                   <Info label="الخصم" value={money(openSale.discount, currency)} />
                   <Info label="الضريبة" value={money(openSale.tax, currency)} />
+                  {can("profit.view") && (
+                    <Info
+                      label="الربح"
+                      value={money(Number(openSale.subtotal) - Number(openSale.discount) - Number(openSale.cost_total ?? 0), currency)}
+                    />
+                  )}
                   <div className="mt-2 flex justify-between border-t pt-2 text-lg font-black">
                     <span>الإجمالي</span>
                     <span>{money(openSale.total, currency)}</span>

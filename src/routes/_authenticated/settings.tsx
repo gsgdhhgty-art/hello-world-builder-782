@@ -38,6 +38,13 @@ export const Route = createFileRoute("/_authenticated/settings")({
 });
 
 const BASE_ROLES = ["MANAGER", "CASHIER", "INVENTORY_MANAGER", "ACCOUNTANT"] as const;
+const CURRENCIES = [
+  { code: "EGP", label: "الجنيه المصري (EGP)" },
+  { code: "SAR", label: "الريال السعودي (SAR)" },
+  { code: "AED", label: "الدرهم الإماراتي (AED)" },
+  { code: "MAD", label: "الدرهم المغربي (MAD)" },
+  { code: "KWD", label: "الدينار الكويتي (KWD)" },
+] as const;
 
 function SettingsPage() {
   const { org, permissions, refresh, profile } = useAuth();
@@ -46,8 +53,9 @@ function SettingsPage() {
 
   const [orgForm, setOrgForm] = useState({
     name: org?.name ?? "",
-    currency: org?.currency ?? "SAR",
-    tax_rate: String(org?.tax_rate ?? 15),
+    currency: org?.currency ?? "EGP",
+    tax_enabled: org?.tax_enabled ?? false,
+    tax_rate: String(org?.tax_rate ?? 0),
     address: org?.address ?? "",
     phone: org?.phone ?? "",
     tax_number: org?.tax_number ?? "",
@@ -67,6 +75,7 @@ function SettingsPage() {
     setOrgForm({
       name: org.name,
       currency: org.currency,
+      tax_enabled: org.tax_enabled,
       tax_rate: String(org.tax_rate),
       address: org.address ?? "",
       phone: org.phone ?? "",
@@ -134,6 +143,7 @@ function SettingsPage() {
         .update({
           name: orgForm.name.trim(),
           currency,
+          tax_enabled: orgForm.tax_enabled,
           tax_rate: taxRate,
           address: orgForm.address.trim() || null,
           phone: orgForm.phone.trim() || null,
@@ -290,15 +300,17 @@ function SettingsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="o-cur">العملة</Label>
-                <Input
-                  id="o-cur"
+                <Select
                   value={orgForm.currency}
-                  maxLength={3}
-                  dir="ltr"
-                  onChange={(e) =>
-                    setOrgForm({ ...orgForm, currency: e.target.value.toUpperCase() })
-                  }
-                />
+                  onValueChange={(currency) => setOrgForm({ ...orgForm, currency })}
+                >
+                  <SelectTrigger id="o-cur"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((currency) => (
+                      <SelectItem key={currency.code} value={currency.code}>{currency.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="o-tax">الضريبة %</Label>
@@ -310,6 +322,19 @@ function SettingsPage() {
                   onChange={(e) => setOrgForm({ ...orgForm, tax_rate: e.target.value })}
                 />
               </div>
+            </div>
+            <div className="flex min-h-16 items-center justify-between gap-4 rounded-lg border bg-muted/25 p-3">
+              <div>
+                <Label htmlFor="o-tax-enabled" className="font-bold">تطبيق الضريبة أثناء البيع</Label>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  عند الإيقاف تبقى النسبة محفوظة، لكن لا تُضاف الضريبة إلى الفواتير الجديدة.
+                </p>
+              </div>
+              <Switch
+                id="o-tax-enabled"
+                checked={orgForm.tax_enabled}
+                onCheckedChange={(tax_enabled) => setOrgForm({ ...orgForm, tax_enabled })}
+              />
             </div>
             <div className="space-y-2">
               <Label>نظام حساب الربح</Label>
