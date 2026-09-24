@@ -294,9 +294,14 @@ function SalesPage() {
         amount: Number(item.amount),
         reference: item.reference,
       })),
-      profit: can("profit.view")
-        ? Number(openSale.subtotal) - Number(openSale.discount) - Number(openSale.cost_total ?? 0)
-        : undefined,
+      ...(can("profit.view")
+        ? {
+            profit:
+              Number(openSale.subtotal) -
+              Number(openSale.discount) -
+              Number(openSale.cost_total ?? 0),
+          }
+        : {}),
       items: detail.data.items.map((item) => ({
         name: item.product_name,
         quantity: Number(item.quantity),
