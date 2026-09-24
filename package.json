@@ -1,8 +1,9 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "smartpos",
   "private": true,
   "sideEffects": false,
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -12,7 +13,13 @@
     "check:mobile-hook": "node scripts/check-mobile-hook.mjs",
     "typecheck": "bun run check:mobile-hook && tsc --noEmit",
     "test": "vitest run",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "native:verify": "bun run typecheck && bun run test",
+    "android:sync": "bun run native:verify && cap sync android",
+    "android:apk": "bun run android:sync && cd android && ./gradlew assembleDebug",
+    "desktop:linux": "bun run native:verify && electron-packager . SmartPOS --platform=linux --arch=x64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/dist' --ignore='^/native-release'",
+    "desktop:windows": "bun run native:verify && electron-packager . SmartPOS --platform=win32 --arch=x64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/dist' --ignore='^/native-release'",
+    "desktop:mac": "bun run native:verify && electron-packager . SmartPOS --platform=darwin --arch=arm64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/dist' --ignore='^/native-release'"
   },
   "overrides": {
     "rolldown": "1.2.1"
