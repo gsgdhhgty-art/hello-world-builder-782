@@ -41,7 +41,7 @@ function AiAnalystPage() {
   const [question, setQuestion] = useState("");
   const [days, setDays] = useState("30");
   const callAnalyst = useServerFn(askStoreAnalyst);
-  const analysis = useMutation<AnalystResult, Error>({
+  const analysis = useMutation<AnalystResult, Error, string>({
     mutationFn: (submittedQuestion: string) =>
       callAnalyst({ data: { question: submittedQuestion, days: Number(days) } }),
     onError: (error) => toast.error(error.message || "تعذر إكمال التحليل الآن"),
