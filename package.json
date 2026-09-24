@@ -1,8 +1,9 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "smartpos",
   "private": true,
   "sideEffects": false,
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -12,12 +13,20 @@
     "check:mobile-hook": "node scripts/check-mobile-hook.mjs",
     "typecheck": "bun run check:mobile-hook && tsc --noEmit",
     "test": "vitest run",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "native:verify": "bun run typecheck && bun run test",
+    "android:sync": "bun run native:verify && cap sync android",
+    "android:apk": "bun run android:sync && cd android && ./gradlew assembleDebug",
+    "desktop:linux": "bun run native:verify && electron-packager . SmartPOS --platform=linux --arch=x64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/dist' --ignore='^/native-release'",
+    "desktop:windows": "bun run native:verify && electron-packager . SmartPOS --platform=win32 --arch=x64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/dist' --ignore='^/native-release'",
+    "desktop:mac": "bun run native:verify && electron-packager . SmartPOS --platform=darwin --arch=arm64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/dist' --ignore='^/native-release'"
   },
   "overrides": {
     "rolldown": "1.2.1"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -78,6 +87,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.2",
+    "@electron/packager": "^20.3.0",
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "2.23.1",
     "@types/jsbarcode": "^3.11.4",
@@ -86,6 +97,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",
     "@vitest/coverage-v8": "^5.0.1",
+    "electron": "^44.4.3",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
