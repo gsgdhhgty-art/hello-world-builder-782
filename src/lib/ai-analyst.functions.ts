@@ -52,7 +52,7 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
 
     const mayViewProfit = Boolean(permissions["*"] || permissions["profit.view"]);
 
-    const done = (sales.data ?? []).filter((s) => s.status !== "VOIDED");
+    const done = (sales.data ?? []).filter((s) => s.status !== "VOID");
     const revenue = done.reduce((a, s) => a + Number(s.total), 0);
     const cost = done.reduce((a, s) => a + Number(s.cost_total ?? 0), 0);
     const byDay: Record<string, { sales: number; count: number }> = {};
