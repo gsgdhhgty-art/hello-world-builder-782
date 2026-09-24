@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -84,7 +90,9 @@ function Onboarding() {
               <div className="space-y-2">
                 <Label htmlFor="cur">العملة</Label>
                 <Select value={currency} onValueChange={setCurrency}>
-                  <SelectTrigger id="cur"><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="cur">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="EGP">الجنيه المصري (EGP)</SelectItem>
                     <SelectItem value="SAR">الريال السعودي (SAR)</SelectItem>

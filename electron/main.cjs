@@ -1,9 +1,7 @@
 const { app, BrowserWindow, shell } = require("electron");
 const path = require("node:path");
 
-const APP_URL =
-  process.env.SMARTPOS_APP_URL ||
-  "https://project--2cdd9e5d-1351-4d1d-aac6-5f7d61c3fcf8.lovable.app";
+const APP_URL = process.env.SMARTPOS_APP_URL;
 
 function createWindow() {
   const window = new BrowserWindow({
@@ -22,11 +20,12 @@ function createWindow() {
   });
 
   window.webContents.setWindowOpenHandler(({ url }) => {
-    if (new URL(url).origin !== new URL(APP_URL).origin) void shell.openExternal(url);
+    if (!APP_URL || new URL(url).origin !== new URL(APP_URL).origin) void shell.openExternal(url);
     return { action: "deny" };
   });
 
-  void window.loadURL(APP_URL);
+  if (APP_URL) void window.loadURL(APP_URL);
+  else void window.loadFile(path.join(__dirname, "..", "dist", "index.html"));
 }
 
 app.whenReady().then(() => {

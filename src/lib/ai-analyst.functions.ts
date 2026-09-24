@@ -15,8 +15,21 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
     const sb = context.supabase;
     const since = new Date(Date.now() - data.days * 86400000).toISOString();
 
+    const { data: rawPermissions, error: permissionError } = await sb.rpc("my_permissions");
+    if (permissionError) throw new Error("تعذر التحقق من صلاحية التقارير");
+    const permissions =
+      rawPermissions && typeof rawPermissions === "object" && !Array.isArray(rawPermissions)
+        ? (rawPermissions as Record<string, unknown>)
+        : {};
+    if (!permissions["*"] && !permissions["reports.view"])
+      throw new Error("لا تملك صلاحية استخدام المحلل الذكي");
+
     const [org, sales, items, products, stock, expenses] = await Promise.all([
-      sb.from("organizations").select("name, currency, tax_enabled, tax_rate").limit(1).maybeSingle(),
+      sb
+        .from("organizations")
+        .select("name, currency, tax_enabled, tax_rate")
+        .limit(1)
+        .maybeSingle(),
       sb
         .from("sales")
         .select("created_at, total, subtotal, discount, tax, cost_total, payment_method, status")
@@ -31,9 +44,12 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       sb.from("inventory").select("product_id, quantity").limit(5000),
       sb.from("expenses").select("amount, created_at").gte("created_at", since).limit(2000),
     ]);
-    if (sales.error) throw new Error("تعذر قراءة المبيعات");
+    if (org.error || sales.error || items.error || products.error || stock.error || expenses.error)
+      throw new Error("تعذر تجهيز بيانات التحليل");
 
-    const done = (sales.data ?? []).filter((s) => s.status !== "VOIDED");
+    const mayViewProfit = Boolean(permissions["*"] || permissions["profit.view"]);
+
+    const done = (sales.data ?? []).filter((s) => s.status !== "VOID");
     const revenue = done.reduce((a, s) => a + Number(s.total), 0);
     const cost = done.reduce((a, s) => a + Number(s.cost_total ?? 0), 0);
     const byDay: Record<string, { sales: number; count: number }> = {};
@@ -57,7 +73,8 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       .slice(0, 25)
       .map(([name, v]) => ({ name, ...v, profit: v.revenue - v.cost }));
     const qty: Record<string, number> = {};
-    for (const r of stock.data ?? []) qty[r.product_id] = (qty[r.product_id] ?? 0) + Number(r.quantity);
+    for (const r of stock.data ?? [])
+      qty[r.product_id] = (qty[r.product_id] ?? 0) + Number(r.quantity);
     const active = (products.data ?? []).filter((p) => p.is_active);
     const soldNames = new Set(Object.keys(byProduct));
     const lowStock = active
@@ -76,12 +93,16 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       periodDays: data.days,
       invoices: done.length,
       revenue,
-      grossProfit: revenue - cost,
+      ...(mayViewProfit ? { grossProfit: revenue - cost } : {}),
       avgTicket: done.length ? revenue / done.length : 0,
       expenses: (expenses.data ?? []).reduce((a, e) => a + Number(e.amount), 0),
       byDay,
       byPaymentMethod: byPay,
-      topProducts: top,
+      topProducts: top.map((product) =>
+        mayViewProfit
+          ? product
+          : { name: product.name, qty: product.qty, revenue: product.revenue },
+      ),
       lowStock,
       deadStock,
       productCount: active.length,
@@ -91,7 +112,7 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       {
         role: "system",
         content:
-          "أنت محلل أعمال لمتجر تجزئة. أجب بالعربية بوضوح وإيجاز باستخدام Markdown (عناوين قصيرة، نقاط، أرقام بالعملة). اعتمد فقط على البيانات المرسلة ولا تخترع أرقامًا؛ إذا كانت البيانات غير كافية قل ذلك. اختم بتوصيات عملية مرقمة (حتى 5).",
+          "أنت محلل أعمال لمتجر تجزئة. أجب بالعربية بوضوح وإيجاز كنص منظم بعناوين قصيرة ونقاط وأرقام بالعملة، من دون رموز Markdown. اعتمد فقط على البيانات المرسلة ولا تخترع أرقامًا؛ إذا كانت البيانات غير كافية قل ذلك. اختم بتوصيات عملية مرقمة (حتى 5).",
       },
       {
         role: "user",
@@ -103,7 +124,7 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       stats: {
         invoices: done.length,
         revenue,
-        grossProfit: revenue - cost,
+        grossProfit: mayViewProfit ? revenue - cost : null,
         lowStock: lowStock.length,
         currency: snapshot.currency,
       },

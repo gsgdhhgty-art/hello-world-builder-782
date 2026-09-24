@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAiAnalystRouteImport } from './routes/_authenticated/ai-analyst'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
@@ -45,6 +46,11 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAiAnalystRoute = AuthenticatedAiAnalystRouteImport.update({
+  id: '/ai-analyst',
+  path: '/ai-analyst',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   id: '/audit',
@@ -146,6 +152,7 @@ const AuthenticatedSyncRoute = AuthenticatedSyncRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/ai-analyst': typeof AuthenticatedAiAnalystRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/catalog': typeof AuthenticatedCatalogRoute
   '/customers': typeof AuthenticatedCustomersRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/ai-analyst': typeof AuthenticatedAiAnalystRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/catalog': typeof AuthenticatedCatalogRoute
   '/customers': typeof AuthenticatedCustomersRoute
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/ai-analyst': typeof AuthenticatedAiAnalystRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/ai-analyst'
     | '/audit'
     | '/catalog'
     | '/customers'
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/ai-analyst'
     | '/audit'
     | '/catalog'
     | '/customers'
@@ -266,6 +277,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/ai-analyst'
     | '/_authenticated/audit'
     | '/_authenticated/catalog'
     | '/_authenticated/customers'
@@ -315,6 +327,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/ai-analyst': {
+      id: '/_authenticated/ai-analyst'
+      path: '/ai-analyst'
+      fullPath: '/ai-analyst'
+      preLoaderRoute: typeof AuthenticatedAiAnalystRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/audit': {
       id: '/_authenticated/audit'
@@ -453,6 +472,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAiAnalystRoute: typeof AuthenticatedAiAnalystRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
@@ -475,6 +495,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAiAnalystRoute: AuthenticatedAiAnalystRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,

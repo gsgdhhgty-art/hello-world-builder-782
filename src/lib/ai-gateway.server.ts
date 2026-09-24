@@ -6,7 +6,7 @@ export async function streamResponseText(input: unknown[], opts?: { json?: boole
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Lovable-API-Key": apiKey,
+      Authorization: `Bearer ${apiKey}`,
       "X-Lovable-AIG-SDK": "fetch",
     },
     body: JSON.stringify({
@@ -43,6 +43,18 @@ export async function streamResponseText(input: unknown[], opts?: { json?: boole
         else if (ev.type === "response.reasoning_summary_text.delta") summary += ev.delta ?? "";
       } catch {
         /* partial frame */
+      }
+    }
+  }
+  if (buffer.startsWith("data:")) {
+    const payload = buffer.slice(5).trim();
+    if (payload && payload !== "[DONE]") {
+      try {
+        const ev = JSON.parse(payload) as { type?: string; delta?: string };
+        if (ev.type === "response.output_text.delta") text += ev.delta ?? "";
+        else if (ev.type === "response.reasoning_summary_text.delta") summary += ev.delta ?? "";
+      } catch {
+        /* incomplete final frame */
       }
     }
   }
