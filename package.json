@@ -17,9 +17,9 @@
     "native:verify": "bun run typecheck && bun run test",
     "android:sync": "bun run native:verify && cap sync android",
     "android:apk": "bun run android:sync && cd android && ./gradlew assembleDebug",
-    "desktop:linux": "bun run native:verify && electron-packager . SmartPOS --platform=linux --arch=x64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/dist' --ignore='^/native-release'",
-    "desktop:windows": "bun run native:verify && electron-packager . SmartPOS --platform=win32 --arch=x64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/dist' --ignore='^/native-release'",
-    "desktop:mac": "bun run native:verify && electron-packager . SmartPOS --platform=darwin --arch=arm64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/dist' --ignore='^/native-release'"
+    "desktop:linux": "bun run native:verify && bun run build && electron-packager . SmartPOS --platform=linux --arch=x64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/native-release'",
+    "desktop:windows": "bun run native:verify && bun run build && electron-packager . SmartPOS --platform=win32 --arch=x64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/native-release'",
+    "desktop:mac": "bun run native:verify && bun run build && electron-packager . SmartPOS --platform=darwin --arch=arm64 --out=native-release --overwrite --prune=true --ignore='^/src' --ignore='^/android' --ignore='^/native-release'"
   },
   "overrides": {
     "rolldown": "1.2.1"
