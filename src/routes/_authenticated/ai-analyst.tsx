@@ -42,7 +42,8 @@ function AiAnalystPage() {
   const [days, setDays] = useState("30");
   const callAnalyst = useServerFn(askStoreAnalyst);
   const analysis = useMutation<AnalystResult, Error>({
-    mutationFn: () => callAnalyst({ data: { question: question.trim(), days: Number(days) } }),
+    mutationFn: (submittedQuestion: string) =>
+      callAnalyst({ data: { question: submittedQuestion, days: Number(days) } }),
     onError: (error) => toast.error(error.message || "تعذر إكمال التحليل الآن"),
   });
 
@@ -53,7 +54,7 @@ function AiAnalystPage() {
     const nextQuestion = suggestedQuestion ?? question.trim();
     if (nextQuestion.length < 3) return;
     if (suggestedQuestion) setQuestion(suggestedQuestion);
-    analysis.mutate();
+    analysis.mutate(nextQuestion);
   };
 
   return (
