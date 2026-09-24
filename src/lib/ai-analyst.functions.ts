@@ -25,7 +25,11 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       throw new Error("لا تملك صلاحية استخدام المحلل الذكي");
 
     const [org, sales, items, products, stock, expenses] = await Promise.all([
-      sb.from("organizations").select("name, currency, tax_enabled, tax_rate").limit(1).maybeSingle(),
+      sb
+        .from("organizations")
+        .select("name, currency, tax_enabled, tax_rate")
+        .limit(1)
+        .maybeSingle(),
       sb
         .from("sales")
         .select("created_at, total, subtotal, discount, tax, cost_total, payment_method, status")
@@ -40,14 +44,7 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       sb.from("inventory").select("product_id, quantity").limit(5000),
       sb.from("expenses").select("amount, created_at").gte("created_at", since).limit(2000),
     ]);
-    if (
-      org.error ||
-      sales.error ||
-      items.error ||
-      products.error ||
-      stock.error ||
-      expenses.error
-    )
+    if (org.error || sales.error || items.error || products.error || stock.error || expenses.error)
       throw new Error("تعذر تجهيز بيانات التحليل");
 
     const mayViewProfit = Boolean(permissions["*"] || permissions["profit.view"]);
@@ -76,7 +73,8 @@ export const askStoreAnalyst = createServerFn({ method: "POST" })
       .slice(0, 25)
       .map(([name, v]) => ({ name, ...v, profit: v.revenue - v.cost }));
     const qty: Record<string, number> = {};
-    for (const r of stock.data ?? []) qty[r.product_id] = (qty[r.product_id] ?? 0) + Number(r.quantity);
+    for (const r of stock.data ?? [])
+      qty[r.product_id] = (qty[r.product_id] ?? 0) + Number(r.quantity);
     const active = (products.data ?? []).filter((p) => p.is_active);
     const soldNames = new Set(Object.keys(byProduct));
     const lowStock = active

@@ -2,13 +2,27 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
-import { BarChart3, Boxes, Lightbulb, LoaderCircle, ReceiptText, Send, Sparkles } from "lucide-react";
+import {
+  BarChart3,
+  Boxes,
+  Lightbulb,
+  LoaderCircle,
+  ReceiptText,
+  Send,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { askStoreAnalyst } from "@/lib/ai-analyst.functions";
 import { money, num } from "@/lib/format";
@@ -48,7 +62,11 @@ function AiAnalystPage() {
   });
 
   if (!can("reports.view"))
-    return <div className="p-10 text-center text-muted-foreground">لا تملك صلاحية استخدام المحلل الذكي.</div>;
+    return (
+      <div className="p-10 text-center text-muted-foreground">
+        لا تملك صلاحية استخدام المحلل الذكي.
+      </div>
+    );
 
   const run = (suggestedQuestion?: string) => {
     const nextQuestion = suggestedQuestion ?? question.trim();
@@ -131,12 +149,28 @@ function AiAnalystPage() {
         {analysis.data ? (
           <>
             <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <Metric icon={ReceiptText} label="الفواتير" value={num(analysis.data.stats.invoices)} />
-              <Metric icon={BarChart3} label="المبيعات" value={money(analysis.data.stats.revenue, analysis.data.stats.currency)} />
+              <Metric
+                icon={ReceiptText}
+                label="الفواتير"
+                value={num(analysis.data.stats.invoices)}
+              />
+              <Metric
+                icon={BarChart3}
+                label="المبيعات"
+                value={money(analysis.data.stats.revenue, analysis.data.stats.currency)}
+              />
               {analysis.data.stats.grossProfit != null ? (
-                <Metric icon={Sparkles} label="الربح الإجمالي" value={money(analysis.data.stats.grossProfit, analysis.data.stats.currency)} />
+                <Metric
+                  icon={Sparkles}
+                  label="الربح الإجمالي"
+                  value={money(analysis.data.stats.grossProfit, analysis.data.stats.currency)}
+                />
               ) : null}
-              <Metric icon={Boxes} label="تنبيهات المخزون" value={num(analysis.data.stats.lowStock)} />
+              <Metric
+                icon={Boxes}
+                label="تنبيهات المخزون"
+                value={num(analysis.data.stats.lowStock)}
+              />
             </section>
             <Card>
               <CardHeader>
@@ -154,7 +188,9 @@ function AiAnalystPage() {
         ) : (
           <div className="surface-card flex min-h-48 flex-col items-center justify-center gap-3 p-8 text-center text-muted-foreground">
             <Sparkles className="size-10 text-primary/60" />
-            <p className="max-w-md">اختر سؤالًا مقترحًا أو اكتب سؤالك لتحليل بيانات {org?.name ?? "المتجر"}.</p>
+            <p className="max-w-md">
+              اختر سؤالًا مقترحًا أو اكتب سؤالك لتحليل بيانات {org?.name ?? "المتجر"}.
+            </p>
           </div>
         )}
       </div>
@@ -162,7 +198,15 @@ function AiAnalystPage() {
   );
 }
 
-function Metric({ icon: Icon, label, value }: { icon: typeof BarChart3; label: string; value: string }) {
+function Metric({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof BarChart3;
+  label: string;
+  value: string;
+}) {
   return (
     <Card>
       <CardContent className="flex min-h-28 items-center gap-4 pt-5">

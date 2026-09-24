@@ -304,10 +304,14 @@ function SettingsPage() {
                   value={orgForm.currency}
                   onValueChange={(currency) => setOrgForm({ ...orgForm, currency })}
                 >
-                  <SelectTrigger id="o-cur"><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="o-cur">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {CURRENCIES.map((currency) => (
-                      <SelectItem key={currency.code} value={currency.code}>{currency.label}</SelectItem>
+                      <SelectItem key={currency.code} value={currency.code}>
+                        {currency.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -325,7 +329,9 @@ function SettingsPage() {
             </div>
             <div className="flex min-h-16 items-center justify-between gap-4 rounded-lg border bg-muted/25 p-3">
               <div>
-                <Label htmlFor="o-tax-enabled" className="font-bold">تطبيق الضريبة أثناء البيع</Label>
+                <Label htmlFor="o-tax-enabled" className="font-bold">
+                  تطبيق الضريبة أثناء البيع
+                </Label>
                 <p className="mt-1 text-xs text-muted-foreground">
                   عند الإيقاف تبقى النسبة محفوظة، لكن لا تُضاف الضريبة إلى الفواتير الجديدة.
                 </p>

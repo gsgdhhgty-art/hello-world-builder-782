@@ -568,7 +568,12 @@ function SalesPage() {
                   {can("profit.view") && (
                     <Info
                       label="الربح"
-                      value={money(Number(openSale.subtotal) - Number(openSale.discount) - Number(openSale.cost_total ?? 0), currency)}
+                      value={money(
+                        Number(openSale.subtotal) -
+                          Number(openSale.discount) -
+                          Number(openSale.cost_total ?? 0),
+                        currency,
+                      )}
                     />
                   )}
                   <div className="mt-2 flex justify-between border-t pt-2 text-lg font-black">
