@@ -204,6 +204,57 @@ export type Database = {
           },
         ]
       }
+      customer_payments: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          customer_id: string
+          id: string
+          method: string
+          note: string | null
+          org_id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number
+          created_at?: string
+          customer_id: string
+          id?: string
+          method?: string
+          note?: string | null
+          org_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          customer_id?: string
+          id?: string
+          method?: string
+          note?: string | null
+          org_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_payments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_payments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           address: string | null
@@ -1618,6 +1669,7 @@ export type Database = {
         Returns: Json
       }
       generate_product_barcode: { Args: never; Returns: string }
+      get_customer_ledger: { Args: { _customer_id: string }; Returns: Json }
       has_perm: { Args: { _perm: string }; Returns: boolean }
       is_org_admin: { Args: never; Returns: boolean }
       my_permissions: { Args: never; Returns: Json }
@@ -1630,6 +1682,15 @@ export type Database = {
         Returns: Json
       }
       receive_purchase: { Args: { _payload: Json }; Returns: Json }
+      record_customer_payment: {
+        Args: {
+          _amount: number
+          _customer_id: string
+          _method: string
+          _note: string
+        }
+        Returns: Json
+      }
       report_daily_sales: {
         Args: {
           _branch_id?: string
