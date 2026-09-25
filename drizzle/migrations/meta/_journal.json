@@ -22,6 +22,13 @@
       "when": 1790379218599,
       "tag": "0002_add_receipt_branding",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790380706774,
+      "tag": "0003_customer_credit_accounts",
+      "breakpoints": true
     }
   ]
 }
