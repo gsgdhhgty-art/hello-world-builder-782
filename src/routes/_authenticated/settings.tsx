@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { ImagePlus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -19,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PERMISSION_LIST, ROLE_LABELS } from "@/lib/format";
+import { removeProductImage, uploadProductImage } from "@/lib/product-images";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
@@ -50,6 +52,10 @@ function SettingsPage() {
   const { org, permissions, refresh, profile } = useAuth();
   const isAdmin = Boolean(permissions["*"]);
   const qc = useQueryClient();
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(org?.logo_src ?? null);
+  const [removeLogo, setRemoveLogo] = useState(false);
 
   const [orgForm, setOrgForm] = useState({
     name: org?.name ?? "",
@@ -59,6 +65,9 @@ function SettingsPage() {
     address: org?.address ?? "",
     phone: org?.phone ?? "",
     tax_number: org?.tax_number ?? "",
+    commercial_register: org?.commercial_register ?? "",
+    receipt_header: org?.receipt_header ?? "",
+    receipt_footer: org?.receipt_footer ?? "شكرًا لزيارتكم ونسعد بخدمتكم دائمًا",
     profit_calculation_method: org?.profit_calculation_method ?? "AVERAGE_COST",
   });
   const [branchName, setBranchName] = useState("");
@@ -80,9 +89,22 @@ function SettingsPage() {
       address: org.address ?? "",
       phone: org.phone ?? "",
       tax_number: org.tax_number ?? "",
+      commercial_register: org.commercial_register ?? "",
+      receipt_header: org.receipt_header ?? "",
+      receipt_footer: org.receipt_footer ?? "شكرًا لزيارتكم ونسعد بخدمتكم دائمًا",
       profit_calculation_method: org.profit_calculation_method,
     });
+    setLogoPreview(org.logo_src);
+    setLogoFile(null);
+    setRemoveLogo(false);
   }, [org]);
+
+  useEffect(
+    () => () => {
+      if (logoPreview?.startsWith("blob:")) URL.revokeObjectURL(logoPreview);
+    },
+    [logoPreview],
+  );
 
   const branches = useQuery({
     queryKey: ["branches"],
@@ -134,10 +156,19 @@ function SettingsPage() {
 
   const saveOrg = useMutation({
     mutationFn: async () => {
+      if (!org) throw new Error("organization");
       const currency = orgForm.currency.trim().toUpperCase();
       const taxRate = Number(orgForm.tax_rate);
       if (!/^[A-Z]{3}$/.test(currency)) throw new Error("currency");
       if (!Number.isFinite(taxRate) || taxRate < 0 || taxRate > 100) throw new Error("tax");
+      let nextLogo = org.logo_url;
+      let uploadedLogo: string | null = null;
+      if (logoFile) {
+        uploadedLogo = await uploadProductImage(org.id, "receipt-brand", logoFile);
+        nextLogo = uploadedLogo;
+      } else if (removeLogo) {
+        nextLogo = null;
+      }
       const { error } = await supabase
         .from("organizations")
         .update({
@@ -148,10 +179,20 @@ function SettingsPage() {
           address: orgForm.address.trim() || null,
           phone: orgForm.phone.trim() || null,
           tax_number: orgForm.tax_number.trim() || null,
+          commercial_register: orgForm.commercial_register.trim() || null,
+          logo_url: nextLogo,
+          receipt_header: orgForm.receipt_header.trim() || null,
+          receipt_footer: orgForm.receipt_footer.trim() || null,
           profit_calculation_method: orgForm.profit_calculation_method,
         })
-        .eq("id", org!.id);
-      if (error) throw error;
+        .eq("id", org.id);
+      if (error) {
+        if (uploadedLogo) await removeProductImage(uploadedLogo);
+        throw error;
+      }
+      if ((logoFile || removeLogo) && org.logo_url && org.logo_url !== nextLogo) {
+        await removeProductImage(org.logo_url);
+      }
     },
     onSuccess: async () => {
       toast.success("تم حفظ بيانات المتجر");
@@ -270,6 +311,52 @@ function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
+              <Label>شعار الفاتورة</Label>
+              <input
+                ref={logoInputRef}
+                className="sr-only"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  if (logoPreview?.startsWith("blob:")) URL.revokeObjectURL(logoPreview);
+                  setLogoFile(file);
+                  setLogoPreview(URL.createObjectURL(file));
+                  setRemoveLogo(false);
+                }}
+              />
+              <div className="grid grid-cols-[72px_minmax(0,1fr)] items-center gap-3 rounded-lg border p-3">
+                <div className="grid size-[72px] place-items-center overflow-hidden rounded-md bg-muted">
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="شعار المتجر" className="size-full object-contain" />
+                  ) : (
+                    <ImagePlus className="size-6 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex min-w-0 flex-wrap gap-2">
+                  <Button type="button" variant="outline" onClick={() => logoInputRef.current?.click()}>
+                    <ImagePlus className="size-4" /> اختيار شعار
+                  </Button>
+                  {logoPreview && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => {
+                        if (logoPreview.startsWith("blob:")) URL.revokeObjectURL(logoPreview);
+                        setLogoFile(null);
+                        setLogoPreview(null);
+                        setRemoveLogo(true);
+                        if (logoInputRef.current) logoInputRef.current.value = "";
+                      }}
+                    >
+                      <Trash2 className="size-4" /> حذف
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="o-address">العنوان</Label>
               <Input
                 id="o-address"
@@ -294,6 +381,36 @@ function SettingsPage() {
                   dir="ltr"
                   value={orgForm.tax_number}
                   onChange={(e) => setOrgForm({ ...orgForm, tax_number: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="o-commercial-register">السجل التجاري</Label>
+                <Input
+                  id="o-commercial-register"
+                  dir="ltr"
+                  value={orgForm.commercial_register}
+                  onChange={(e) => setOrgForm({ ...orgForm, commercial_register: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="o-receipt-header">عبارة أعلى الفاتورة</Label>
+                <Textarea
+                  id="o-receipt-header"
+                  rows={3}
+                  value={orgForm.receipt_header}
+                  onChange={(e) => setOrgForm({ ...orgForm, receipt_header: e.target.value })}
+                  placeholder="مثال: فاتورة مبيعات مبسطة"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="o-receipt-footer">عبارة أسفل الفاتورة</Label>
+                <Textarea
+                  id="o-receipt-footer"
+                  rows={3}
+                  value={orgForm.receipt_footer}
+                  onChange={(e) => setOrgForm({ ...orgForm, receipt_footer: e.target.value })}
                 />
               </div>
             </div>
