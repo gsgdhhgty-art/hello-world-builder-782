@@ -365,16 +365,20 @@ export type Database = {
         Row: {
           address: string | null
           business_type: string
+          commercial_register: string | null
           created_at: string
           currency: string
           feature_flags: Json
           id: string
+          logo_url: string | null
           low_stock_alerts_enabled: boolean
           low_stock_include_out_of_stock: boolean
           name: string
           owner_id: string
           phone: string | null
           profit_calculation_method: string
+          receipt_footer: string | null
+          receipt_header: string | null
           reorder_suggestion_multiplier: number
           tax_enabled: boolean
           tax_number: string | null
@@ -384,16 +388,20 @@ export type Database = {
         Insert: {
           address?: string | null
           business_type?: string
+          commercial_register?: string | null
           created_at?: string
           currency?: string
           feature_flags?: Json
           id?: string
+          logo_url?: string | null
           low_stock_alerts_enabled?: boolean
           low_stock_include_out_of_stock?: boolean
           name: string
           owner_id: string
           phone?: string | null
           profit_calculation_method?: string
+          receipt_footer?: string | null
+          receipt_header?: string | null
           reorder_suggestion_multiplier?: number
           tax_enabled?: boolean
           tax_number?: string | null
@@ -403,16 +411,20 @@ export type Database = {
         Update: {
           address?: string | null
           business_type?: string
+          commercial_register?: string | null
           created_at?: string
           currency?: string
           feature_flags?: Json
           id?: string
+          logo_url?: string | null
           low_stock_alerts_enabled?: boolean
           low_stock_include_out_of_stock?: boolean
           name?: string
           owner_id?: string
           phone?: string | null
           profit_calculation_method?: string
+          receipt_footer?: string | null
+          receipt_header?: string | null
           reorder_suggestion_multiplier?: number
           tax_enabled?: boolean
           tax_number?: string | null

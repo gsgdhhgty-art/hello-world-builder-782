@@ -15,6 +15,13 @@
       "when": 1790214968434,
       "tag": "0001_add_tax_enabled_and_egyptian_defaults",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790379218599,
+      "tag": "0002_add_receipt_branding",
+      "breakpoints": true
     }
   ]
 }
