@@ -1096,6 +1096,10 @@ function PosPage() {
           address: org?.address,
           phone: org?.phone,
           tax_number: org?.tax_number,
+          commercial_register: org?.commercial_register,
+          logo_url: org?.logo_src,
+          receipt_header: org?.receipt_header,
+          receipt_footer: org?.receipt_footer,
         }}
         currency={currency}
       />

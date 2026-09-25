@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveProductImage } from "@/lib/product-images";
 
 export interface Profile {
   id: string;
@@ -34,6 +35,11 @@ export interface Organization {
   address: string | null;
   phone: string | null;
   tax_number: string | null;
+  commercial_register: string | null;
+  logo_url: string | null;
+  logo_src: string | null;
+  receipt_header: string | null;
+  receipt_footer: string | null;
   low_stock_alerts_enabled: boolean;
   low_stock_include_out_of_stock: boolean;
   reorder_suggestion_multiplier: number;
@@ -81,13 +87,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         supabase
           .from("organizations")
           .select(
-            "id, name, currency, tax_rate, tax_enabled, business_type, address, phone, tax_number, low_stock_alerts_enabled, low_stock_include_out_of_stock, reorder_suggestion_multiplier, profit_calculation_method",
+            "id, name, currency, tax_rate, tax_enabled, business_type, address, phone, tax_number, commercial_register, logo_url, receipt_header, receipt_footer, low_stock_alerts_enabled, low_stock_include_out_of_stock, reorder_suggestion_multiplier, profit_calculation_method",
           )
           .eq("id", prof.org_id)
           .maybeSingle(),
         supabase.rpc("my_permissions"),
       ]);
-      setOrg((orgRow as Organization | null) ?? null);
+      const organization = (orgRow as Omit<Organization, "logo_src"> | null) ?? null;
+      setOrg(
+        organization
+          ? { ...organization, logo_src: await resolveProductImage(organization.logo_url) }
+          : null,
+      );
       setPermissions((perms as Record<string, boolean> | null) ?? {});
     } else {
       setOrg(null);
