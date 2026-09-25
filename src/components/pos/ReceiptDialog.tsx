@@ -40,6 +40,10 @@ export interface ReceiptBusiness {
   address?: string | null | undefined;
   phone?: string | null | undefined;
   tax_number?: string | null | undefined;
+  commercial_register?: string | null | undefined;
+  logo_url?: string | null | undefined;
+  receipt_header?: string | null | undefined;
+  receipt_footer?: string | null | undefined;
 }
 
 function escapeHtml(value: string) {
@@ -56,6 +60,54 @@ function escapeHtml(value: string) {
   );
 }
 
+function optionalLine(label: string, value: string | null | undefined, dir = "rtl") {
+  return value
+    ? `<div class="business-line" dir="${dir}"><b>${escapeHtml(label)}:</b> ${escapeHtml(value)}</div>`
+    : "";
+}
+
+export function buildReceiptHtml(
+  receipt: ReceiptData,
+  business: ReceiptBusiness,
+  currency: string,
+  paper: "58" | "80" = "80",
+) {
+  const safeLogo = business.logo_url && /^https?:\/\//i.test(business.logo_url)
+    ? escapeHtml(business.logo_url)
+    : null;
+  const rows = receipt.items
+    .map(
+      (item, index) => `<tr>
+        <td><span class="item-index">${index + 1}</span>${escapeHtml(item.name)}${item.sku ? `<small>${escapeHtml(item.sku)}</small>` : ""}</td>
+        <td>${num(item.quantity, 0)}</td>
+        <td>${money(item.unit_price, currency)}</td>
+        <td>${money(item.line_total, currency)}</td>
+      </tr>`,
+    )
+    .join("");
+  const payments = receipt.payments
+    .map(
+      (payment) => `<div class="pair"><span>${escapeHtml(PAYMENT_LABELS[payment.method] ?? payment.method)}</span><strong>${money(payment.amount, currency)}</strong></div>`,
+    )
+    .join("");
+  return `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8">
+  <title>${escapeHtml(receipt.invoice_no)}</title><style>
+  @page{size:${paper}mm auto;margin:0}*{box-sizing:border-box}body{font-family:Arial,Tahoma,sans-serif;width:${paper}mm;margin:0 auto;padding:${paper === "58" ? "3mm 2.5mm" : "5mm 4mm"};font-size:${paper === "58" ? "9px" : "11px"};line-height:1.45;color:#000;background:#fff}
+  .brand{text-align:center;border-bottom:2px solid #000;padding-bottom:7px}.logo{display:block;max-width:${paper === "58" ? "29mm" : "36mm"};max-height:18mm;object-fit:contain;margin:0 auto 4px}.brand h1{font-size:${paper === "58" ? "17px" : "21px"};line-height:1.2;margin:2px 0;font-weight:800}.receipt-type{font-size:11px;font-weight:700;margin-top:4px}.business-line{font-size:${paper === "58" ? "8px" : "10px"};margin:1px 0}.meta{border:1px solid #000;margin:7px 0;padding:5px}.pair{display:flex;justify-content:space-between;gap:8px;margin:2px 0}.pair span:first-child{min-width:0}.divider{border-top:1px dashed #000;margin:6px 0}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{text-align:start;padding:4px 2px;vertical-align:top}th{border-block:1px solid #000;font-size:${paper === "58" ? "8px" : "10px"}}th:first-child,td:first-child{width:42%;word-break:break-word}th:not(:first-child),td:not(:first-child){text-align:center}tbody tr{border-bottom:1px dotted #888}.item-index{display:inline-grid;place-items:center;width:14px;height:14px;margin-inline-end:3px;border:1px solid #555;border-radius:50%;font-size:7px}small{display:block;color:#555;font-size:8px;margin-inline-start:17px}.totals{margin-top:7px;border-block:2px solid #000;padding:5px 0}.total{font-size:${paper === "58" ? "13px" : "16px"};padding-top:4px;border-top:1px solid #000}.payments{margin-top:7px}.footer{text-align:center;margin-top:9px;padding-top:7px;border-top:1px dashed #000;white-space:pre-line}.notice{font-size:8px;margin-top:5px}.offline{border:1px solid #000;padding:3px;margin-top:5px;text-align:center;font-weight:700}
+  </style></head><body>
+  <header class="brand">${safeLogo ? `<img class="logo" src="${safeLogo}" alt="">` : ""}<h1>${escapeHtml(business.name)}</h1>
+  ${business.receipt_header ? `<div class="receipt-type">${escapeHtml(business.receipt_header)}</div>` : '<div class="receipt-type">فاتورة مبيعات</div>'}
+  ${optionalLine("العنوان", business.address)}${optionalLine("الهاتف", business.phone, "ltr")}${optionalLine("السجل التجاري", business.commercial_register, "ltr")}${optionalLine("الرقم الضريبي", business.tax_number, "ltr")}</header>
+  <section class="meta"><div class="pair"><span>رقم الفاتورة</span><strong dir="ltr">${escapeHtml(receipt.invoice_no)}</strong></div><div class="pair"><span>التاريخ</span><strong>${dateTime(receipt.created_at)}</strong></div><div class="pair"><span>الكاشير</span><strong>${escapeHtml(receipt.cashier)}</strong></div>${receipt.customer ? `<div class="pair"><span>العميل</span><strong>${escapeHtml(receipt.customer)}</strong></div>` : ""}</section>
+  <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${rows}</tbody></table>
+  <section class="totals"><div class="pair"><span>الإجمالي الفرعي</span><strong>${money(receipt.subtotal, currency)}</strong></div>${receipt.discount > 0 ? `<div class="pair"><span>الخصم</span><strong>− ${money(receipt.discount, currency)}</strong></div>` : ""}<div class="pair"><span>الضريبة</span><strong>${money(receipt.tax, currency)}</strong></div>${receipt.profit !== undefined ? `<div class="pair"><span>الربح (نسخة إدارية)</span><strong>${money(receipt.profit, currency)}</strong></div>` : ""}<div class="pair total"><span>الإجمالي المستحق</span><strong>${money(receipt.total, currency)}</strong></div><div class="pair"><span>المدفوع</span><strong>${money(receipt.paid, currency)}</strong></div><div class="pair"><span>الباقي</span><strong>${money(receipt.change_due, currency)}</strong></div>${receipt.credit ? `<div class="pair"><span>المتبقي آجلًا</span><strong>${money(receipt.credit, currency)}</strong></div>` : ""}</section>
+  <section class="payments"><strong>تفاصيل الدفع</strong><div class="divider"></div>${payments}</section>
+  ${receipt.offline ? '<div class="offline">نسخة محفوظة محليًا — بانتظار المزامنة</div>' : ""}
+  <footer class="footer"><strong>${escapeHtml(business.receipt_footer || "شكرًا لزيارتكم ونسعد بخدمتكم دائمًا")}</strong><div class="notice">يرجى الاحتفاظ بالفاتورة لإتمام الاستبدال أو الاسترجاع وفق سياسة المتجر</div></footer>
+  <script>window.onload=function(){window.print();}</script></body></html>`;
+}
+
 /** Local receipt printing — works with no internet (browser print dialog only). */
 export function printReceipt(
   receipt: ReceiptData,
@@ -63,44 +115,7 @@ export function printReceipt(
   currency: string,
   paper: "58" | "80" = "80",
 ) {
-  const rows = receipt.items
-    .map(
-      (i) =>
-        `<tr><td>${escapeHtml(i.name)}${i.sku ? `<small>${escapeHtml(i.sku)}</small>` : ""}</td><td>${num(i.quantity, 0)}</td><td>${money(i.unit_price, currency)}</td><td>${money(i.line_total, currency)}</td></tr>`,
-    )
-    .join("");
-  const html = `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8">
-  <title>${receipt.invoice_no}</title><style>
-  @page{size:${paper}mm auto;margin:0}*{box-sizing:border-box}body{font-family:system-ui,sans-serif;width:${paper}mm;margin:0 auto;padding:${paper === "58" ? "4px" : "8px"};font-size:${paper === "58" ? "10px" : "12px"};color:#000}
-  h1{font-size:18px;text-align:center;margin:4px 0}.brand{text-align:center;margin-bottom:8px}.brand div{margin:1px 0}
-  table{width:100%;border-collapse:collapse;margin-top:8px}
-  th,td{text-align:start;padding:3px 2px;font-size:${paper === "58" ? "9px" : "11px"};vertical-align:top}th{border-bottom:1px solid #000}.total{font-size:14px}
-  tfoot td{border-top:1px dashed #000;padding-top:4px;font-weight:700}
-  .c{text-align:center}.muted{color:#555;font-size:11px}small{display:block;color:#666;font-size:9px}.payments{border-top:1px dashed #000;margin-top:8px;padding-top:5px}.payment{display:flex;justify-content:space-between}
-  </style></head><body>
-  <div class="brand"><h1>${escapeHtml(business.name)}</h1>
-  ${business.address ? `<div>${escapeHtml(business.address)}</div>` : ""}
-  ${business.phone ? `<div dir="ltr">${escapeHtml(business.phone)}</div>` : ""}
-  ${business.tax_number ? `<div>الرقم الضريبي: ${escapeHtml(business.tax_number)}</div>` : ""}</div>
-  <div class="c muted">فاتورة ${receipt.invoice_no}</div>
-  <div class="c muted">${dateTime(receipt.created_at)}</div>
-  <div class="muted">الكاشير: ${escapeHtml(receipt.cashier)}</div>
-  ${receipt.customer ? `<div class="muted">العميل: ${escapeHtml(receipt.customer)}</div>` : ""}
-  <table><thead><tr><th>الصنف</th><th>كمية</th><th>سعر</th><th>الإجمالي</th></tr></thead>
-  <tbody>${rows}</tbody>
-  <tfoot>
-    <tr><td colspan="3">الإجمالي الفرعي</td><td>${money(receipt.subtotal, currency)}</td></tr>
-    <tr><td colspan="3">الخصم</td><td>${money(receipt.discount, currency)}</td></tr>
-    <tr><td colspan="3">الضريبة</td><td>${money(receipt.tax, currency)}</td></tr>
-    ${receipt.profit !== undefined ? `<tr><td colspan="3">الربح</td><td>${money(receipt.profit, currency)}</td></tr>` : ""}
-     <tr class="total"><td colspan="3">الإجمالي شامل الضريبة</td><td>${money(receipt.total, currency)}</td></tr>
-    <tr><td colspan="3">المدفوع</td><td>${money(receipt.paid, currency)}</td></tr>
-    <tr><td colspan="3">الباقي</td><td>${money(receipt.change_due, currency)}</td></tr>
-    ${receipt.credit ? `<tr><td colspan="3">آجل</td><td>${money(receipt.credit, currency)}</td></tr>` : ""}
-  </tfoot></table><div class="payments"><strong>تفاصيل الدفع</strong>${receipt.payments.map((p) => `<div class="payment"><span>${escapeHtml(PAYMENT_LABELS[p.method] ?? p.method)}</span><span>${money(p.amount, currency)}</span></div>`).join("")}</div>
-  <p class="c muted">شكرًا لزيارتكم</p>
-  <script>window.onload=function(){window.print();}</script>
-  </body></html>`;
+  const html = buildReceiptHtml(receipt, business, currency, paper);
   const w = window.open("", "_blank", "width=380,height=600");
   if (!w) return false;
   w.document.write(html);
@@ -137,9 +152,18 @@ export function ReceiptDialog({
         {receipt && (
           <div className="space-y-4 text-sm">
             <div className="rounded-lg border bg-muted/30 p-4 text-center">
-              <div className="font-black text-primary">{business.name}</div>
-              <div className="mt-2 text-xs text-muted-foreground">فاتورة مبيعات</div>
-              <div className="text-xl font-black">{receipt.invoice_no}</div>
+              {business.logo_url && (
+                <img
+                  src={business.logo_url}
+                  alt={`شعار ${business.name}`}
+                  className="mx-auto mb-2 h-14 max-w-32 object-contain"
+                />
+              )}
+              <div className="text-lg font-black text-primary">{business.name}</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                {business.receipt_header || "فاتورة مبيعات"}
+              </div>
+              <div className="mt-2 text-xl font-black" dir="ltr">{receipt.invoice_no}</div>
               <div className="mt-1 text-xs text-muted-foreground">
                 {dateTime(receipt.created_at)}
               </div>
@@ -156,6 +180,12 @@ export function ReceiptDialog({
                   دين على العميل: {money(receipt.credit, currency)}
                 </div>
               )}
+            </div>
+            <div className="grid gap-1 rounded-lg border px-3 py-2 text-xs text-muted-foreground sm:grid-cols-2">
+              <span>الكاشير: <b className="text-foreground">{receipt.cashier}</b></span>
+              <span>العميل: <b className="text-foreground">{receipt.customer || "عميل نقدي"}</b></span>
+              {business.phone && <span dir="ltr">{business.phone}</span>}
+              {business.commercial_register && <span>س.ت: {business.commercial_register}</span>}
             </div>
             <div className="max-h-56 overflow-y-auto rounded-lg border">
               <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] gap-2 border-b bg-muted/40 px-3 py-2 text-xs font-bold text-muted-foreground">
