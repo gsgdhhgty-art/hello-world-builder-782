@@ -72,9 +72,10 @@ export function buildReceiptHtml(
   currency: string,
   paper: "58" | "80" = "80",
 ) {
-  const safeLogo = business.logo_url && /^https?:\/\//i.test(business.logo_url)
-    ? escapeHtml(business.logo_url)
-    : null;
+  const safeLogo =
+    business.logo_url && /^https?:\/\//i.test(business.logo_url)
+      ? escapeHtml(business.logo_url)
+      : null;
   const rows = receipt.items
     .map(
       (item, index) => `<tr>
@@ -87,7 +88,8 @@ export function buildReceiptHtml(
     .join("");
   const payments = receipt.payments
     .map(
-      (payment) => `<div class="pair"><span>${escapeHtml(PAYMENT_LABELS[payment.method] ?? payment.method)}</span><strong>${money(payment.amount, currency)}</strong></div>`,
+      (payment) =>
+        `<div class="pair"><span>${escapeHtml(PAYMENT_LABELS[payment.method] ?? payment.method)}</span><strong>${money(payment.amount, currency)}</strong></div>`,
     )
     .join("");
   return `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8">
@@ -163,7 +165,9 @@ export function ReceiptDialog({
               <div className="mt-1 text-xs text-muted-foreground">
                 {business.receipt_header || "فاتورة مبيعات"}
               </div>
-              <div className="mt-2 text-xl font-black" dir="ltr">{receipt.invoice_no}</div>
+              <div className="mt-2 text-xl font-black" dir="ltr">
+                {receipt.invoice_no}
+              </div>
               <div className="mt-1 text-xs text-muted-foreground">
                 {dateTime(receipt.created_at)}
               </div>
@@ -182,8 +186,12 @@ export function ReceiptDialog({
               )}
             </div>
             <div className="grid gap-1 rounded-lg border px-3 py-2 text-xs text-muted-foreground sm:grid-cols-2">
-              <span>الكاشير: <b className="text-foreground">{receipt.cashier}</b></span>
-              <span>العميل: <b className="text-foreground">{receipt.customer || "عميل نقدي"}</b></span>
+              <span>
+                الكاشير: <b className="text-foreground">{receipt.cashier}</b>
+              </span>
+              <span>
+                العميل: <b className="text-foreground">{receipt.customer || "عميل نقدي"}</b>
+              </span>
               {business.phone && <span dir="ltr">{business.phone}</span>}
               {business.commercial_register && <span>س.ت: {business.commercial_register}</span>}
             </div>

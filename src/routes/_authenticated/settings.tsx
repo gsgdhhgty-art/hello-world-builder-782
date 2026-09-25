@@ -335,7 +335,11 @@ function SettingsPage() {
                   )}
                 </div>
                 <div className="flex min-w-0 flex-wrap gap-2">
-                  <Button type="button" variant="outline" onClick={() => logoInputRef.current?.click()}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => logoInputRef.current?.click()}
+                  >
                     <ImagePlus className="size-4" /> اختيار شعار
                   </Button>
                   {logoPreview && (
