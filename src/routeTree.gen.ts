@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAiAnalystRouteImport } from './routes/_authenticated/ai-analyst'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
+import { Route as AuthenticatedCreditAccountsRouteImport } from './routes/_authenticated/credit-accounts'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedEmployeesRouteImport } from './routes/_authenticated/employees'
@@ -62,6 +63,12 @@ const AuthenticatedCatalogRoute = AuthenticatedCatalogRouteImport.update({
   path: '/catalog',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCreditAccountsRoute =
+  AuthenticatedCreditAccountsRouteImport.update({
+    id: '/credit-accounts',
+    path: '/credit-accounts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCustomersRoute = AuthenticatedCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
@@ -155,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/ai-analyst': typeof AuthenticatedAiAnalystRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/catalog': typeof AuthenticatedCatalogRoute
+  '/credit-accounts': typeof AuthenticatedCreditAccountsRoute
   '/customers': typeof AuthenticatedCustomersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/employees': typeof AuthenticatedEmployeesRoute
@@ -179,6 +187,7 @@ export interface FileRoutesByTo {
   '/ai-analyst': typeof AuthenticatedAiAnalystRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/catalog': typeof AuthenticatedCatalogRoute
+  '/credit-accounts': typeof AuthenticatedCreditAccountsRoute
   '/customers': typeof AuthenticatedCustomersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/employees': typeof AuthenticatedEmployeesRoute
@@ -205,6 +214,7 @@ export interface FileRoutesById {
   '/_authenticated/ai-analyst': typeof AuthenticatedAiAnalystRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
+  '/_authenticated/credit-accounts': typeof AuthenticatedCreditAccountsRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/employees': typeof AuthenticatedEmployeesRoute
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/ai-analyst'
     | '/audit'
     | '/catalog'
+    | '/credit-accounts'
     | '/customers'
     | '/dashboard'
     | '/employees'
@@ -255,6 +266,7 @@ export interface FileRouteTypes {
     | '/ai-analyst'
     | '/audit'
     | '/catalog'
+    | '/credit-accounts'
     | '/customers'
     | '/dashboard'
     | '/employees'
@@ -280,6 +292,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai-analyst'
     | '/_authenticated/audit'
     | '/_authenticated/catalog'
+    | '/_authenticated/credit-accounts'
     | '/_authenticated/customers'
     | '/_authenticated/dashboard'
     | '/_authenticated/employees'
@@ -347,6 +360,13 @@ declare module '@tanstack/react-router' {
       path: '/catalog'
       fullPath: '/catalog'
       preLoaderRoute: typeof AuthenticatedCatalogRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/credit-accounts': {
+      id: '/_authenticated/credit-accounts'
+      path: '/credit-accounts'
+      fullPath: '/credit-accounts'
+      preLoaderRoute: typeof AuthenticatedCreditAccountsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/customers': {
@@ -475,6 +495,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiAnalystRoute: typeof AuthenticatedAiAnalystRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedCatalogRoute: typeof AuthenticatedCatalogRoute
+  AuthenticatedCreditAccountsRoute: typeof AuthenticatedCreditAccountsRoute
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEmployeesRoute: typeof AuthenticatedEmployeesRoute
@@ -498,6 +519,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiAnalystRoute: AuthenticatedAiAnalystRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedCatalogRoute: AuthenticatedCatalogRoute,
+  AuthenticatedCreditAccountsRoute: AuthenticatedCreditAccountsRoute,
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEmployeesRoute: AuthenticatedEmployeesRoute,
