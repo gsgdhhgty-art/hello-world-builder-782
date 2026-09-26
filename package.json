@@ -100,6 +100,7 @@
     "drizzle-kit": "^0.31.11",
     "drizzle-orm": "^0.45.3",
     "electron": "^44.4.3",
+    "electron-builder": "^26",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
