@@ -4,6 +4,7 @@ import {
   BarChart3,
   Boxes,
   Building2,
+  HandCoins,
   ChevronLeft,
   ClipboardList,
   Clock,
