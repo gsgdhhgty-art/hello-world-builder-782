@@ -28,6 +28,7 @@ describe("buildReceiptHtml", () => {
         tax_number: "987654",
         receipt_header: "فاتورة بيع معتمدة",
         receipt_footer: "نتمنى رؤيتكم قريبًا",
+        tax_enabled: true,
       },
       "EGP",
       "80",
@@ -39,6 +40,7 @@ describe("buildReceiptHtml", () => {
     expect(html).toContain("منتج تجريبي");
     expect(html).toContain("نتمنى رؤيتكم قريبًا");
     expect(html).toContain("size:80mm auto");
+    expect(html).toContain("ضريبة القيمة المضافة");
   });
 
   it("escapes untrusted receipt text and supports 58mm paper", () => {
@@ -51,5 +53,6 @@ describe("buildReceiptHtml", () => {
     expect(html).not.toContain('<script>alert("x")</script>');
     expect(html).toContain("متجر &lt;آمن&gt;");
     expect(html).toContain("size:58mm auto");
+    expect(html).not.toContain("ضريبة القيمة المضافة");
   });
 });

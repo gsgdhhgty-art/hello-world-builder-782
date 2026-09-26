@@ -3,6 +3,7 @@ name: Native packages
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     tags: ["v*"]
 
 jobs:
@@ -28,6 +29,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+      - uses: android-actions/setup-android@v3
       - run: bun install --frozen-lockfile
       - run: bun run build
         env:
@@ -35,12 +37,13 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
       - run: bunx cap sync android
-      - run: cd android && ./gradlew assembleDebug
+      - run: cd android && ./gradlew --no-daemon assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: SmartPOS-Android-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          retention-days: 14
 
   desktop:
     needs: verify
@@ -74,3 +77,4 @@ jobs:
           name: SmartPOS-${{ matrix.platform }}-${{ matrix.arch }}
           path: native-release/
           if-no-files-found: error
+          retention-days: 14

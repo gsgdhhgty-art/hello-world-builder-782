@@ -25,7 +25,7 @@ function createWindow() {
   });
 
   if (APP_URL) void window.loadURL(APP_URL);
-  else void window.loadFile(path.join(__dirname, "..", "dist", "index.html"));
+  else void window.loadFile(path.join(__dirname, "..", "dist", "client", "index.html"));
 }
 
 app.whenReady().then(() => {
