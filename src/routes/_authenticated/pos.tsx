@@ -1093,6 +1093,7 @@ function PosPage() {
         onClose={() => setReceipt(null)}
         business={{
           name: org?.name ?? "متجري",
+          business_type: org?.business_type,
           address: org?.address,
           phone: org?.phone,
           tax_number: org?.tax_number,
@@ -1100,6 +1101,7 @@ function PosPage() {
           logo_url: org?.logo_src,
           receipt_header: org?.receipt_header,
           receipt_footer: org?.receipt_footer,
+          tax_enabled: org?.tax_enabled,
         }}
         currency={currency}
       />

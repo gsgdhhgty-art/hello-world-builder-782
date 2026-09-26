@@ -12,3 +12,4 @@
 <!-- LOVABLE:END -->
 
 - Store receipt-branding images in the existing organization-scoped product-images bucket to reuse its secure policies and image optimization.
+- Native wrappers consume the generated `dist/client` bundle because TanStack Start emits browser assets there, while `dist/server` is deployment-only.
