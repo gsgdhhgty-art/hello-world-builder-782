@@ -132,7 +132,13 @@ export function printReceipt(
   currency: string,
   paper: "58" | "80" = "80",
 ) {
-  const html = buildReceiptHtml(receipt, business, currency, paper, makeReceiptBarcode(receipt.invoice_no));
+  const html = buildReceiptHtml(
+    receipt,
+    business,
+    currency,
+    paper,
+    makeReceiptBarcode(receipt.invoice_no),
+  );
   const w = window.open("", "_blank", "width=380,height=600");
   if (!w) return false;
   w.document.write(html);
