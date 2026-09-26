@@ -96,7 +96,11 @@ function escapeHtml(value: string) {
 
 export function buildStatementHtml(
   ledger: Ledger,
-  business: { name: string; phone?: string | null | undefined; address?: string | null | undefined },
+  business: {
+    name: string;
+    phone?: string | null | undefined;
+    address?: string | null | undefined;
+  },
   currency: string,
 ) {
   const rows = ledger.sales
