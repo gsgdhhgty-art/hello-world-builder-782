@@ -92,6 +92,13 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         perm: "sales.refund",
         tone: TONE.rose,
       },
+      {
+        to: "/credit-accounts",
+        label: "الحسابات الآجلة",
+        icon: HandCoins,
+        perm: "sales.create",
+        tone: TONE.violet,
+      },
       { to: "/shifts", label: "الورديات", icon: Clock, tone: TONE.amber },
     ],
   },
