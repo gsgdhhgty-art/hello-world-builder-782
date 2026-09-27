@@ -217,8 +217,10 @@ function InventoryPage() {
           (stockFilter === "all" ||
             (stockFilter === "low" && low) ||
             (stockFilter === "out" && out) ||
-            (stockFilter === "expiring" && expiryState(product.expires_at, org?.expiry_alert_days ?? 30) === "soon") ||
-            (stockFilter === "expired" && expiryState(product.expires_at, org?.expiry_alert_days ?? 30) === "expired"))
+            (stockFilter === "expiring" &&
+              expiryState(product.expires_at, org?.expiry_alert_days ?? 30) === "soon") ||
+            (stockFilter === "expired" &&
+              expiryState(product.expires_at, org?.expiry_alert_days ?? 30) === "expired"))
         );
       });
   }, [products.data, inventory.data, search, stockFilter, org?.expiry_alert_days]);
@@ -341,7 +343,16 @@ function InventoryPage() {
                               {product.sku ?? product.unit}
                             </div>
                             {product.expires_at ? (
-                              <div className={cn("text-xs", expiry === "expired" ? "text-destructive" : expiry === "soon" ? "text-warning" : "text-muted-foreground")}>
+                              <div
+                                className={cn(
+                                  "text-xs",
+                                  expiry === "expired"
+                                    ? "text-destructive"
+                                    : expiry === "soon"
+                                      ? "text-warning"
+                                      : "text-muted-foreground",
+                                )}
+                              >
                                 {expiry === "expired"
                                   ? `منتهي منذ ${Math.abs(daysUntil(product.expires_at))} يوم`
                                   : expiry === "soon"

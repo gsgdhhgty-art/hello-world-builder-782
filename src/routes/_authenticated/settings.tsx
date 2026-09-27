@@ -229,7 +229,7 @@ function SettingsPage() {
               ? "بادئة باركود الميزان يجب أن تكون رقمًا أو رقمين"
               : error.message === "expiry-days"
                 ? "مدة تنبيه الصلاحية يجب أن تكون بين يوم و365 يومًا"
-            : "تعذر الحفظ",
+                : "تعذر الحفظ",
       ),
   });
 
@@ -555,7 +555,9 @@ function SettingsPage() {
                       })
                     }
                   >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="WEIGHT">الوزن بالكيلو</SelectItem>
                       <SelectItem value="PRICE">السعر الإجمالي</SelectItem>
@@ -580,7 +582,9 @@ function SettingsPage() {
               </div>
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <Label htmlFor="o-block-expired" className="font-bold">منع بيع المنتج المنتهي</Label>
+                  <Label htmlFor="o-block-expired" className="font-bold">
+                    منع بيع المنتج المنتهي
+                  </Label>
                   <p className="mt-1 text-xs text-muted-foreground">
                     يمنع إضافته إلى السلة من البحث أو الماسح.
                   </p>

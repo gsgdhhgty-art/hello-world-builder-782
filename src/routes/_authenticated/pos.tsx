@@ -182,7 +182,9 @@ function PosPage() {
       const rows = await localFirst<ProductRow>("products", async () => {
         const { data, error } = await supabase
           .from("products")
-          .select("id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at")
+          .select(
+            "id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at",
+          )
           .eq("is_active", true)
           .order("name");
         if (error) throw error;
@@ -565,22 +567,28 @@ function PosPage() {
     });
   }, [productsQuery.data, search, category, favorites]);
 
-  const addToCart = useCallback((p: ProductRow, qty = 1) => {
-    if (org?.block_expired_sales && expiryState(p.expires_at, org.expiry_alert_days) === "expired") {
-      beep("error");
-      toast.error(`${p.name} منتهي الصلاحية — لم تتم إضافته`);
-      return false;
-    }
-    setCart((prev) => {
-      const idx = prev.findIndex((l) => l.product.id === p.id);
-      if (idx === -1) return [...prev, { product: p, quantity: qty, discount: 0 }];
-      const next = [...prev];
-      const line = next[idx]!;
-      next[idx] = { ...line, quantity: line.quantity + qty };
-      return next;
-    });
-    return true;
-  }, [org?.block_expired_sales, org?.expiry_alert_days]);
+  const addToCart = useCallback(
+    (p: ProductRow, qty = 1) => {
+      if (
+        org?.block_expired_sales &&
+        expiryState(p.expires_at, org.expiry_alert_days) === "expired"
+      ) {
+        beep("error");
+        toast.error(`${p.name} منتهي الصلاحية — لم تتم إضافته`);
+        return false;
+      }
+      setCart((prev) => {
+        const idx = prev.findIndex((l) => l.product.id === p.id);
+        if (idx === -1) return [...prev, { product: p, quantity: qty, discount: 0 }];
+        const next = [...prev];
+        const line = next[idx]!;
+        next[idx] = { ...line, quantity: line.quantity + qty };
+        return next;
+      });
+      return true;
+    },
+    [org?.block_expired_sales, org?.expiry_alert_days],
+  );
 
   function setQty(id: string, qty: number) {
     setCart((prev) =>
@@ -602,7 +610,8 @@ function PosPage() {
           matchesScaleCode(candidate, scale.code),
         );
         if (product) {
-          const quantity = scale.mode === "WEIGHT" ? scale.value : scale.value / Number(product.price);
+          const quantity =
+            scale.mode === "WEIGHT" ? scale.value : scale.value / Number(product.price);
           if (!Number.isFinite(quantity) || quantity <= 0 || !addToCart(product, quantity)) return;
           beep("ok");
           toast.success(
@@ -626,7 +635,9 @@ function PosPage() {
       void (async () => {
         const { data } = await supabase
           .from("products")
-          .select("id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at")
+          .select(
+            "id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at",
+          )
           .or(`barcode.eq.${value},sku.eq.${value}`)
           .eq("is_active", true)
           .limit(1)
@@ -840,7 +851,9 @@ function PosPage() {
                     >
                       {p.track_stock ? `${num(qty)} متوفر` : "متاح"}
                     </span>
-                    {expired ? <span className="text-[10px] font-bold text-destructive">منتهي الصلاحية</span> : null}
+                    {expired ? (
+                      <span className="text-[10px] font-bold text-destructive">منتهي الصلاحية</span>
+                    ) : null}
                   </div>
                 </button>
                 <button
