@@ -43,6 +43,13 @@
       "when": 1790543073401,
       "tag": "0005_add_scale_barcode_and_expiry_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790543872010,
+      "tag": "0006_realtime_sales_owner_live",
+      "breakpoints": true
     }
   ]
 }
