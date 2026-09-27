@@ -10,6 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { dateTime, money, num, PAYMENT_LABELS } from "@/lib/format";
+import { toast } from "sonner";
+import { nativeBridge, printSilently } from "@/lib/hardware";
 
 export interface ReceiptData {
   invoice_no: string;
@@ -125,7 +127,10 @@ function makeReceiptBarcode(value: string) {
   return canvas.toDataURL("image/png");
 }
 
-/** Local receipt printing — works with no internet (browser print dialog only). */
+/**
+ * Local receipt printing — works with no internet. The desktop app prints silently
+ * to the configured printer; browsers/Android fall back to the print window.
+ */
 export function printReceipt(
   receipt: ReceiptData,
   business: ReceiptBusiness,
@@ -139,6 +144,10 @@ export function printReceipt(
     paper,
     makeReceiptBarcode(receipt.invoice_no),
   );
+  if (nativeBridge()) {
+    printSilently(html).catch((e: unknown) => toast.error(e instanceof Error ? e.message : "تعذرت الطباعة"));
+    return true;
+  }
   const w = window.open("", "_blank", "width=380,height=600");
   if (!w) return false;
   w.document.write(html);

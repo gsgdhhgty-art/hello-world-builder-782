@@ -15,3 +15,4 @@
 - Native wrappers consume the generated `dist/client` bundle because TanStack Start emits browser assets there, while `dist/server` is deployment-only.
 - Native release workflows use Node 24-compatible actions, build signed Android release APK/AAB files, and use electron-builder for x64 Windows/Linux plus x64/arm64 macOS installers so CI verifies distributable files rather than unpacked folders.
 - Scale labels use configurable EAN-13 prefix parsing at checkout; expiry enforcement remains organization-configurable so one catalog policy applies online and offline.
+- Cashier hardware settings (printer, drawer IP) are stored per device in localStorage and native printing goes through the Electron preload bridge `window.smartposNative`, because each till has its own devices and browsers cannot open raw sockets.

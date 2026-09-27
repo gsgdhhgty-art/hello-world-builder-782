@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CustomerDisplayRouteImport } from './routes/customer-display'
 import { Route as AuthenticatedAiAnalystRouteImport } from './routes/_authenticated/ai-analyst'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedCatalogRouteImport } from './routes/_authenticated/catalog'
@@ -22,6 +23,7 @@ import { Route as AuthenticatedEmployeesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedExpensesRouteImport } from './routes/_authenticated/expenses'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedOwnerLiveRouteImport } from './routes/_authenticated/owner-live'
 import { Route as AuthenticatedPosRouteImport } from './routes/_authenticated/pos'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedPurchaseOrdersRouteImport } from './routes/_authenticated/purchase-orders'
@@ -31,6 +33,7 @@ import { Route as AuthenticatedReturnsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
+import { Route as AuthenticatedStockCountRouteImport } from './routes/_authenticated/stock-count'
 import { Route as AuthenticatedSuppliersRouteImport } from './routes/_authenticated/suppliers'
 import { Route as AuthenticatedSyncRouteImport } from './routes/_authenticated/sync'
 
@@ -46,6 +49,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerDisplayRoute = CustomerDisplayRouteImport.update({
+  id: '/customer-display',
+  path: '/customer-display',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAiAnalystRoute = AuthenticatedAiAnalystRouteImport.update({
@@ -99,6 +107,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOwnerLiveRoute = AuthenticatedOwnerLiveRouteImport.update({
+  id: '/owner-live',
+  path: '/owner-live',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPosRoute = AuthenticatedPosRouteImport.update({
   id: '/pos',
   path: '/pos',
@@ -145,6 +158,11 @@ const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
   path: '/shifts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedStockCountRoute = AuthenticatedStockCountRouteImport.update({
+  id: '/stock-count',
+  path: '/stock-count',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSuppliersRoute = AuthenticatedSuppliersRouteImport.update({
   id: '/suppliers',
   path: '/suppliers',
@@ -159,6 +177,7 @@ const AuthenticatedSyncRoute = AuthenticatedSyncRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/customer-display': typeof CustomerDisplayRoute
   '/ai-analyst': typeof AuthenticatedAiAnalystRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/catalog': typeof AuthenticatedCatalogRoute
@@ -169,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/expenses': typeof AuthenticatedExpensesRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/owner-live': typeof AuthenticatedOwnerLiveRoute
   '/pos': typeof AuthenticatedPosRoute
   '/products': typeof AuthenticatedProductsRoute
   '/purchase-orders': typeof AuthenticatedPurchaseOrdersRoute
@@ -178,12 +198,14 @@ export interface FileRoutesByFullPath {
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
+  '/stock-count': typeof AuthenticatedStockCountRoute
   '/suppliers': typeof AuthenticatedSuppliersRoute
   '/sync': typeof AuthenticatedSyncRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/customer-display': typeof CustomerDisplayRoute
   '/ai-analyst': typeof AuthenticatedAiAnalystRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/catalog': typeof AuthenticatedCatalogRoute
@@ -194,6 +216,7 @@ export interface FileRoutesByTo {
   '/expenses': typeof AuthenticatedExpensesRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/owner-live': typeof AuthenticatedOwnerLiveRoute
   '/pos': typeof AuthenticatedPosRoute
   '/products': typeof AuthenticatedProductsRoute
   '/purchase-orders': typeof AuthenticatedPurchaseOrdersRoute
@@ -203,6 +226,7 @@ export interface FileRoutesByTo {
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
+  '/stock-count': typeof AuthenticatedStockCountRoute
   '/suppliers': typeof AuthenticatedSuppliersRoute
   '/sync': typeof AuthenticatedSyncRoute
 }
@@ -211,6 +235,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/customer-display': typeof CustomerDisplayRoute
   '/_authenticated/ai-analyst': typeof AuthenticatedAiAnalystRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/catalog': typeof AuthenticatedCatalogRoute
@@ -221,6 +246,7 @@ export interface FileRoutesById {
   '/_authenticated/expenses': typeof AuthenticatedExpensesRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/owner-live': typeof AuthenticatedOwnerLiveRoute
   '/_authenticated/pos': typeof AuthenticatedPosRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/purchase-orders': typeof AuthenticatedPurchaseOrdersRoute
@@ -230,6 +256,7 @@ export interface FileRoutesById {
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
+  '/_authenticated/stock-count': typeof AuthenticatedStockCountRoute
   '/_authenticated/suppliers': typeof AuthenticatedSuppliersRoute
   '/_authenticated/sync': typeof AuthenticatedSyncRoute
 }
@@ -238,6 +265,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/customer-display'
     | '/ai-analyst'
     | '/audit'
     | '/catalog'
@@ -248,6 +276,7 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/inventory'
     | '/onboarding'
+    | '/owner-live'
     | '/pos'
     | '/products'
     | '/purchase-orders'
@@ -257,12 +286,14 @@ export interface FileRouteTypes {
     | '/sales'
     | '/settings'
     | '/shifts'
+    | '/stock-count'
     | '/suppliers'
     | '/sync'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/customer-display'
     | '/ai-analyst'
     | '/audit'
     | '/catalog'
@@ -273,6 +304,7 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/inventory'
     | '/onboarding'
+    | '/owner-live'
     | '/pos'
     | '/products'
     | '/purchase-orders'
@@ -282,6 +314,7 @@ export interface FileRouteTypes {
     | '/sales'
     | '/settings'
     | '/shifts'
+    | '/stock-count'
     | '/suppliers'
     | '/sync'
   id:
@@ -289,6 +322,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/customer-display'
     | '/_authenticated/ai-analyst'
     | '/_authenticated/audit'
     | '/_authenticated/catalog'
@@ -299,6 +333,7 @@ export interface FileRouteTypes {
     | '/_authenticated/expenses'
     | '/_authenticated/inventory'
     | '/_authenticated/onboarding'
+    | '/_authenticated/owner-live'
     | '/_authenticated/pos'
     | '/_authenticated/products'
     | '/_authenticated/purchase-orders'
@@ -308,6 +343,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sales'
     | '/_authenticated/settings'
     | '/_authenticated/shifts'
+    | '/_authenticated/stock-count'
     | '/_authenticated/suppliers'
     | '/_authenticated/sync'
   fileRoutesById: FileRoutesById
@@ -316,6 +352,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CustomerDisplayRoute: typeof CustomerDisplayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -339,6 +376,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer-display': {
+      id: '/customer-display'
+      path: '/customer-display'
+      fullPath: '/customer-display'
+      preLoaderRoute: typeof CustomerDisplayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/ai-analyst': {
@@ -411,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/owner-live': {
+      id: '/_authenticated/owner-live'
+      path: '/owner-live'
+      fullPath: '/owner-live'
+      preLoaderRoute: typeof AuthenticatedOwnerLiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pos': {
       id: '/_authenticated/pos'
       path: '/pos'
@@ -474,6 +525,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedShiftsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/stock-count': {
+      id: '/_authenticated/stock-count'
+      path: '/stock-count'
+      fullPath: '/stock-count'
+      preLoaderRoute: typeof AuthenticatedStockCountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/suppliers': {
       id: '/_authenticated/suppliers'
       path: '/suppliers'
@@ -502,6 +560,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedExpensesRoute: typeof AuthenticatedExpensesRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedOwnerLiveRoute: typeof AuthenticatedOwnerLiveRoute
   AuthenticatedPosRoute: typeof AuthenticatedPosRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedPurchaseOrdersRoute: typeof AuthenticatedPurchaseOrdersRoute
@@ -511,6 +570,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
+  AuthenticatedStockCountRoute: typeof AuthenticatedStockCountRoute
   AuthenticatedSuppliersRoute: typeof AuthenticatedSuppliersRoute
   AuthenticatedSyncRoute: typeof AuthenticatedSyncRoute
 }
@@ -526,6 +586,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedExpensesRoute: AuthenticatedExpensesRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedOwnerLiveRoute: AuthenticatedOwnerLiveRoute,
   AuthenticatedPosRoute: AuthenticatedPosRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedPurchaseOrdersRoute: AuthenticatedPurchaseOrdersRoute,
@@ -535,6 +596,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
+  AuthenticatedStockCountRoute: AuthenticatedStockCountRoute,
   AuthenticatedSuppliersRoute: AuthenticatedSuppliersRoute,
   AuthenticatedSyncRoute: AuthenticatedSyncRoute,
 }
@@ -546,6 +608,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CustomerDisplayRoute: CustomerDisplayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
