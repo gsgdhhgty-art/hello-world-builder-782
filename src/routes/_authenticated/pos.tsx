@@ -4,7 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Camera,
   CloudOff,
+  Inbox,
   Minus,
+  Monitor,
+  Printer,
   PauseCircle,
   Package,
   Percent,
@@ -42,7 +45,10 @@ import {
 import { Keypad } from "@/components/pos/Keypad";
 import { CameraScanner } from "@/components/pos/CameraScanner";
 import { PaymentDialog, type PaymentLine } from "@/components/pos/PaymentDialog";
-import { ReceiptDialog, type ReceiptData } from "@/components/pos/ReceiptDialog";
+import { ReceiptDialog, printReceipt, type ReceiptData } from "@/components/pos/ReceiptDialog";
+import { HardwareDialog } from "@/components/pos/HardwareDialog";
+import { loadHardware, nativeBridge, openCashDrawer } from "@/lib/hardware";
+import { openDisplayChannel, type DisplayState } from "@/lib/customer-display";
 import { money, num } from "@/lib/format";
 import { beep } from "@/lib/feedback";
 import { useBarcodeScanner } from "@/hooks/useBarcodeScanner";
@@ -133,6 +139,7 @@ function PosPage() {
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  const [hardwareOpen, setHardwareOpen] = useState(false);
 
   useEffect(() => {
     if (!hasLocalDb()) return;
@@ -352,6 +359,61 @@ function PosPage() {
   const taxTotal = round2((netAfterCartDiscount * taxRate) / 100);
   const grandTotal = round2(netAfterCartDiscount + taxTotal);
 
+  const receiptBusiness = {
+    name: org?.name ?? "متجري",
+    business_type: org?.business_type,
+    address: org?.address,
+    phone: org?.phone,
+    tax_number: org?.tax_number,
+    commercial_register: org?.commercial_register,
+    logo_url: org?.logo_src,
+    receipt_header: org?.receipt_header,
+    receipt_footer: org?.receipt_footer,
+    tax_enabled: org?.tax_enabled,
+  };
+
+  // شاشة العميل: نبث السلة الحالية لنافذة العميل على نفس الجهاز
+  const displayRef = useRef<BroadcastChannel | null>(null);
+  const displayState: DisplayState = {
+    store: org?.name ?? "SmartPOS",
+    currency,
+    lines: cart.map((l) => ({
+      name: l.product.name,
+      quantity: l.quantity,
+      total: round2(Number(l.product.price) * l.quantity - l.discount),
+    })),
+    subtotal: totals.subtotal,
+    discount: round2(totals.discount + effCartDiscount),
+    tax: taxTotal,
+    total: grandTotal,
+    done: null,
+  };
+  const displayJson = JSON.stringify(displayState);
+  const latestDisplay = useRef(displayState);
+  latestDisplay.current = displayState;
+  useEffect(() => {
+    const ch = openDisplayChannel();
+    displayRef.current = ch;
+    if (ch) ch.onmessage = () => ch.postMessage(latestDisplay.current);
+    return () => ch?.close();
+  }, []);
+  useEffect(() => {
+    // لا نمسح شاشة "شكرًا" فور إفراغ السلة بعد البيع
+    if (cart.length === 0) return;
+    displayRef.current?.postMessage(JSON.parse(displayJson) as DisplayState);
+  }, [displayJson, cart.length]);
+
+  const openCustomerDisplay = () => {
+    const w = window.open("/customer-display", "smartpos-customer-display", "width=1024,height=700");
+    if (!w) toast.error("اسمح بالنوافذ المنبثقة لفتح شاشة العميل");
+  };
+
+  const kickDrawer = async () => {
+    const res = await openCashDrawer();
+    if (!res.ok) toast.error(res.error ?? "تعذر فتح الدرج");
+  };
+
+
   const checkout = useMutation({
     mutationFn: async (payments: PaymentLine[]) => {
       const clientTxnId = crypto.randomUUID();
@@ -494,6 +556,13 @@ function PosPage() {
     onSuccess: (data) => {
       setPayOpen(false);
       setMobileCartOpen(false);
+      const hw = loadHardware();
+      if (hw.openDrawerOnCash && data.payments.some((p) => p.method === "CASH")) void kickDrawer();
+      displayRef.current?.postMessage({
+        ...displayState,
+        done: { paid: data.paid, change: data.change_due },
+      } satisfies DisplayState);
+      if (hw.autoPrint) printReceipt(data, receiptBusiness, currency, hw.paper);
       // نفتح الإيصال بعد إغلاق نافذة الدفع لتجنّب تعطّل التفاعل عند تراكب النوافذ
       window.setTimeout(() => setReceipt(data), 180);
       setCart([]);
@@ -945,6 +1014,17 @@ function PosPage() {
             >
               <X className="size-4" />
             </Button>
+            <Button variant="ghost" size="sm" aria-label="شاشة العميل" title="شاشة العميل" onClick={openCustomerDisplay}>
+              <Monitor className="size-4" />
+            </Button>
+            <Button variant="ghost" size="sm" aria-label="الطابعة والدرج" title="الطابعة والدرج" onClick={() => setHardwareOpen(true)}>
+              <Printer className="size-4" />
+            </Button>
+            {nativeBridge() && (
+              <Button variant="ghost" size="sm" aria-label="فتح الدرج" title="فتح الدرج" onClick={() => void kickDrawer()}>
+                <Inbox className="size-4" />
+              </Button>
+            )}
             <Button variant="ghost" size="sm" onClick={() => setHeldOpen(true)}>
               <PlayCircle className="size-4" />
               {(heldQuery.data ?? []).length || ""}
@@ -1147,6 +1227,8 @@ function PosPage() {
         }}
         currency={currency}
       />
+
+      <HardwareDialog open={hardwareOpen} onOpenChange={setHardwareOpen} />
 
       {/* quantity keypad */}
       <Dialog open={!!qtyEditor} onOpenChange={(o) => !o && setQtyEditor(null)}>
