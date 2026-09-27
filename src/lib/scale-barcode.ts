@@ -45,7 +45,11 @@ export function matchesScaleCode(
 
 export type ExpiryState = "expired" | "soon" | "ok" | "none";
 
-export function expiryState(expiresAt: string | null | undefined, alertDays: number, now = new Date()): ExpiryState {
+export function expiryState(
+  expiresAt: string | null | undefined,
+  alertDays: number,
+  now = new Date(),
+): ExpiryState {
   if (!expiresAt) return "none";
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const [y, m, d] = expiresAt.slice(0, 10).split("-").map(Number);

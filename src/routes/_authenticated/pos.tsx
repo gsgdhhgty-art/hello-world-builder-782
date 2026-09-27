@@ -54,6 +54,7 @@ import { enqueue, isOnline, localStockMap, recordLocalSale } from "@/lib/offline
 import { useOffline } from "@/hooks/useOffline";
 import { resolveProductImages } from "@/lib/product-images";
 import { AiSuggestDialog } from "@/components/pos/AiSuggestDialog";
+import { expiryState, matchesScaleCode, parseScaleBarcode } from "@/lib/scale-barcode";
 
 export const Route = createFileRoute("/_authenticated/pos")({
   head: () => ({
@@ -79,6 +80,7 @@ interface ProductRow {
   track_stock: boolean;
   category_id: string | null;
   image_url: string | null;
+  expires_at: string | null;
 }
 
 interface CartLine {
@@ -180,7 +182,9 @@ function PosPage() {
       const rows = await localFirst<ProductRow>("products", async () => {
         const { data, error } = await supabase
           .from("products")
-          .select("id, name, barcode, sku, price, unit, track_stock, category_id, image_url")
+          .select(
+            "id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at",
+          )
           .eq("is_active", true)
           .order("name");
         if (error) throw error;
@@ -563,16 +567,28 @@ function PosPage() {
     });
   }, [productsQuery.data, search, category, favorites]);
 
-  const addToCart = useCallback((p: ProductRow, qty = 1) => {
-    setCart((prev) => {
-      const idx = prev.findIndex((l) => l.product.id === p.id);
-      if (idx === -1) return [...prev, { product: p, quantity: qty, discount: 0 }];
-      const next = [...prev];
-      const line = next[idx]!;
-      next[idx] = { ...line, quantity: line.quantity + qty };
-      return next;
-    });
-  }, []);
+  const addToCart = useCallback(
+    (p: ProductRow, qty = 1) => {
+      if (
+        org?.block_expired_sales &&
+        expiryState(p.expires_at, org.expiry_alert_days) === "expired"
+      ) {
+        beep("error");
+        toast.error(`${p.name} منتهي الصلاحية — لم تتم إضافته`);
+        return false;
+      }
+      setCart((prev) => {
+        const idx = prev.findIndex((l) => l.product.id === p.id);
+        if (idx === -1) return [...prev, { product: p, quantity: qty, discount: 0 }];
+        const next = [...prev];
+        const line = next[idx]!;
+        next[idx] = { ...line, quantity: line.quantity + qty };
+        return next;
+      });
+      return true;
+    },
+    [org?.block_expired_sales, org?.expiry_alert_days],
+  );
 
   function setQty(id: string, qty: number) {
     setCart((prev) =>
@@ -586,9 +602,29 @@ function PosPage() {
     (code: string) => {
       const value = code.trim();
       if (!value) return;
+      const scale = org?.scale_barcode_enabled
+        ? parseScaleBarcode(value, org.scale_barcode_prefix, org.scale_barcode_mode)
+        : null;
+      if (scale) {
+        const product = (productsQuery.data ?? []).find((candidate) =>
+          matchesScaleCode(candidate, scale.code),
+        );
+        if (product) {
+          const quantity =
+            scale.mode === "WEIGHT" ? scale.value : scale.value / Number(product.price);
+          if (!Number.isFinite(quantity) || quantity <= 0 || !addToCart(product, quantity)) return;
+          beep("ok");
+          toast.success(
+            `تمت إضافة ${product.name} — ${num(quantity)} ${product.unit} — ${money(product.price * quantity, currency)}`,
+          );
+          setSearch("");
+          searchRef.current?.focus();
+          return;
+        }
+      }
       const local = (productsQuery.data ?? []).find((p) => p.barcode === value || p.sku === value);
       if (local) {
-        addToCart(local);
+        if (!addToCart(local)) return;
         beep("ok");
         toast.success(`تمت إضافة ${local.name} — ${money(local.price, currency)}`);
         setSearch("");
@@ -599,13 +635,15 @@ function PosPage() {
       void (async () => {
         const { data } = await supabase
           .from("products")
-          .select("id, name, barcode, sku, price, unit, track_stock, category_id, image_url")
+          .select(
+            "id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at",
+          )
           .or(`barcode.eq.${value},sku.eq.${value}`)
           .eq("is_active", true)
           .limit(1)
           .maybeSingle();
         if (data) {
-          addToCart(data as ProductRow);
+          if (!addToCart(data as ProductRow)) return;
           beep("ok");
           toast.success(`تمت إضافة ${data.name} — ${money(data.price, currency)}`);
           setSearch("");
@@ -618,7 +656,7 @@ function PosPage() {
         searchRef.current?.focus();
       })();
     },
-    [addToCart, currency, productsQuery],
+    [addToCart, currency, org, productsQuery],
   );
 
   useBarcodeScanner({ onScan: scanCode, allowedTarget: searchRef });
@@ -777,6 +815,7 @@ function PosPage() {
           {filtered.map((p) => {
             const qty = stock[p.id] ?? 0;
             const out = p.track_stock && qty <= 0;
+            const expired = expiryState(p.expires_at, org?.expiry_alert_days ?? 30) === "expired";
             return (
               <div key={p.id} className="relative">
                 <button
@@ -784,7 +823,7 @@ function PosPage() {
                   onClick={() => addToCart(p)}
                   className={cn(
                     "group flex h-full w-full touch-target select-none flex-col gap-1 overflow-hidden rounded-lg border border-border bg-card text-start shadow-xs transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-card active:scale-[0.98]",
-                    out && "opacity-60",
+                    (out || (expired && org?.block_expired_sales)) && "opacity-60",
                   )}
                 >
                   <div className="grid aspect-[4/3] w-full place-items-center bg-muted/45 p-2">
@@ -812,6 +851,9 @@ function PosPage() {
                     >
                       {p.track_stock ? `${num(qty)} متوفر` : "متاح"}
                     </span>
+                    {expired ? (
+                      <span className="text-[10px] font-bold text-destructive">منتهي الصلاحية</span>
+                    ) : null}
                   </div>
                 </button>
                 <button
