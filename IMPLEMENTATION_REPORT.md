@@ -48,20 +48,43 @@
 
 ## البناء والتوزيع
 
-- `CI`: تثبيت، فحص أنواع، فحص جودة، اختبارات، بناء، ثم رفع `dist` كملف Artifact.
-- `Native packages`: تحقق كامل، ثم بناء ملفات الإنتاج قبل إنشاء كل حزمة.
-- Android: مزامنة Capacitor مع `dist` ثم إنشاء APK عبر Java 21 وGradle.
-- Desktop: حزم Electron منفصلة لـ Windows x64 وLinux x64 وmacOS arm64.
+- جميع إجراءات GitHub تعمل بإصدارات متوافقة مع Node 24، ومنها `checkout@v7` و`setup-node@v5` و`setup-java@v6` و`setup-android@v4` و`setup-bun@v2.2.0`.
+- `CI`: تثبيت مقفل، فحص أنواع، فحص جودة، اختبارات، بناء، ثم رفع `dist` كملف Artifact.
+- `Native packages`: تحقق كامل، ثم بناء ملفات الإنتاج قبل إنشاء كل حزمة، مع عدم إلغاء المنصات الأخرى إذا فشلت منصة واحدة.
+- Android: تثبيت SDK 36 وBuild Tools 36.0.0 وقبول التراخيص، ثم مزامنة Capacitor وإنشاء Release APK وAAB موقّعين عبر Java 21 وGradle.
+- عند عدم إضافة أسرار توقيع Android يُنشأ مفتاح مؤقت للاختبار فقط؛ يلزم مفتاح إنتاج ثابت حتى تقبل الأجهزة تحديث النسخة المثبتة.
+- Desktop: مثبت Windows x64 بصيغة NSIS، وLinux x64 بصيغتي AppImage وdeb، وmacOS بصيغة dmg لكل من x64 وarm64.
+- كل مهمة تتحقق من وجود ملف التثبيت وحجمه قبل رفعه؛ المجلدات غير المكتملة لا تُعتبر بناءً ناجحًا.
 - يمكن تحديد `SMARTPOS_APP_URL` لنسخة سطح المكتب عند الرغبة في تشغيل النسخة السحابية بدل الملفات المحلية.
-- تم اعتماد `actions/upload-artifact@v4` المستقر في جميع مسارات الرفع.
+- أزيلت روابط سجل الحزم الداخلي من `bun.lock` حتى يستطيع GitHub تثبيت الاعتماديات من السجل العام.
 
 ## التحقق المنفذ
 
 - فحص حماية `use-mobile` ناجح، ولا يوجد الملف القديم `src/hooks/use-mobile.tsx`.
 - الملف المعتمد هو `src/hooks/use-mobile.ts` ويستورد React مباشرة، لذلك خطأ TS2686 القديم ناتج عن ذاكرة بناء قديمة وليس عن المصدر الحالي.
 - نجحت اختبارات حسابات نقطة البيع الستة.
+- نجح فحصا الفاتورة الحرارية، ليصبح الإجمالي ثمانية اختبارات ناجحة.
 - نجح فحص ESLint بلا أخطاء؛ بقيت تحذيرات Fast Refresh القديمة غير المؤثرة على البناء.
+- لا توجد أي إشارة لإجراءات Android القديمة المبنية على Node 20، ولا توجد روابط لسجل الحزم الداخلي.
 - تعذر اختبار عملية بيع حقيقية والمحلل داخل المعاينة لأن حساب المستخدم الحالي غير مسجل في متجر؛ يلزم تسجيل الدخول وفتح وردية لاختبار الأجهزة الفعلية.
+
+## BUILD STATUS
+
+| الهدف | الحالة في المصدر الحالي | التحقق |
+| --- | --- | --- |
+| Web | جاهز | TypeScript وESLint و8 اختبارات ناجحة؛ مهمة CI تبني وترفع `dist` |
+| Android APK | جاهز للتشغيل التالي | `assembleRelease` + تحقق من الملف والحجم + `SmartPOS-Android.apk` |
+| Android AAB | جاهز للتشغيل التالي | `bundleRelease` + تحقق من الملف والحجم + `SmartPOS-Android.aab` |
+| Windows x64 | جاهز للتشغيل التالي | مثبت NSIS باسم `SmartPOS-Windows-x64.exe` |
+| Linux x64 | جاهز للتشغيل التالي | `SmartPOS-Linux-x64.AppImage` و`SmartPOS-Linux-x64.deb` |
+| macOS arm64 | جاهز للتشغيل التالي | `SmartPOS-macOS-arm64.dmg` |
+| macOS x64 | جاهز للتشغيل التالي | `SmartPOS-macOS-x64.dmg` |
+| Node 20–24 | مُصلح | جميع JavaScript Actions المحددة متوافقة مع Node 24 |
+| Android SDK licenses | مُصلح | قبول صريح للتراخيص مع تثبيت الحزم المطابقة لـSDK 36 |
+| Electron | مُصلح | `electron-builder` يبني مثبتات فعلية بدل مجلدات غير معبأة |
+| Artifacts | مُصلح | فحص الوجود والحجم قبل الرفع، ولا يوجد تجاهل لفشل حقيقي |
+
+الحالة النهائية لملفات APK/AAB/EXE/AppImage/deb/dmg لا يمكن وصفها بأنها ناجحة قبل انتهاء تشغيل `Native packages` التالي على GitHub؛ الإعداد الآن يفشل بوضوح عند غياب أي ملف بدل إعطاء نجاح شكلي.
 
 ## إعداد GitHub المطلوب
 
@@ -71,6 +94,7 @@
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
 - `VITE_SUPABASE_PROJECT_ID`
 - `LOVABLE_API_KEY` في بيئة استضافة الخادم لتشغيل المحلل الذكي.
+- `ANDROID_KEYSTORE_BASE64` و`ANDROID_KEYSTORE_PASSWORD` و`ANDROID_KEY_ALIAS` و`ANDROID_KEY_PASSWORD` لإصدارات Android القابلة للتحديث والإرسال للمتجر.
 
 يمكن تشغيل مسار `Native packages` يدويًا من Actions، أو تلقائيًا بدفع وسم إصدار مثل `v2.0.0`.
 
