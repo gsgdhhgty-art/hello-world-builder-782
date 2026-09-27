@@ -14,12 +14,16 @@ if (!requiredExtensions) {
 }
 
 const outputDirectory = "release";
-const files = readdirSync(outputDirectory).filter((file) => statSync(join(outputDirectory, file)).isFile());
+const files = readdirSync(outputDirectory).filter((file) =>
+  statSync(join(outputDirectory, file)).isFile(),
+);
 
 for (const extension of requiredExtensions) {
   const matches = files.filter((file) => extname(file) === extension || file.endsWith(extension));
   if (matches.length !== 1) {
-    throw new Error(`Expected exactly one ${extension} installer in ${outputDirectory}, found ${matches.length}`);
+    throw new Error(
+      `Expected exactly one ${extension} installer in ${outputDirectory}, found ${matches.length}`,
+    );
   }
 
   const file = join(outputDirectory, matches[0]);
