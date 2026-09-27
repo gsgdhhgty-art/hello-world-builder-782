@@ -7,6 +7,8 @@ import {
   HandCoins,
   ChevronLeft,
   ClipboardList,
+  ClipboardCheck,
+  Radio,
   Clock,
   LayoutDashboard,
   LogOut,
@@ -79,6 +81,13 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         tone: TONE.blue,
       },
       {
+        to: "/owner-live",
+        label: "متابعة مباشرة",
+        icon: Radio,
+        perm: "reports.view",
+        tone: TONE.rose,
+      },
+      {
         to: "/pos",
         label: "البيع السريع",
         icon: ScanBarcode,
@@ -120,6 +129,13 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         icon: Boxes,
         perm: "inventory.view",
         tone: TONE.teal,
+      },
+      {
+        to: "/stock-count",
+        label: "الجرد الدوري",
+        icon: ClipboardCheck,
+        perm: "inventory.view",
+        tone: TONE.green,
       },
       {
         to: "/purchases",
