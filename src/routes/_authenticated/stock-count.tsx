@@ -114,7 +114,7 @@ function StockCountPage() {
       beep("error");
       toast.error("لم يُعثر على المنتج");
     } else {
-      beep("success");
+      beep("ok");
       setCounts((c) => ({ ...c, [p.id]: (c[p.id] ?? 0) + 1 }));
     }
     setCode("");

@@ -35,7 +35,10 @@ export function HardwareDialog({ open, onOpenChange }: { open: boolean; onOpenCh
   const set = <K extends keyof HardwareSettings>(k: K, v: HardwareSettings[K]) => setS((p) => ({ ...p, [k]: v }));
 
   const save = () => {
-    if (s.drawerHost && !isValidHost(s.drawerHost)) return toast.error("عنوان الطابعة غير صحيح");
+    if (s.drawerHost && !isValidHost(s.drawerHost)) {
+      toast.error("عنوان الطابعة غير صحيح");
+      return;
+    }
     saveHardware(s);
     toast.success("تم حفظ إعدادات أجهزة هذا الكاشير");
     onOpenChange(false);
