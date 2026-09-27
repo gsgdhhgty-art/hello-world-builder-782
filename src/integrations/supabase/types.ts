@@ -415,10 +415,12 @@ export type Database = {
       organizations: {
         Row: {
           address: string | null
+          block_expired_sales: boolean
           business_type: string
           commercial_register: string | null
           created_at: string
           currency: string
+          expiry_alert_days: number
           feature_flags: Json
           id: string
           logo_url: string | null
@@ -431,6 +433,9 @@ export type Database = {
           receipt_footer: string | null
           receipt_header: string | null
           reorder_suggestion_multiplier: number
+          scale_barcode_enabled: boolean
+          scale_barcode_mode: string
+          scale_barcode_prefix: string
           tax_enabled: boolean
           tax_number: string | null
           tax_rate: number
@@ -438,10 +443,12 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          block_expired_sales?: boolean
           business_type?: string
           commercial_register?: string | null
           created_at?: string
           currency?: string
+          expiry_alert_days?: number
           feature_flags?: Json
           id?: string
           logo_url?: string | null
@@ -454,6 +461,9 @@ export type Database = {
           receipt_footer?: string | null
           receipt_header?: string | null
           reorder_suggestion_multiplier?: number
+          scale_barcode_enabled?: boolean
+          scale_barcode_mode?: string
+          scale_barcode_prefix?: string
           tax_enabled?: boolean
           tax_number?: string | null
           tax_rate?: number
@@ -461,10 +471,12 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          block_expired_sales?: boolean
           business_type?: string
           commercial_register?: string | null
           created_at?: string
           currency?: string
+          expiry_alert_days?: number
           feature_flags?: Json
           id?: string
           logo_url?: string | null
@@ -477,6 +489,9 @@ export type Database = {
           receipt_footer?: string | null
           receipt_header?: string | null
           reorder_suggestion_multiplier?: number
+          scale_barcode_enabled?: boolean
+          scale_barcode_mode?: string
+          scale_barcode_prefix?: string
           tax_enabled?: boolean
           tax_number?: string | null
           tax_rate?: number
@@ -527,6 +542,7 @@ export type Database = {
           price: number
           reorder_level: number
           sku: string | null
+          sold_by_weight: boolean
           supplier_id: string | null
           tax_rate: number | null
           track_stock: boolean
@@ -550,6 +566,7 @@ export type Database = {
           price?: number
           reorder_level?: number
           sku?: string | null
+          sold_by_weight?: boolean
           supplier_id?: string | null
           tax_rate?: number | null
           track_stock?: boolean
@@ -573,6 +590,7 @@ export type Database = {
           price?: number
           reorder_level?: number
           sku?: string | null
+          sold_by_weight?: boolean
           supplier_id?: string | null
           tax_rate?: number | null
           track_stock?: boolean
