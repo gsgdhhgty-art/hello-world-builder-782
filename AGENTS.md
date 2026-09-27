@@ -14,3 +14,4 @@
 - Store receipt-branding images in the existing organization-scoped product-images bucket to reuse its secure policies and image optimization.
 - Native wrappers consume the generated `dist/client` bundle because TanStack Start emits browser assets there, while `dist/server` is deployment-only.
 - Native release workflows use Node 24-compatible actions, build signed Android release APK/AAB files, and use electron-builder for x64 Windows/Linux plus x64/arm64 macOS installers so CI verifies distributable files rather than unpacked folders.
+- Scale labels use configurable EAN-13 prefix parsing at checkout; expiry enforcement remains organization-configurable so one catalog policy applies online and offline.

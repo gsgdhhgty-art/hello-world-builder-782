@@ -44,6 +44,11 @@ export interface Organization {
   low_stock_include_out_of_stock: boolean;
   reorder_suggestion_multiplier: number;
   profit_calculation_method: "AVERAGE_COST";
+  scale_barcode_enabled: boolean;
+  scale_barcode_prefix: string;
+  scale_barcode_mode: "WEIGHT" | "PRICE";
+  expiry_alert_days: number;
+  block_expired_sales: boolean;
 }
 
 interface AuthValue {
@@ -87,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         supabase
           .from("organizations")
           .select(
-            "id, name, currency, tax_rate, tax_enabled, business_type, address, phone, tax_number, commercial_register, logo_url, receipt_header, receipt_footer, low_stock_alerts_enabled, low_stock_include_out_of_stock, reorder_suggestion_multiplier, profit_calculation_method",
+            "id, name, currency, tax_rate, tax_enabled, business_type, address, phone, tax_number, commercial_register, logo_url, receipt_header, receipt_footer, low_stock_alerts_enabled, low_stock_include_out_of_stock, reorder_suggestion_multiplier, profit_calculation_method, scale_barcode_enabled, scale_barcode_prefix, scale_barcode_mode, expiry_alert_days, block_expired_sales",
           )
           .eq("id", prof.org_id)
           .maybeSingle(),

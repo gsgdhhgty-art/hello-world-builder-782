@@ -44,6 +44,7 @@ import {
 import { dateTime, money, num } from "@/lib/format";
 import { resolveProductImages } from "@/lib/product-images";
 import { cn } from "@/lib/utils";
+import { daysUntil, expiryState } from "@/lib/scale-barcode";
 
 export const Route = createFileRoute("/_authenticated/inventory")({
   head: () => ({
@@ -103,7 +104,7 @@ function InventoryPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id, name, sku, unit, cost, reorder_level, track_stock, image_url")
+        .select("id, name, sku, unit, cost, reorder_level, track_stock, image_url, expires_at")
         .eq("is_active", true)
         .order("name");
       if (error) throw error;
@@ -215,10 +216,12 @@ function InventoryPage() {
           matches &&
           (stockFilter === "all" ||
             (stockFilter === "low" && low) ||
-            (stockFilter === "out" && out))
+            (stockFilter === "out" && out) ||
+            (stockFilter === "expiring" && expiryState(product.expires_at, org?.expiry_alert_days ?? 30) === "soon") ||
+            (stockFilter === "expired" && expiryState(product.expires_at, org?.expiry_alert_days ?? 30) === "expired"))
         );
       });
-  }, [products.data, inventory.data, search, stockFilter]);
+  }, [products.data, inventory.data, search, stockFilter, org?.expiry_alert_days]);
 
   const allRows = useMemo(() => {
     const balances = inventory.data ?? {};
@@ -229,6 +232,10 @@ function InventoryPage() {
     (product) => product.qty > 0 && product.qty <= Number(product.reorder_level),
   ).length;
   const outCount = allRows.filter((product) => product.qty <= 0).length;
+  const expiryCount = allRows.filter((product) => {
+    const state = expiryState(product.expires_at, org?.expiry_alert_days ?? 30);
+    return state === "expired" || state === "soon";
+  }).length;
   const nameOf = (id: string) => products.data?.find((product) => product.id === id)?.name ?? "—";
 
   if (!can("inventory.view"))
@@ -242,7 +249,7 @@ function InventoryPage() {
         </Button>
       </PageHeader>
       <div className="page-canvas space-y-4">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <Metric
             icon={Package}
             label="إجمالي المنتجات"
@@ -257,6 +264,7 @@ function InventoryPage() {
           />
           <Metric icon={AlertTriangle} label="مخزون منخفض" value={num(lowCount)} tone="warning" />
           <Metric icon={Boxes} label="منتجات نافدة" value={num(outCount)} tone="danger" />
+          <Metric icon={AlertTriangle} label="صلاحية حرجة" value={num(expiryCount)} tone="danger" />
         </div>
 
         <div className="workspace-card overflow-hidden">
@@ -290,6 +298,8 @@ function InventoryPage() {
                 <SelectItem value="all">كل المخزون</SelectItem>
                 <SelectItem value="low">منخفض</SelectItem>
                 <SelectItem value="out">نافد</SelectItem>
+                <SelectItem value="expiring">قريب الانتهاء</SelectItem>
+                <SelectItem value="expired">منتهي الصلاحية</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -309,6 +319,7 @@ function InventoryPage() {
                 {rows.map((product) => {
                   const low = product.qty > 0 && product.qty <= Number(product.reorder_level);
                   const out = product.qty <= 0;
+                  const expiry = expiryState(product.expires_at, org?.expiry_alert_days ?? 30);
                   return (
                     <TableRow key={product.id}>
                       <TableCell>
@@ -329,6 +340,15 @@ function InventoryPage() {
                             <div className="text-xs text-muted-foreground">
                               {product.sku ?? product.unit}
                             </div>
+                            {product.expires_at ? (
+                              <div className={cn("text-xs", expiry === "expired" ? "text-destructive" : expiry === "soon" ? "text-warning" : "text-muted-foreground")}>
+                                {expiry === "expired"
+                                  ? `منتهي منذ ${Math.abs(daysUntil(product.expires_at))} يوم`
+                                  : expiry === "soon"
+                                    ? `ينتهي خلال ${daysUntil(product.expires_at)} يوم`
+                                    : `الصلاحية: ${product.expires_at}`}
+                              </div>
+                            ) : null}
                           </div>
                         </div>
                       </TableCell>

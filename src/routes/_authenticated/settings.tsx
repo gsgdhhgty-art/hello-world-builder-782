@@ -69,6 +69,11 @@ function SettingsPage() {
     receipt_header: org?.receipt_header ?? "",
     receipt_footer: org?.receipt_footer ?? "شكرًا لزيارتكم ونسعد بخدمتكم دائمًا",
     profit_calculation_method: org?.profit_calculation_method ?? "AVERAGE_COST",
+    scale_barcode_enabled: org?.scale_barcode_enabled ?? false,
+    scale_barcode_prefix: org?.scale_barcode_prefix ?? "20",
+    scale_barcode_mode: org?.scale_barcode_mode ?? ("WEIGHT" as "WEIGHT" | "PRICE"),
+    expiry_alert_days: String(org?.expiry_alert_days ?? 30),
+    block_expired_sales: org?.block_expired_sales ?? true,
   });
   const [branchName, setBranchName] = useState("");
   const [warehouseName, setWarehouseName] = useState("");
@@ -93,6 +98,11 @@ function SettingsPage() {
       receipt_header: org.receipt_header ?? "",
       receipt_footer: org.receipt_footer ?? "شكرًا لزيارتكم ونسعد بخدمتكم دائمًا",
       profit_calculation_method: org.profit_calculation_method,
+      scale_barcode_enabled: org.scale_barcode_enabled,
+      scale_barcode_prefix: org.scale_barcode_prefix,
+      scale_barcode_mode: org.scale_barcode_mode,
+      expiry_alert_days: String(org.expiry_alert_days),
+      block_expired_sales: org.block_expired_sales,
     });
     setLogoPreview(org.logo_src);
     setLogoFile(null);
@@ -159,8 +169,13 @@ function SettingsPage() {
       if (!org) throw new Error("organization");
       const currency = orgForm.currency.trim().toUpperCase();
       const taxRate = Number(orgForm.tax_rate);
+      const expiryAlertDays = Number(orgForm.expiry_alert_days);
       if (!/^[A-Z]{3}$/.test(currency)) throw new Error("currency");
       if (!Number.isFinite(taxRate) || taxRate < 0 || taxRate > 100) throw new Error("tax");
+      if (!/^\d{1,2}$/.test(orgForm.scale_barcode_prefix)) throw new Error("scale-prefix");
+      if (!Number.isInteger(expiryAlertDays) || expiryAlertDays < 1 || expiryAlertDays > 365) {
+        throw new Error("expiry-days");
+      }
       let nextLogo = org.logo_url;
       let uploadedLogo: string | null = null;
       if (logoFile) {
@@ -184,6 +199,11 @@ function SettingsPage() {
           receipt_header: orgForm.receipt_header.trim() || null,
           receipt_footer: orgForm.receipt_footer.trim() || null,
           profit_calculation_method: orgForm.profit_calculation_method,
+          scale_barcode_enabled: orgForm.scale_barcode_enabled,
+          scale_barcode_prefix: orgForm.scale_barcode_prefix,
+          scale_barcode_mode: orgForm.scale_barcode_mode,
+          expiry_alert_days: expiryAlertDays,
+          block_expired_sales: orgForm.block_expired_sales,
         })
         .eq("id", org.id);
       if (error) {
@@ -205,6 +225,10 @@ function SettingsPage() {
           ? "أدخل رمز عملة من 3 أحرف مثل SAR"
           : error.message === "tax"
             ? "يجب أن تكون الضريبة بين 0 و100"
+            : error.message === "scale-prefix"
+              ? "بادئة باركود الميزان يجب أن تكون رقمًا أو رقمين"
+              : error.message === "expiry-days"
+                ? "مدة تنبيه الصلاحية يجب أن تكون بين يوم و365 يومًا"
             : "تعذر الحفظ",
       ),
   });
@@ -482,6 +506,93 @@ function SettingsPage() {
                 يُحسب الربح من تكلفة الصنف المحفوظة وقت إغلاق الفاتورة، فلا تتغير أرباح المبيعات
                 القديمة.
               </p>
+            </div>
+            <div className="space-y-4 rounded-lg border p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <Label htmlFor="o-scale-enabled" className="font-bold">
+                    قراءة باركود الميزان
+                  </Label>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    يقرأ ملصق EAN-13 ويضيف الوزن أو يحسب الكمية من السعر تلقائيًا.
+                  </p>
+                </div>
+                <Switch
+                  id="o-scale-enabled"
+                  checked={orgForm.scale_barcode_enabled}
+                  onCheckedChange={(scale_barcode_enabled) =>
+                    setOrgForm({ ...orgForm, scale_barcode_enabled })
+                  }
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="o-scale-prefix">بادئة الميزان</Label>
+                  <Input
+                    id="o-scale-prefix"
+                    dir="ltr"
+                    inputMode="numeric"
+                    maxLength={2}
+                    value={orgForm.scale_barcode_prefix}
+                    disabled={!orgForm.scale_barcode_enabled}
+                    onChange={(event) =>
+                      setOrgForm({
+                        ...orgForm,
+                        scale_barcode_prefix: event.target.value.replace(/\D/g, "").slice(0, 2),
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>محتوى الملصق</Label>
+                  <Select
+                    value={orgForm.scale_barcode_mode}
+                    disabled={!orgForm.scale_barcode_enabled}
+                    onValueChange={(scale_barcode_mode) =>
+                      setOrgForm({
+                        ...orgForm,
+                        scale_barcode_mode: scale_barcode_mode as "WEIGHT" | "PRICE",
+                      })
+                    }
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="WEIGHT">الوزن بالكيلو</SelectItem>
+                      <SelectItem value="PRICE">السعر الإجمالي</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4 rounded-lg border p-4">
+              <div className="space-y-2">
+                <Label htmlFor="o-expiry-days">التنبيه قبل انتهاء الصلاحية</Label>
+                <Input
+                  id="o-expiry-days"
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={orgForm.expiry_alert_days}
+                  onChange={(event) =>
+                    setOrgForm({ ...orgForm, expiry_alert_days: event.target.value })
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <Label htmlFor="o-block-expired" className="font-bold">منع بيع المنتج المنتهي</Label>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    يمنع إضافته إلى السلة من البحث أو الماسح.
+                  </p>
+                </div>
+                <Switch
+                  id="o-block-expired"
+                  checked={orgForm.block_expired_sales}
+                  onCheckedChange={(block_expired_sales) =>
+                    setOrgForm({ ...orgForm, block_expired_sales })
+                  }
+                />
+              </div>
             </div>
             <Button disabled={saveOrg.isPending} onClick={() => saveOrg.mutate()}>
               حفظ

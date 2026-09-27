@@ -50,6 +50,7 @@ import { money, num } from "@/lib/format";
 import { removeProductImage, resolveProductImages, uploadProductImage } from "@/lib/product-images";
 import { cn } from "@/lib/utils";
 import { printProductLabel } from "@/lib/barcode-label";
+import { daysUntil, expiryState } from "@/lib/scale-barcode";
 
 export const Route = createFileRoute("/_authenticated/products")({
   head: () => ({
@@ -473,6 +474,7 @@ function ProductsPage() {
                   <TableHead>التكلفة</TableHead>
                   <TableHead>سعر البيع</TableHead>
                   <TableHead>حد الطلب</TableHead>
+                  <TableHead>الصلاحية</TableHead>
                   <TableHead>الحالة</TableHead>
                   <TableHead />
                 </TableRow>
@@ -513,6 +515,17 @@ function ProductsPage() {
                       {money(product.price, currency)}
                     </TableCell>
                     <TableCell className="tabular-nums">{num(product.reorder_level)}</TableCell>
+                    <TableCell>
+                      {product.expires_at ? (() => {
+                        const state = expiryState(product.expires_at, org?.expiry_alert_days ?? 30);
+                        const days = daysUntil(product.expires_at);
+                        return (
+                          <Badge variant="outline" className={state === "expired" ? "border-destructive/20 bg-destructive/10 text-destructive" : state === "soon" ? "status-warning border-0" : ""}>
+                            {state === "expired" ? `منتهي منذ ${Math.abs(days)} يوم` : state === "soon" ? `متبقي ${days} يوم` : product.expires_at}
+                          </Badge>
+                        );
+                      })() : "—"}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         className={product.is_active ? "status-success border-0" : ""}
