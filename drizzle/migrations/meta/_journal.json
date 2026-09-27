@@ -36,6 +36,13 @@
       "when": 1790543002810,
       "tag": "0004_scale_barcodes_and_expiry_alerts",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790543073401,
+      "tag": "0005_add_scale_barcode_and_expiry_settings",
+      "breakpoints": true
     }
   ]
 }
