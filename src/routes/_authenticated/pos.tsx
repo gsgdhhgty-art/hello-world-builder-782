@@ -410,7 +410,12 @@ function PosPage() {
 
   const kickDrawer = async () => {
     const res = await openCashDrawer();
-    if (!res.ok) toast.error(res.error ?? "تعذر فتح الدرج");
+    if (!res.ok)
+      toast.error("تعذر فتح درج النقد", {
+        description: res.error,
+        duration: 10000,
+        action: { label: "إعادة المحاولة", onClick: () => void kickDrawer() },
+      });
   };
 
 

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { dateTime, money } from "@/lib/format";
+import { ZReportDialog, type ZShift } from "@/components/ZReportDialog";
 import { localFirst } from "@/lib/offline/local-first";
 import {
   closeLocalShift,
@@ -48,6 +49,7 @@ function ShiftsPage() {
   const currency = org?.currency ?? "EGP";
   const [closingCash, setClosingCash] = useState("");
   const [note, setNote] = useState("");
+  const [zShift, setZShift] = useState<ZShift | null>(null);
 
   const shifts = useQuery({
     queryKey: ["shifts"],
