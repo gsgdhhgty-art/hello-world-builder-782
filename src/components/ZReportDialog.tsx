@@ -66,7 +66,7 @@ export function ZReportDialog({
       const sum = (k: "total" | "tax" | "discount" | "cost_total") => valid.reduce((a, x) => a + Number(x[k]), 0);
       const returnsTotal = (returns.data ?? []).reduce((a, r) => a + Number(r.total), 0);
       const expensesTotal = (expenses.data ?? []).reduce((a, r) => a + Number(r.amount), 0);
-      const cashSales = (byMethod.CASH ?? 0) - change;
+      const cashSales = (byMethod["CASH"] ?? 0) - change;
       const expected =
         s.expected_cash != null
           ? Number(s.expected_cash)
