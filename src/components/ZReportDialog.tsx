@@ -40,7 +40,9 @@ export function ZReportDialog({
       const [sales, expenses, inv] = await Promise.all([
         supabase
           .from("sales")
-          .select("id, total, tax, discount, cost_total, change_due, status, sale_payments(method, amount)")
+          .select(
+            "id, total, tax, discount, cost_total, change_due, status, sale_payments(method, amount)",
+          )
           .eq("shift_id", s.id),
         supabase.from("expenses").select("amount").eq("shift_id", s.id),
         supabase.from("inventory").select("quantity, products(cost, reorder_level, track_stock)"),
@@ -61,9 +63,11 @@ export function ZReportDialog({
       let change = 0;
       for (const sale of valid) {
         change += Number(sale.change_due);
-        for (const p of sale.sale_payments ?? []) byMethod[p.method] = (byMethod[p.method] ?? 0) + Number(p.amount);
+        for (const p of sale.sale_payments ?? [])
+          byMethod[p.method] = (byMethod[p.method] ?? 0) + Number(p.amount);
       }
-      const sum = (k: "total" | "tax" | "discount" | "cost_total") => valid.reduce((a, x) => a + Number(x[k]), 0);
+      const sum = (k: "total" | "tax" | "discount" | "cost_total") =>
+        valid.reduce((a, x) => a + Number(x[k]), 0);
       const returnsTotal = (returns.data ?? []).reduce((a, r) => a + Number(r.total), 0);
       const expensesTotal = (expenses.data ?? []).reduce((a, r) => a + Number(r.amount), 0);
       const cashSales = (byMethod["CASH"] ?? 0) - change;
@@ -77,7 +81,11 @@ export function ZReportDialog({
         low = 0,
         out = 0;
       for (const r of inv.data ?? []) {
-        const p = r.products as { cost: number; reorder_level: number; track_stock: boolean } | null;
+        const p = r.products as {
+          cost: number;
+          reorder_level: number;
+          track_stock: boolean;
+        } | null;
         if (p && !p.track_stock) continue;
         const q = Number(r.quantity);
         stockQty += q;
@@ -133,7 +141,8 @@ export function ZReportDialog({
   const print = () => {
     const w = window.open("", "_blank", "width=380,height=700");
     if (!w) return;
-    w.document.write(`<!doctype html><html dir="rtl"><head><meta charset="utf-8"><title>Z-Report</title>
+    w.document
+      .write(`<!doctype html><html dir="rtl"><head><meta charset="utf-8"><title>Z-Report</title>
 <style>body{font-family:Tahoma,sans-serif;width:72mm;margin:0 auto;font-size:12px}h2,p{text-align:center;margin:4px 0}
 table{width:100%;border-collapse:collapse}td{padding:3px 0;border-bottom:1px dashed #999}td:last-child{text-align:left}</style></head>
 <body><h2>${esc(storeName)}</h2><p>تقرير نهاية اليوم (Z)</p><p>${esc(cashier)}</p>
@@ -150,7 +159,9 @@ table{width:100%;border-collapse:collapse}td{padding:3px 0;border-bottom:1px das
           <DialogTitle>تقرير نهاية اليوم (Z) — {cashier}</DialogTitle>
         </DialogHeader>
         {report.isLoading && <p className="text-muted-foreground">جارٍ التحميل…</p>}
-        {report.error && <p className="text-destructive">تعذر تحميل التقرير (يتطلب اتصالًا بالإنترنت).</p>}
+        {report.error && (
+          <p className="text-destructive">تعذر تحميل التقرير (يتطلب اتصالًا بالإنترنت).</p>
+        )}
         {d && (
           <div className="max-h-[60vh] overflow-y-auto">
             {rows.map(([k, v]) => (
@@ -158,7 +169,9 @@ table{width:100%;border-collapse:collapse}td{padding:3px 0;border-bottom:1px das
                 <span className="text-muted-foreground">{k}</span>
                 <span
                   className={
-                    k === "فرق الصندوق" && d.diff != null && d.diff < 0 ? "font-semibold text-destructive" : "font-medium"
+                    k === "فرق الصندوق" && d.diff != null && d.diff < 0
+                      ? "font-semibold text-destructive"
+                      : "font-medium"
                   }
                 >
                   {v}
