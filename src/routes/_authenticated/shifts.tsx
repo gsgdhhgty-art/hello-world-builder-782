@@ -181,6 +181,7 @@ function ShiftsPage() {
                   <TableHead>المعدود</TableHead>
                   <TableHead>الفرق</TableHead>
                   <TableHead>الحالة</TableHead>
+                  <TableHead>التقرير</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -209,6 +210,11 @@ function ShiftsPage() {
                           {s.status === "OPEN" ? "مفتوحة" : "مغلقة"}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Button size="sm" variant="outline" onClick={() => setZShift(s as ZShift)}>
+                          تقرير Z
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -224,6 +230,13 @@ function ShiftsPage() {
           </CardContent>
         </Card>
       </div>
+      <ZReportDialog
+        shift={zShift}
+        cashier={zShift ? nameOf((zShift as ZShift & { user_id: string }).user_id) : ""}
+        currency={currency}
+        storeName={org?.name ?? "SmartPOS"}
+        onClose={() => setZShift(null)}
+      />
     </div>
   );
 }
