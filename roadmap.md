@@ -102,3 +102,7 @@
 - [x] الجرد الدوري بالباركود مع مسودة محفوظة واعتماد الفروقات كتسويات.
 - [x] متابعة مباشرة للمالك: مبيعات اليوم لحظيًا وتنبيهات الإلغاء/المرتجع ونقص المخزون.
 - [x] شاشة العميل تعرض السلة والإجمالي والباقي.
+
+- [x] Z-report per shift (sales, payments, cash variance, stock snapshot) with print
+- [x] Print/drawer failure alerts with retry
+- [x] Verified weighed sale + partial return + stock persistence via rolled-back DB trial

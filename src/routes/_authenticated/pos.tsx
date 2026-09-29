@@ -404,15 +404,23 @@ function PosPage() {
   }, [displayJson, cart.length]);
 
   const openCustomerDisplay = () => {
-    const w = window.open("/customer-display", "smartpos-customer-display", "width=1024,height=700");
+    const w = window.open(
+      "/customer-display",
+      "smartpos-customer-display",
+      "width=1024,height=700",
+    );
     if (!w) toast.error("اسمح بالنوافذ المنبثقة لفتح شاشة العميل");
   };
 
   const kickDrawer = async () => {
     const res = await openCashDrawer();
-    if (!res.ok) toast.error(res.error ?? "تعذر فتح الدرج");
+    if (!res.ok)
+      toast.error("تعذر فتح درج النقد", {
+        description: res.error,
+        duration: 10000,
+        action: { label: "إعادة المحاولة", onClick: () => void kickDrawer() },
+      });
   };
-
 
   const checkout = useMutation({
     mutationFn: async (payments: PaymentLine[]) => {
@@ -1014,14 +1022,32 @@ function PosPage() {
             >
               <X className="size-4" />
             </Button>
-            <Button variant="ghost" size="sm" aria-label="شاشة العميل" title="شاشة العميل" onClick={openCustomerDisplay}>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="شاشة العميل"
+              title="شاشة العميل"
+              onClick={openCustomerDisplay}
+            >
               <Monitor className="size-4" />
             </Button>
-            <Button variant="ghost" size="sm" aria-label="الطابعة والدرج" title="الطابعة والدرج" onClick={() => setHardwareOpen(true)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="الطابعة والدرج"
+              title="الطابعة والدرج"
+              onClick={() => setHardwareOpen(true)}
+            >
               <Printer className="size-4" />
             </Button>
             {nativeBridge() && (
-              <Button variant="ghost" size="sm" aria-label="فتح الدرج" title="فتح الدرج" onClick={() => void kickDrawer()}>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label="فتح الدرج"
+                title="فتح الدرج"
+                onClick={() => void kickDrawer()}
+              >
                 <Inbox className="size-4" />
               </Button>
             )}

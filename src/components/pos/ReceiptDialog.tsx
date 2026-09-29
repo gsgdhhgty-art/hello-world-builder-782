@@ -145,11 +145,30 @@ export function printReceipt(
     makeReceiptBarcode(receipt.invoice_no),
   );
   if (nativeBridge()) {
-    printSilently(html).catch((e: unknown) => toast.error(e instanceof Error ? e.message : "تعذرت الطباعة"));
+    printSilently(html).catch((e: unknown) =>
+      toast.error(`فشلت طباعة الفاتورة ${receipt.invoice_no}`, {
+        description: e instanceof Error ? e.message : "تأكد من تشغيل الطابعة وتوصيلها",
+        duration: 15000,
+        action: {
+          label: "إعادة الطباعة",
+          onClick: () => printReceipt(receipt, business, currency, paper),
+        },
+      }),
+    );
     return true;
   }
   const w = window.open("", "_blank", "width=380,height=600");
-  if (!w) return false;
+  if (!w) {
+    toast.error("تعذر فتح نافذة الطباعة", {
+      description: "اسمح بالنوافذ المنبثقة لهذا الموقع ثم أعد الطباعة",
+      duration: 15000,
+      action: {
+        label: "إعادة الطباعة",
+        onClick: () => printReceipt(receipt, business, currency, paper),
+      },
+    });
+    return false;
+  }
   w.document.write(html);
   w.document.close();
   return true;
