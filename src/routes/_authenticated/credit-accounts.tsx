@@ -190,6 +190,26 @@ function CreditAccountsPage() {
     },
   });
 
+  const returns = useQuery({
+    queryKey: ["customer-returns", selectedId],
+    enabled: allowed && !!selectedId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sale_returns")
+        .select("id, total, reason, created_at, sales!inner(invoice_no, customer_id)")
+        .eq("sales.customer_id", selectedId!)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((r) => ({
+        id: r.id,
+        total: Number(r.total),
+        reason: r.reason,
+        created_at: r.created_at,
+        invoice_no: (r.sales as unknown as { invoice_no: string }).invoice_no,
+      }));
+    },
+  });
+
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return (customers.data ?? []).filter(
@@ -212,9 +232,23 @@ function CreditAccountsPage() {
         _note: note,
       });
       if (error) throw error;
+      const before = Number(ledger.data?.customer.balance ?? 0);
+      return { remaining: Math.max(0, before - value) };
     },
-    onSuccess: () => {
-      toast.success("تم تسجيل الدفعة");
+    onSuccess: ({ remaining }) => {
+      const name = ledger.data?.customer.name ?? "العميل";
+      if (remaining <= 0.0001) {
+        toast.success(`تم سداد كامل المبلغ المتبقي على ${name} 🎉`, { duration: 8000 });
+        if (typeof Notification !== "undefined") {
+          const show = () => new Notification("تم سداد الحساب الآجل", { body: `${name} سدّد كامل المتبقي` });
+          if (Notification.permission === "granted") show();
+          else if (Notification.permission !== "denied")
+            void Notification.requestPermission().then((p) => p === "granted" && show());
+        }
+      } else {
+        toast.success(`تم تسجيل الدفعة — المتبقي ${money(remaining, currency)}`);
+      }
+      void qc.invalidateQueries({ queryKey: ["customer-returns", selectedId] });
       setPayOpen(false);
       setAmount("");
       setNote("");
@@ -356,11 +390,30 @@ function CreditAccountsPage() {
               <p className="py-8 text-center text-sm text-muted-foreground">جارٍ التحميل…</p>
             ) : ledger.data ? (
               <div className="space-y-6">
-                <div className="rounded-lg border p-4">
-                  <p className="text-sm text-muted-foreground">الرصيد المستحق</p>
-                  <p className="text-2xl font-bold text-destructive">
-                    {money(ledger.data.customer.balance, currency)}
-                  </p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-lg border p-4">
+                    <p className="text-sm text-muted-foreground">الرصيد الآجل المستحق</p>
+                    <p
+                      className={`text-2xl font-bold ${Number(ledger.data.customer.balance) > 0 ? "text-destructive" : "text-primary"}`}
+                    >
+                      {Number(ledger.data.customer.balance) > 0
+                        ? money(ledger.data.customer.balance, currency)
+                        : "مسدد بالكامل"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border p-4">
+                    <p className="text-sm text-muted-foreground">عدد الفواتير</p>
+                    <p className="text-2xl font-bold">{ledger.data.sales.length}</p>
+                  </div>
+                  <div className="rounded-lg border p-4">
+                    <p className="text-sm text-muted-foreground">إجمالي المرتجعات</p>
+                    <p className="text-2xl font-bold">
+                      {money(
+                        (returns.data ?? []).reduce((s, r) => s + Number(r.total), 0),
+                        currency,
+                      )}
+                    </p>
+                  </div>
                 </div>
 
                 <div>
@@ -399,6 +452,40 @@ function CreditAccountsPage() {
                               >
                                 {money(sale.credit, currency)}
                               </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold">المرتجعات</h3>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>التاريخ</TableHead>
+                          <TableHead>الفاتورة</TableHead>
+                          <TableHead>القيمة المرتجعة</TableHead>
+                          <TableHead>السبب</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(returns.data ?? []).length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={4} className="text-center text-muted-foreground">
+                              لا توجد مرتجعات
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          (returns.data ?? []).map((r) => (
+                            <TableRow key={r.id}>
+                              <TableCell>{dateTime(r.created_at)}</TableCell>
+                              <TableCell>{r.invoice_no}</TableCell>
+                              <TableCell>{money(r.total, currency)}</TableCell>
+                              <TableCell>{r.reason ?? "—"}</TableCell>
                             </TableRow>
                           ))
                         )}
