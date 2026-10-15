@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { CASHIER_APP } from "@/lib/app-mode";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -75,6 +76,10 @@ function Landing() {
   const signedIn = Boolean(session && !loading);
 
   useEffect(() => {
+    if (CASHIER_APP && !loading) {
+      navigate({ to: session ? "/pos" : "/auth", replace: true });
+      return;
+    }
     if (!loading && session && profile?.role === "CASHIER") {
       navigate({ to: "/pos", replace: true });
     }
