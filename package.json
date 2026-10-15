@@ -150,7 +150,7 @@
     "@capacitor/cli": "^8.5.2",
     "@electron/packager": "^20.3.0",
     "@eslint/js": "^9.32.0",
-    "@lovable.dev/vite-tanstack-config": "2.23.1",
+    "@lovable.dev/vite-tanstack-config": "2.26.5",
     "@types/jsbarcode": "^3.11.4",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
