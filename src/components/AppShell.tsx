@@ -245,9 +245,12 @@ function AppShellInner() {
       navigate({ to: "/onboarding", replace: true });
     }
     if (profile?.org_id && onOnboarding) {
-      navigate({ to: "/dashboard", replace: true });
+      navigate({ to: CASHIER_APP ? "/pos" : "/dashboard", replace: true });
     }
-  }, [loading, profile, onOnboarding, navigate]);
+    if (profile?.org_id && CASHIER_APP && !onOnboarding && !allowedInCashierApp(location.pathname)) {
+      navigate({ to: "/pos", replace: true });
+    }
+  }, [loading, profile, onOnboarding, navigate, location.pathname]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -288,7 +291,11 @@ function AppShellInner() {
     );
   }
 
-  const availableGroups = profile.role === "CASHIER" ? NAV_GROUPS.slice(0, 1) : NAV_GROUPS;
+  const availableGroups = CASHIER_APP
+    ? NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => allowedInCashierApp(i.to)) }))
+    : profile.role === "CASHIER"
+      ? NAV_GROUPS.slice(0, 1)
+      : NAV_GROUPS;
   const groups = availableGroups
     .map((g) => ({
       ...g,
