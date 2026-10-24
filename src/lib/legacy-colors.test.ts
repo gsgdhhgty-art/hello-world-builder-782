@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-// @ts-expect-error plain JS build helper
 import { legacyColors } from "../../scripts/legacy-colors.mjs";
 
 describe("legacy colors for Windows 7 browsers", () => {
