@@ -17,3 +17,4 @@
 - Scale labels use configurable EAN-13 prefix parsing at checkout; expiry enforcement remains organization-configurable so one catalog policy applies online and offline.
 - Cashier hardware settings (printer, drawer IP) are stored per device in localStorage and native printing goes through the Electron preload bridge `window.smartposNative`, because each till has its own devices and browsers cannot open raw sockets.
 - The standalone cashier app is the same codebase built with `VITE_APP_MODE=cashier` (only /pos and /shifts reachable) and a separate native app id, so till devices get a locked-down app without a forked codebase.
+- Built CSS is post-processed by `scripts/legacy-colors.mjs` (oklch/oklab → hex, alpha color-mix → rgb triplets, @supports fallbacks) because Chrome/Edge 109 on Windows 7 ignore modern color functions and render pages colorless.

@@ -122,7 +122,12 @@ export function legacyColors(css) {
   root.walkDecls(/^--/, (d) => {
     if (!rgbVars.has(d.prop) || d.prop.endsWith("-rgb")) return;
     const v = d.value.trim();
-    const value = v.startsWith("#") ? hexToTriplet(v) : v.replace(/\)$/, "-rgb)");
+    const alias = v.match(/^var\((--[\w-]+)\)$/);
+    const value = v.startsWith("#")
+      ? hexToTriplet(v)
+      : alias && rgbVars.has(alias[1])
+        ? `var(${alias[1]}-rgb)`
+        : null;
     if (value) d.cloneAfter({ prop: `${d.prop}-rgb`, value });
   });
 
