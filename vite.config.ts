@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
+import { legacyColorsPlugin } from "./scripts/legacy-colors.mjs";
 
 export default defineConfig({
   tanstackStart: {
@@ -15,6 +16,8 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      // ألوان متوافقة مع متصفحات ويندوز 7 (Chrome/Edge 109) التي لا تفهم oklch و color-mix
+      legacyColorsPlugin(),
       // دعم العمل بدون إنترنت: تخزين ملفات التطبيق محليًا حتى يفتح ويعمل بلا شبكة
       VitePWA({
         registerType: "prompt",
