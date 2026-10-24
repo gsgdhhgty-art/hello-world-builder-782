@@ -24,13 +24,11 @@
       --tw-numeric-fraction: initial;
       --tw-shadow: 0 0 #0000;
       --tw-shadow-color: initial;
-      --tw-shadow-color-rgb: initial;
       --tw-shadow-alpha: 100%;
       --tw-inset-shadow: 0 0 #0000;
       --tw-inset-shadow-color: initial;
       --tw-inset-shadow-alpha: 100%;
       --tw-ring-color: initial;
-      --tw-ring-color-rgb: initial;
       --tw-ring-shadow: 0 0 #0000;
       --tw-inset-ring-color: initial;
       --tw-inset-ring-shadow: 0 0 #0000;
@@ -3128,7 +3126,6 @@
   @supports (color: color-mix(in lab, red, red)) {
     .shadow-success\/20 {
       --tw-shadow-color: color-mix(in oklab, rgb(var(--success-rgb) / 0.2) var(--tw-shadow-alpha), transparent);
-      --tw-shadow-color-rgb: color-mix(in oklab, rgb(var(--success-rgb) / 0.2) var(--tw-shadow-alpha), transparent-rgb);
     }
   }
 
@@ -3136,13 +3133,9 @@
     --tw-ring-color: var(--destructive);
     --tw-ring-color-rgb: var(--destructive-rgb);
   }
-
-  @supports (color: color-mix(in lab, red, red)) {
     .ring-destructive\/25 {
       --tw-ring-color: rgb(var(--destructive-rgb) / 0.25);
-      --tw-ring-color-rgb: color-mix(in oklab, var(--destructive) 25%, transparent-rgb);
     }
-  }
 
   .ring-ring {
     --tw-ring-color: var(--ring);
@@ -3391,13 +3384,9 @@
     --tw-ring-color: var(--ring);
     --tw-ring-color-rgb: var(--ring-rgb);
   }
-
-  @supports (color: color-mix(in lab, red, red)) {
     .group-data-\[focused\=true\]\/day\:ring-ring\/50:is(:where(.group\/day)[data-focused="true"] *) {
       --tw-ring-color: rgb(var(--ring-rgb) / 0.5);
-      --tw-ring-color-rgb: color-mix(in oklab, var(--ring) 50%, transparent-rgb);
     }
-  }
 
   .group-data-\[side\=left\]\:-right-4:is(:where(.group)[data-side="left"] *) {
     right: calc(var(--spacing) * -4);
@@ -3727,7 +3716,6 @@
     @supports (color: color-mix(in lab, red, red)) {
       .hover\:shadow-card:hover {
         --tw-shadow-color: color-mix(in oklab, var(--card) var(--tw-shadow-alpha), transparent);
-        --tw-shadow-color-rgb: color-mix(in oklab, var(--card) var(--tw-shadow-alpha), transparent-rgb);
       }
     }
 
@@ -3797,13 +3785,9 @@
     --tw-ring-color: var(--primary);
     --tw-ring-color-rgb: var(--primary-rgb);
   }
-
-  @supports (color: color-mix(in lab, red, red)) {
     .focus-visible\:ring-primary\/15:focus-visible {
       --tw-ring-color: rgb(var(--primary-rgb) / 0.15);
-      --tw-ring-color-rgb: color-mix(in oklab, var(--primary) 15%, transparent-rgb);
     }
-  }
 
   .focus-visible\:ring-ring:focus-visible {
     --tw-ring-color: var(--ring);
@@ -3814,25 +3798,17 @@
     --tw-ring-color: var(--ring);
     --tw-ring-color-rgb: var(--ring-rgb);
   }
-
-  @supports (color: color-mix(in lab, red, red)) {
     .focus-visible\:ring-ring\/12:focus-visible {
       --tw-ring-color: rgb(var(--ring-rgb) / 0.12);
-      --tw-ring-color-rgb: color-mix(in oklab, var(--ring) 12%, transparent-rgb);
     }
-  }
 
   .focus-visible\:ring-ring\/25:focus-visible {
     --tw-ring-color: var(--ring);
     --tw-ring-color-rgb: var(--ring-rgb);
   }
-
-  @supports (color: color-mix(in lab, red, red)) {
     .focus-visible\:ring-ring\/25:focus-visible {
       --tw-ring-color: rgb(var(--ring-rgb) / 0.25);
-      --tw-ring-color-rgb: color-mix(in oklab, var(--ring) 25%, transparent-rgb);
     }
-  }
 
   .focus-visible\:ring-sidebar-ring:focus-visible {
     --tw-ring-color: var(--sidebar-ring);
@@ -3921,13 +3897,9 @@
     --tw-ring-color: var(--ring);
     --tw-ring-color-rgb: var(--ring-rgb);
   }
-
-  @supports (color: color-mix(in lab, red, red)) {
     .has-focus\:ring-ring\/50:has(:focus) {
       --tw-ring-color: rgb(var(--ring-rgb) / 0.5);
-      --tw-ring-color-rgb: color-mix(in oklab, var(--ring) 50%, transparent-rgb);
     }
-  }
 
   .has-\[\:disabled\]\:opacity-50:has(:disabled) {
     opacity: .5;
