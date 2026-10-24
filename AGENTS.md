@@ -16,3 +16,4 @@
 - Native release workflows use Node 24-compatible actions, build signed Android release APK/AAB files, and use electron-builder for x64 Windows/Linux plus x64/arm64 macOS installers so CI verifies distributable files rather than unpacked folders.
 - Scale labels use configurable EAN-13 prefix parsing at checkout; expiry enforcement remains organization-configurable so one catalog policy applies online and offline.
 - Cashier hardware settings (printer, drawer IP) are stored per device in localStorage and native printing goes through the Electron preload bridge `window.smartposNative`, because each till has its own devices and browsers cannot open raw sockets.
+- The standalone cashier app is the same codebase built with `VITE_APP_MODE=cashier` (only /pos and /shifts reachable) and a separate native app id, so till devices get a locked-down app without a forked codebase.

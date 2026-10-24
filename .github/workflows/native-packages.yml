@@ -22,6 +22,10 @@ jobs:
 
   android:
     needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [full, cashier]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -46,7 +50,13 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+          VITE_APP_MODE: ${{ matrix.edition == 'cashier' && 'cashier' || '' }}
       - run: bunx cap sync android
+      - name: Brand standalone cashier app
+        if: matrix.edition == 'cashier'
+        run: |
+          sed -i 's/applicationId "app.lovable.smartpos"/applicationId "app.lovable.smartpos.cashier"/' android/app/build.gradle
+          sed -i 's#<string name="app_name">SmartPOS</string>#<string name="app_name">SmartPOS Cashier</string>#; s#<string name="title_activity_main">SmartPOS</string>#<string name="title_activity_main">SmartPOS Cashier</string>#' android/app/src/main/res/values/strings.xml
       - name: Configure Android release signing
         shell: bash
         env:
@@ -82,12 +92,13 @@ jobs:
           test "$(stat -c%s android/app/build/outputs/apk/release/app-release.apk)" -gt 1000000
           test "$(stat -c%s android/app/build/outputs/bundle/release/app-release.aab)" -gt 1000000
           mkdir -p release
-          cp android/app/build/outputs/apk/release/app-release.apk release/SmartPOS-Android.apk
-          cp android/app/build/outputs/bundle/release/app-release.aab release/SmartPOS-Android.aab
+          NAME=SmartPOS${{ matrix.edition == 'cashier' && '-Cashier' || '' }}-Android
+          cp android/app/build/outputs/apk/release/app-release.apk "release/$NAME.apk"
+          cp android/app/build/outputs/bundle/release/app-release.aab "release/$NAME.aab"
       - uses: actions/upload-artifact@v7
         with:
-          name: SmartPOS-Android
-          path: release/SmartPOS-Android.*
+          name: SmartPOS${{ matrix.edition == 'cashier' && '-Cashier' || '' }}-Android
+          path: release/SmartPOS*-Android.*
           if-no-files-found: error
           retention-days: 14
 
@@ -96,24 +107,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-24.04
-            platform: linux
-            arch: x64
-            build-command: bunx electron-builder --linux AppImage deb --x64
-          - os: windows-2025
-            platform: windows
-            arch: x64
-            build-command: bunx electron-builder --win nsis --x64
-          - os: macos-15
-            platform: macos
-            arch: arm64
-            build-command: bunx electron-builder --mac dmg --arm64
-          - os: macos-15
-            platform: macos
-            arch: x64
-            build-command: bunx electron-builder --mac dmg --x64
-    runs-on: ${{ matrix.os }}
+        edition: [full, cashier]
+        target:
+          - { os: ubuntu-24.04, platform: linux, arch: x64, flags: "--linux AppImage deb --x64" }
+          - { os: windows-2025, platform: windows, arch: x64, flags: "--win nsis --x64" }
+          - { os: macos-15, platform: macos, arch: arm64, flags: "--mac dmg --arm64" }
+          - { os: macos-15, platform: macos, arch: x64, flags: "--mac dmg --x64" }
+    runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v5
@@ -128,13 +128,27 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+          VITE_APP_MODE: ${{ matrix.edition == 'cashier' && 'cashier' || '' }}
       - name: Build installer
-        run: ${{ matrix.build-command }}
+        shell: bash
+        run: |
+          if [[ "${{ matrix.edition }}" == "cashier" ]]; then
+            bunx electron-builder ${{ matrix.target.flags }} -c.appId=app.lovable.smartpos.cashier "-c.productName=SmartPOS Cashier"
+          else
+            bunx electron-builder ${{ matrix.target.flags }}
+          fi
       - name: Verify installer files
-        run: bun run verify:artifacts ${{ matrix.platform }}
+        run: bun run verify:artifacts ${{ matrix.target.platform }}
+      - name: Name cashier installers
+        if: matrix.edition == 'cashier'
+        shell: bash
+        run: |
+          cd release
+          for f in SmartPOS-*; do [[ -f "$f" ]] && mv "$f" "SmartPOS-Cashier-${f#SmartPOS-}"; done
+          ls -la
       - uses: actions/upload-artifact@v7
         with:
-          name: SmartPOS-${{ matrix.platform }}-${{ matrix.arch }}
+          name: SmartPOS${{ matrix.edition == 'cashier' && '-Cashier' || '' }}-${{ matrix.target.platform }}-${{ matrix.target.arch }}
           path: release/SmartPOS-*
           if-no-files-found: error
           retention-days: 14
