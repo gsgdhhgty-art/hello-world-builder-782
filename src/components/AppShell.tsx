@@ -1,3 +1,4 @@
+import { CASHIER_APP, allowedInCashierApp } from "@/lib/app-mode";
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import {
@@ -247,7 +248,12 @@ function AppShellInner() {
     if (profile?.org_id && onOnboarding) {
       navigate({ to: CASHIER_APP ? "/pos" : "/dashboard", replace: true });
     }
-    if (profile?.org_id && CASHIER_APP && !onOnboarding && !allowedInCashierApp(location.pathname)) {
+    if (
+      profile?.org_id &&
+      CASHIER_APP &&
+      !onOnboarding &&
+      !allowedInCashierApp(location.pathname)
+    ) {
       navigate({ to: "/pos", replace: true });
     }
   }, [loading, profile, onOnboarding, navigate, location.pathname]);

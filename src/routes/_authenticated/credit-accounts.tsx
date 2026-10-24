@@ -240,7 +240,8 @@ function CreditAccountsPage() {
       if (remaining <= 0.0001) {
         toast.success(`تم سداد كامل المبلغ المتبقي على ${name} 🎉`, { duration: 8000 });
         if (typeof Notification !== "undefined") {
-          const show = () => new Notification("تم سداد الحساب الآجل", { body: `${name} سدّد كامل المتبقي` });
+          const show = () =>
+            new Notification("تم سداد الحساب الآجل", { body: `${name} سدّد كامل المتبقي` });
           if (Notification.permission === "granted") show();
           else if (Notification.permission !== "denied")
             void Notification.requestPermission().then((p) => p === "granted" && show());
