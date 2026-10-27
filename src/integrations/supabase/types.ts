@@ -360,6 +360,57 @@ export type Database = {
           },
         ]
       }
+      industries: {
+        Row: {
+          created_at: string
+          default_settings: Json
+          description: string | null
+          features: string[]
+          icon: string
+          id: string
+          is_active: boolean
+          is_public: boolean
+          name: string
+          requires_approval: boolean
+          slug: string
+          sort_order: number
+          theme: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_settings?: Json
+          description?: string | null
+          features?: string[]
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          name: string
+          requires_approval?: boolean
+          slug: string
+          sort_order?: number
+          theme?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_settings?: Json
+          description?: string | null
+          features?: string[]
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          name?: string
+          requires_approval?: boolean
+          slug?: string
+          sort_order?: number
+          theme?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inventory: {
         Row: {
           created_at: string
@@ -423,6 +474,8 @@ export type Database = {
           expiry_alert_days: number
           feature_flags: Json
           id: string
+          industry_id: string | null
+          is_suspended: boolean
           logo_url: string | null
           low_stock_alerts_enabled: boolean
           low_stock_include_out_of_stock: boolean
@@ -451,6 +504,8 @@ export type Database = {
           expiry_alert_days?: number
           feature_flags?: Json
           id?: string
+          industry_id?: string | null
+          is_suspended?: boolean
           logo_url?: string | null
           low_stock_alerts_enabled?: boolean
           low_stock_include_out_of_stock?: boolean
@@ -479,6 +534,8 @@ export type Database = {
           expiry_alert_days?: number
           feature_flags?: Json
           id?: string
+          industry_id?: string | null
+          is_suspended?: boolean
           logo_url?: string | null
           low_stock_alerts_enabled?: boolean
           low_stock_include_out_of_stock?: boolean
@@ -496,6 +553,62 @@ export type Database = {
           tax_number?: string | null
           tax_rate?: number
           updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organizations_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "industries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_admins: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      platform_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          entity: string | null
+          entity_id: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
         }
         Relationships: []
       }
@@ -1551,6 +1664,129 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          currency: string
+          description: string | null
+          duration_days: number
+          features: string[]
+          id: string
+          industry_slugs: string[] | null
+          is_active: boolean
+          is_public: boolean
+          is_trial: boolean
+          max_branches: number | null
+          max_users: number | null
+          name: string
+          price: number
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          duration_days: number
+          features?: string[]
+          id?: string
+          industry_slugs?: string[] | null
+          is_active?: boolean
+          is_public?: boolean
+          is_trial?: boolean
+          max_branches?: number | null
+          max_users?: number | null
+          name: string
+          price?: number
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          duration_days?: number
+          features?: string[]
+          id?: string
+          industry_slugs?: string[] | null
+          is_active?: boolean
+          is_public?: boolean
+          is_trial?: boolean
+          max_branches?: number | null
+          max_users?: number | null
+          name?: string
+          price?: number
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          currency: string
+          expires_at: string
+          grant_reason: string | null
+          granted_by: string | null
+          id: string
+          note: string | null
+          org_id: string
+          plan_id: string
+          price: number
+          started_at: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          expires_at: string
+          grant_reason?: string | null
+          granted_by?: string | null
+          id?: string
+          note?: string | null
+          org_id: string
+          plan_id: string
+          price?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          grant_reason?: string | null
+          granted_by?: string | null
+          id?: string
+          note?: string | null
+          org_id?: string
+          plan_id?: string
+          price?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
           address: string | null
@@ -1645,15 +1881,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      bootstrap_organization: {
-        Args: {
-          _currency?: string
-          _full_name: string
-          _org_name: string
-          _tax_rate?: number
-        }
-        Returns: string
-      }
+      bootstrap_organization:
+        | {
+            Args: {
+              _currency?: string
+              _full_name: string
+              _org_name: string
+              _tax_rate?: number
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _currency?: string
+              _full_name: string
+              _industry_slug?: string
+              _org_name: string
+              _tax_rate?: number
+            }
+            Returns: string
+          }
       close_open_shift: {
         Args: { _closing_cash: number; _note?: string }
         Returns: Json
@@ -1689,6 +1936,7 @@ export type Database = {
       generate_product_barcode: { Args: never; Returns: string }
       get_customer_ledger: { Args: { _customer_id: string }; Returns: Json }
       has_perm: { Args: { _perm: string }; Returns: boolean }
+      has_platform_admin: { Args: never; Returns: boolean }
       is_org_admin: { Args: never; Returns: boolean }
       my_permissions: { Args: never; Returns: Json }
       open_shift: {
@@ -1749,6 +1997,13 @@ export type Database = {
         | "ACCOUNTANT"
       sale_status: "COMPLETED" | "REFUNDED" | "PARTIALLY_REFUNDED" | "VOID"
       shift_status: "OPEN" | "CLOSED"
+      subscription_status:
+        | "TRIAL"
+        | "ACTIVE"
+        | "EXPIRED"
+        | "SUSPENDED"
+        | "CANCELLED"
+        | "PENDING_PAYMENT"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1886,6 +2141,14 @@ export const Constants = {
       ],
       sale_status: ["COMPLETED", "REFUNDED", "PARTIALLY_REFUNDED", "VOID"],
       shift_status: ["OPEN", "CLOSED"],
+      subscription_status: [
+        "TRIAL",
+        "ACTIVE",
+        "EXPIRED",
+        "SUSPENDED",
+        "CANCELLED",
+        "PENDING_PAYMENT",
+      ],
     },
   },
 } as const
