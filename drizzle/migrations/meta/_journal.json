@@ -50,6 +50,13 @@
       "when": 1790543872010,
       "tag": "0006_realtime_sales_owner_live",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793128605825,
+      "tag": "0007_multi_industry_saas_foundation",
+      "breakpoints": true
     }
   ]
 }
