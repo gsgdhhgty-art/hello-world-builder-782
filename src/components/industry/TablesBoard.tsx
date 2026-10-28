@@ -302,10 +302,10 @@ export function TablesBoard() {
           <div className="grid gap-4 lg:grid-cols-4">
             {columns.map((col) => (
               <div key={col} className="rounded-xl bg-muted/60 p-3">
-                <p className="mb-3 flex items-center justify-between text-sm font-black">
+                <div className="mb-3 flex items-center justify-between text-sm font-black">
                   {TICKET_STATUS_LABELS[col]}
                   <Badge variant="secondary">{list.filter((t) => t.status === col).length}</Badge>
-                </p>
+                </div>
                 <div className="space-y-3">
                   {list
                     .filter((t) => t.status === col)
