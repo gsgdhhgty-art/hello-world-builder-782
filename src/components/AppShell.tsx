@@ -549,8 +549,8 @@ function AppShellInner() {
           </div>
 
           <div className="flex items-center gap-2">
-            <SyncBadge className="hidden shrink-0 border bg-secondary text-secondary-foreground sm:flex" />
-            <PwaInstallControl />
+            <SyncBadge className="hidden shrink-0 border bg-secondary text-secondary-foreground lg:flex" />
+            <div className="hidden lg:block"><PwaInstallControl /></div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -591,7 +591,7 @@ function AppShellInner() {
               </DropdownMenuContent>
             </DropdownMenu>
             {can("sales.create") ? (
-              <Button asChild className="hidden sm:inline-flex">
+              <Button asChild className="hidden lg:inline-flex">
                 <Link to="/pos">
                   <ScanBarcode className="size-4" /> الكاشير
                 </Link>
