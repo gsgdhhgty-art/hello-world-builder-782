@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { listIndustries, type IndustryRow } from "@/lib/industries.functions";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getIndustryPresentation } from "@/industries/presentation";
 
@@ -66,7 +67,7 @@ function SelectIndustry() {
         </span>
         <h1 className="mt-4 text-3xl font-black">ما هو نشاط تجارتك؟</h1>
         <p className="mt-2 text-muted-foreground">
-          اختر نشاطك وسنجهّز النظام بالضوابط المناسبة: وحدات القياس، الصلاحيات، الضرائب، ومحتويات الواجهة.
+          اختر النشاط المرتبط بمؤسستك.
         </p>
       </div>
 
@@ -87,42 +88,28 @@ function SelectIndustry() {
           {industries.map((industry) => {
             const Icon = ICONS[industry.icon] ?? Store;
             return (
-              <button
+              <Button variant="ghost"
                 key={industry.slug}
                 type="button"
                 onClick={() =>
                   navigate({ to: "/onboarding", search: { industry: industry.slug } })
                 }
-                className="group text-start"
+                className="group h-auto items-stretch whitespace-normal p-0 text-start"
               >
                 <Card className="h-full overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg">
-                  <div
-                    className="grid h-32 place-items-center"
-                    style={{ background: `linear-gradient(135deg, ${industry.theme.primary ?? "#0E7490"}22, ${industry.theme.accent ?? "#F59E0B"}33)` }}
-                  >
-                    <img
-                      src={getIndustryPresentation(industry.slug).art}
-                      alt={industry.name}
-                      loading="lazy"
-                      width={128}
-                      height={128}
-                      className="h-28 w-28 object-contain drop-shadow-xl transition-transform group-hover:scale-105"
-                    />
+                  <div className="h-32 overflow-hidden bg-muted">
+                    <img src={getIndustryPresentation(industry.slug).art} alt={industry.name}
+                      loading="lazy" width={480} height={320} className="h-full w-full object-cover" />
                   </div>
                   <CardHeader className="gap-3">
-                    <span
-                      className="grid size-11 place-items-center rounded-xl text-primary-foreground shadow-sm"
-                      style={{ backgroundColor: industry.theme.primary ?? "#0E7490" }}
-                    >
-                      <Icon className="size-5" />
-                    </span>
+                    <span className="grid size-9 place-items-center rounded-lg bg-secondary text-secondary-foreground"><Icon className="size-5" /></span>
                     <CardTitle className="text-base leading-snug">{industry.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="line-clamp-3">{industry.description}</CardDescription>
                   </CardContent>
                 </Card>
-              </button>
+              </Button>
             );
           })}
         </div>

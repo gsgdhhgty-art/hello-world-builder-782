@@ -1,17 +1,17 @@
-import supermarket from "@/assets/industries/supermarket.webp";
-import pharmacy from "@/assets/industries/pharmacy.webp";
-import cafe from "@/assets/industries/cafe.webp";
-import restaurant from "@/assets/industries/restaurant.webp";
-import clothing from "@/assets/industries/clothing.webp";
-import electronics from "@/assets/industries/electronics.webp";
-import homeGoods from "@/assets/industries/home-goods.webp";
-import bookstore from "@/assets/industries/bookstore.webp";
-import cosmetics from "@/assets/industries/cosmetics.webp";
-import autoParts from "@/assets/industries/auto-parts.webp";
-import generalRetail from "@/assets/industries/general-retail.webp";
+import supermarket from "@/assets/industries/realistic-supermarket.webp";
+import pharmacy from "@/assets/industries/realistic-pharmacy.webp";
+import cafe from "@/assets/industries/realistic-cafe.webp";
+import restaurant from "@/assets/industries/realistic-restaurant.webp";
+import clothing from "@/assets/industries/realistic-clothing.webp";
+import electronics from "@/assets/industries/realistic-electronics.webp";
+import homeGoods from "@/assets/industries/realistic-home-goods.webp";
+import bookstore from "@/assets/industries/realistic-bookstore.webp";
+import cosmetics from "@/assets/industries/realistic-cosmetics.webp";
+import autoParts from "@/assets/industries/realistic-auto-parts.webp";
+import generalRetail from "@/assets/industries/realistic-general-retail.webp";
 
 /**
- * Visual identity per industry (3D artwork + headline). Kept apart from the
+ * Visual identity per industry (realistic photography + headline). Kept apart from the
  * module contract so server code never bundles image assets.
  */
 export interface IndustryPresentation {

@@ -61,6 +61,10 @@ import { useOffline } from "@/hooks/useOffline";
 import { resolveProductImages } from "@/lib/product-images";
 import { AiSuggestDialog } from "@/components/pos/AiSuggestDialog";
 import { expiryState, matchesScaleCode, parseScaleBarcode } from "@/lib/scale-barcode";
+import { useIndustry } from "@/hooks/useIndustry";
+import { SupermarketCheckoutCatalog } from "@/industries/supermarket/CheckoutCatalog";
+import type { CheckoutProduct } from "@/industries/shared/catalog";
+import "@/industries/supermarket/theme.css";
 
 export const Route = createFileRoute("/_authenticated/pos")({
   head: () => ({
@@ -78,18 +82,7 @@ export const Route = createFileRoute("/_authenticated/pos")({
   component: PosPage,
 });
 
-interface ProductRow {
-  id: string;
-  name: string;
-  barcode: string | null;
-  sku: string | null;
-  price: number;
-  unit: string;
-  track_stock: boolean;
-  category_id: string | null;
-  image_url: string | null;
-  expires_at: string | null;
-}
+type ProductRow = CheckoutProduct;
 
 interface CartLine {
   product: ProductRow;
@@ -111,6 +104,8 @@ function isNetworkFailure(message: string): boolean {
 function PosPage() {
   const { org, profile, can, session } = useAuth();
   const { online, pending } = useOffline();
+  const industry = useIndustry();
+  const supermarket = industry.data?.slug === "supermarket";
   const qc = useQueryClient();
   const currency = org?.currency ?? "EGP";
   const taxRate = org?.tax_enabled ? Number(org.tax_rate) : 0;
@@ -192,7 +187,7 @@ function PosPage() {
         const { data, error } = await supabase
           .from("products")
           .select(
-            "id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at",
+            "id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at, sold_by_weight",
           )
           .eq("is_active", true)
           .order("name");
@@ -303,9 +298,10 @@ function PosPage() {
       const name = newCustomer.name.trim();
       if (!name) throw new Error("empty");
       const id = crypto.randomUUID();
+      if (!profile?.org_id) throw new Error("organization required");
       const row = {
         id,
-        org_id: profile!.org_id!,
+        org_id: profile?.org_id,
         name,
         phone: newCustomer.phone.trim() || null,
         balance: 0,
@@ -674,7 +670,8 @@ function PosPage() {
         const idx = prev.findIndex((l) => l.product.id === p.id);
         if (idx === -1) return [...prev, { product: p, quantity: qty, discount: 0 }];
         const next = [...prev];
-        const line = next[idx]!;
+        const line = next[idx];
+        if (!line) return prev;
         next[idx] = { ...line, quantity: line.quantity + qty };
         return next;
       });
@@ -729,7 +726,7 @@ function PosPage() {
         const { data } = await supabase
           .from("products")
           .select(
-            "id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at",
+            "id, name, barcode, sku, price, unit, track_stock, category_id, image_url, expires_at, sold_by_weight",
           )
           .or(`barcode.eq.${value},sku.eq.${value}`)
           .eq("is_active", true)
@@ -824,7 +821,7 @@ function PosPage() {
   const cartUnits = cart.reduce((sum, line) => sum + line.quantity, 0);
 
   return (
-    <div className="flex min-h-[calc(100vh-72px)] flex-col gap-3 bg-background p-2 pb-24 sm:p-3 lg:h-[calc(100vh-72px)] lg:flex-row lg:overflow-hidden lg:pb-3">
+    <div className={cn("flex min-h-[calc(100vh-72px)] flex-col gap-3 bg-background p-2 pb-24 sm:p-3 lg:h-[calc(100vh-72px)] lg:flex-row lg:overflow-hidden lg:pb-3", supermarket && "supermarket-checkout")}>
       {/* ===== catalog ===== */}
       <section className="workspace-card flex min-w-0 flex-1 flex-col overflow-hidden">
         {!online && (
@@ -904,6 +901,12 @@ function PosPage() {
           ))}
         </div>
 
+        {supermarket ? (
+          <SupermarketCheckoutCatalog products={filtered} stock={stock} currency={currency}
+            favorites={favorites} alertDays={org?.expiry_alert_days ?? 30}
+            blockExpired={org?.block_expired_sales ?? false}
+            onAdd={addToCart} onFavorite={toggleFavorite} />
+        ) : (
         <div className="grid flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto p-2 min-[480px]:grid-cols-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 scroll-slim">
           {filtered.map((p) => {
             const qty = stock[p.id] ?? 0;
@@ -973,6 +976,7 @@ function PosPage() {
             </p>
           )}
         </div>
+        )}
       </section>
 
       <div className="fixed inset-x-3 bottom-3 z-30 lg:hidden">
