@@ -57,6 +57,13 @@
       "when": 1793128605825,
       "tag": "0007_multi_industry_saas_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793147706620,
+      "tag": "0008_restaurant_tables_kitchen",
+      "breakpoints": true
     }
   ]
 }

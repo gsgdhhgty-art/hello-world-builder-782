@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { listIndustries, type IndustryRow } from "@/lib/industries.functions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getIndustryPresentation } from "@/industries/presentation";
 
 export const Route = createFileRoute("/_authenticated/select-industry")({
   head: () => ({
@@ -94,7 +95,20 @@ function SelectIndustry() {
                 }
                 className="group text-start"
               >
-                <Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-lg">
+                <Card className="h-full overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg">
+                  <div
+                    className="grid h-32 place-items-center"
+                    style={{ background: `linear-gradient(135deg, ${industry.theme.primary ?? "#0E7490"}22, ${industry.theme.accent ?? "#F59E0B"}33)` }}
+                  >
+                    <img
+                      src={getIndustryPresentation(industry.slug).art}
+                      alt={industry.name}
+                      loading="lazy"
+                      width={128}
+                      height={128}
+                      className="h-28 w-28 object-contain drop-shadow-xl transition-transform group-hover:scale-105"
+                    />
+                  </div>
                   <CardHeader className="gap-3">
                     <span
                       className="grid size-11 place-items-center rounded-xl text-primary-foreground shadow-sm"

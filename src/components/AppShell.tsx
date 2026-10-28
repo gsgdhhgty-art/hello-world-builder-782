@@ -85,6 +85,12 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
         tone: TONE.blue,
       },
       {
+        to: "/workspace",
+        label: "مساحة النشاط",
+        icon: Sparkles,
+        tone: TONE.amber,
+      },
+      {
         to: "/owner-live",
         label: "متابعة مباشرة",
         icon: Radio,

@@ -153,10 +153,18 @@
   --color-info-foreground: var(--info-foreground);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-industry: var(--industry);
+  --color-industry-accent: var(--industry-accent);
+  --color-industry-foreground: var(--industry-foreground);
 }
 
 :root {
   --radius: 0.5rem;
+  /* Overridden per organization by the active industry module (IndustryTheme). */
+  --industry: #005dbd;
+  --industry-accent: #f59e0b;
+  --industry-foreground: #ffffff;
+
 
   --background: #f2f6fb;
   --foreground: #0a1725;
