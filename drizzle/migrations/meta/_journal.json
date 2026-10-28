@@ -64,6 +64,13 @@
       "when": 1793147706620,
       "tag": "0008_restaurant_tables_kitchen",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793149666443,
+      "tag": "0009_enforce_configured_expiry_on_sale_items",
+      "breakpoints": true
     }
   ]
 }
