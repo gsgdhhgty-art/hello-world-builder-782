@@ -30,7 +30,10 @@ import {
   Wallet,
   Tags,
   Sparkles,
+  ShieldCheck,
 } from "lucide-react";
+import { getMySubscription } from "@/lib/subscriptions.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/useAuth";
 import { OfflineProvider } from "@/hooks/useOffline";
 import { SyncBadge } from "@/components/SyncBadge";
@@ -210,6 +213,17 @@ function AppShellInner() {
   const [collapsed, setCollapsed] = useState(false);
   const [navigationSearch, setNavigationSearch] = useState("");
   const onOnboarding = location.pathname.startsWith("/onboarding");
+  const onSelectIndustry = location.pathname.startsWith("/select-industry");
+  const fetchSubscription = useServerFn(getMySubscription);
+  const subscriptionQuery = useQuery({
+    queryKey: ["my-subscription", profile?.org_id],
+    enabled: Boolean(profile?.org_id),
+    staleTime: 60_000,
+    refetchInterval: 120_000,
+    queryFn: () => fetchSubscription(),
+  });
+  const subscription = subscriptionQuery.data ?? null;
+  const isPlatformAdmin = subscription?.isPlatformAdmin === true;
   const lowStock = useQuery({
     queryKey: ["header-low-stock", org?.id],
     enabled: Boolean(org?.id && org?.low_stock_alerts_enabled && can("inventory.view")),
@@ -242,10 +256,10 @@ function AppShellInner() {
 
   useEffect(() => {
     if (loading) return;
-    if (!profile?.org_id && !onOnboarding) {
-      navigate({ to: "/onboarding", replace: true });
+    if (!profile?.org_id && !onOnboarding && !onSelectIndustry) {
+      navigate({ to: "/select-industry", replace: true });
     }
-    if (profile?.org_id && onOnboarding) {
+    if (profile?.org_id && (onOnboarding || onSelectIndustry)) {
       navigate({ to: CASHIER_APP ? "/pos" : "/dashboard", replace: true });
     }
     if (
@@ -256,7 +270,7 @@ function AppShellInner() {
     ) {
       navigate({ to: "/pos", replace: true });
     }
-  }, [loading, profile, onOnboarding, navigate, location.pathname]);
+  }, [loading, profile, onOnboarding, onSelectIndustry, navigate, location.pathname]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -275,7 +289,7 @@ function AppShellInner() {
     );
   }
 
-  if (onOnboarding || !profile?.org_id) {
+  if (onOnboarding || onSelectIndustry || !profile?.org_id) {
     return (
       <main className="min-h-screen bg-background">
         <Outlet />
@@ -308,6 +322,17 @@ function AppShellInner() {
       items: g.items.filter((i) => !i.perm || (i.perm === "*" ? permissions["*"] : can(i.perm))),
     }))
     .filter((g) => g.items.length);
+
+  // Platform (Super Admin) console — visible only to verified platform admins.
+  // The server re-verifies on every call; this only controls the menu entry.
+  if (isPlatformAdmin) {
+    groups.push({
+      title: "المنصة",
+      items: [
+        { to: "/super-admin", label: "لوحة المنصة", icon: ShieldCheck, tone: TONE.rose },
+      ],
+    });
+  }
 
   const current = groups.flatMap((g) => g.items).find((i) => i.to === location.pathname);
   const searchableItems = groups
@@ -389,6 +414,22 @@ function AppShellInner() {
       </nav>
 
       <div className="border-t border-sidebar-border p-3">
+        {!collapsed && subscription?.hasSubscription && (
+          <Link
+            to={isPlatformAdmin ? "/super-admin" : "/settings"}
+            className={cn(
+              "mb-2 flex items-center justify-center gap-1.5 rounded-md border px-2 py-1.5 text-[11px] font-bold",
+              subscription.operational
+                ? "border-sidebar-border bg-sidebar-accent text-sidebar-foreground/80"
+                : "border-destructive/40 bg-destructive/15 text-destructive",
+            )}
+          >
+            {subscription.planName} · {subscription.statusLabel}
+            {subscription.daysLeft != null && subscription.operational
+              ? ` · ${subscription.daysLeft} يوم`
+              : ""}
+          </Link>
+        )}
         {!collapsed && <SyncBadge className="mb-2 w-full justify-center" />}
         <div
           className={cn(

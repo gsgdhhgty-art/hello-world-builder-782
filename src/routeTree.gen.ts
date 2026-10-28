@@ -31,9 +31,11 @@ import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedReturnsRouteImport } from './routes/_authenticated/returns'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
+import { Route as AuthenticatedSelectIndustryRouteImport } from './routes/_authenticated/select-industry'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedStockCountRouteImport } from './routes/_authenticated/stock-count'
+import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedSuppliersRouteImport } from './routes/_authenticated/suppliers'
 import { Route as AuthenticatedSyncRouteImport } from './routes/_authenticated/sync'
 
@@ -148,6 +150,12 @@ const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   path: '/sales',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSelectIndustryRoute =
+  AuthenticatedSelectIndustryRouteImport.update({
+    id: '/select-industry',
+    path: '/select-industry',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -161,6 +169,11 @@ const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
 const AuthenticatedStockCountRoute = AuthenticatedStockCountRouteImport.update({
   id: '/stock-count',
   path: '/stock-count',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSuperAdminRoute = AuthenticatedSuperAdminRouteImport.update({
+  id: '/super-admin',
+  path: '/super-admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSuppliersRoute = AuthenticatedSuppliersRouteImport.update({
@@ -196,9 +209,11 @@ export interface FileRoutesByFullPath {
   '/reports': typeof AuthenticatedReportsRoute
   '/returns': typeof AuthenticatedReturnsRoute
   '/sales': typeof AuthenticatedSalesRoute
+  '/select-industry': typeof AuthenticatedSelectIndustryRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/stock-count': typeof AuthenticatedStockCountRoute
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/suppliers': typeof AuthenticatedSuppliersRoute
   '/sync': typeof AuthenticatedSyncRoute
 }
@@ -224,9 +239,11 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsRoute
   '/returns': typeof AuthenticatedReturnsRoute
   '/sales': typeof AuthenticatedSalesRoute
+  '/select-industry': typeof AuthenticatedSelectIndustryRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/stock-count': typeof AuthenticatedStockCountRoute
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/suppliers': typeof AuthenticatedSuppliersRoute
   '/sync': typeof AuthenticatedSyncRoute
 }
@@ -254,9 +271,11 @@ export interface FileRoutesById {
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/returns': typeof AuthenticatedReturnsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
+  '/_authenticated/select-industry': typeof AuthenticatedSelectIndustryRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/stock-count': typeof AuthenticatedStockCountRoute
+  '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
   '/_authenticated/suppliers': typeof AuthenticatedSuppliersRoute
   '/_authenticated/sync': typeof AuthenticatedSyncRoute
 }
@@ -284,9 +303,11 @@ export interface FileRouteTypes {
     | '/reports'
     | '/returns'
     | '/sales'
+    | '/select-industry'
     | '/settings'
     | '/shifts'
     | '/stock-count'
+    | '/super-admin'
     | '/suppliers'
     | '/sync'
   fileRoutesByTo: FileRoutesByTo
@@ -312,9 +333,11 @@ export interface FileRouteTypes {
     | '/reports'
     | '/returns'
     | '/sales'
+    | '/select-industry'
     | '/settings'
     | '/shifts'
     | '/stock-count'
+    | '/super-admin'
     | '/suppliers'
     | '/sync'
   id:
@@ -341,9 +364,11 @@ export interface FileRouteTypes {
     | '/_authenticated/reports'
     | '/_authenticated/returns'
     | '/_authenticated/sales'
+    | '/_authenticated/select-industry'
     | '/_authenticated/settings'
     | '/_authenticated/shifts'
     | '/_authenticated/stock-count'
+    | '/_authenticated/super-admin'
     | '/_authenticated/suppliers'
     | '/_authenticated/sync'
   fileRoutesById: FileRoutesById
@@ -511,6 +536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/select-industry': {
+      id: '/_authenticated/select-industry'
+      path: '/select-industry'
+      fullPath: '/select-industry'
+      preLoaderRoute: typeof AuthenticatedSelectIndustryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -530,6 +562,13 @@ declare module '@tanstack/react-router' {
       path: '/stock-count'
       fullPath: '/stock-count'
       preLoaderRoute: typeof AuthenticatedStockCountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/super-admin': {
+      id: '/_authenticated/super-admin'
+      path: '/super-admin'
+      fullPath: '/super-admin'
+      preLoaderRoute: typeof AuthenticatedSuperAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/suppliers': {
@@ -568,9 +607,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedReturnsRoute: typeof AuthenticatedReturnsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
+  AuthenticatedSelectIndustryRoute: typeof AuthenticatedSelectIndustryRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedStockCountRoute: typeof AuthenticatedStockCountRoute
+  AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
   AuthenticatedSuppliersRoute: typeof AuthenticatedSuppliersRoute
   AuthenticatedSyncRoute: typeof AuthenticatedSyncRoute
 }
@@ -594,9 +635,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedReturnsRoute: AuthenticatedReturnsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
+  AuthenticatedSelectIndustryRoute: AuthenticatedSelectIndustryRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedStockCountRoute: AuthenticatedStockCountRoute,
+  AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
   AuthenticatedSuppliersRoute: AuthenticatedSuppliersRoute,
   AuthenticatedSyncRoute: AuthenticatedSyncRoute,
 }
