@@ -92,5 +92,5 @@ const MAP: Record<string, IndustryPresentation> = {
 };
 
 export function getIndustryPresentation(slug: string | null | undefined): IndustryPresentation {
-  return (slug && MAP[slug]) || MAP["general-retail"];
+  return (slug ? MAP[slug] : undefined) ?? (MAP["general-retail"] as IndustryPresentation);
 }

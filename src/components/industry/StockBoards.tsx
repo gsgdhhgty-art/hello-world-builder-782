@@ -70,6 +70,7 @@ function useTopSellers(days: number) {
       if (error) throw error;
       const m = new Map<string, { name: string; qty: number; total: number }>();
       for (const r of data ?? []) {
+        if (!r.product_id) continue;
         const cur = m.get(r.product_id) ?? { name: r.product_name, qty: 0, total: 0 };
         cur.qty += Number(r.quantity);
         cur.total += Number(r.line_total);

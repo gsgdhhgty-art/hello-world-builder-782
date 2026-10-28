@@ -74,7 +74,7 @@ export const Route = createFileRoute("/_authenticated/pos")({
     ],
   }),
   validateSearch: (search: Record<string, unknown>): { resume?: string } =>
-    typeof search.resume === "string" && search.resume ? { resume: search.resume } : {},
+    typeof search["resume"] === "string" && search["resume"] ? { resume: search["resume"] } : {},
   component: PosPage,
 });
 

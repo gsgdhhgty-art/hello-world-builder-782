@@ -22,7 +22,7 @@ describe("kitchen flow", () => {
     items = addTicketItem(items, { product_id: "a", name: "لاتيه", price: 45 });
     items = addTicketItem(items, { product_id: "b", name: "كرواسون", price: 30 });
     expect(items).toHaveLength(2);
-    expect(items[0].qty).toBe(2);
+    expect(items[0]?.qty).toBe(2);
     expect(ticketTotal(items)).toBe(120);
   });
 

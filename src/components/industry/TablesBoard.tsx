@@ -122,7 +122,7 @@ export function TablesBoard() {
 
   async function setTableStatus(id: string, status: TableStatus) {
     const { error } = await supabase.from("dining_tables").update({ status }).eq("id", id);
-    if (error) return toast.error("تعذر تحديث الطاولة");
+    if (error) { toast.error("تعذر تحديث الطاولة"); return; }
     await refresh();
   }
 
@@ -136,7 +136,7 @@ export function TablesBoard() {
       seats: newTable.seats,
       sort_order: (tables.data?.length ?? 0) + 1,
     });
-    if (error) return toast.error(error.message.includes("unique") ? "اسم الطاولة مستخدم" : "تعذر إضافة الطاولة");
+    if (error) { toast.error(error.message.includes("unique") ? "اسم الطاولة مستخدم" : "تعذر إضافة الطاولة"); return; }
     setNewTable({ name: "", zone: newTable.zone, seats: 4 });
     toast.success("أضيفت الطاولة");
     await refresh();
@@ -144,7 +144,7 @@ export function TablesBoard() {
 
   async function removeTable(id: string) {
     const { error } = await supabase.from("dining_tables").delete().eq("id", id);
-    if (error) return toast.error("تعذر حذف الطاولة");
+    if (error) { toast.error("تعذر حذف الطاولة"); return; }
     await refresh();
   }
 
@@ -152,13 +152,13 @@ export function TablesBoard() {
     const next = nextTicketStatus(t.status);
     if (!next) return;
     const { error } = await supabase.from("kitchen_tickets").update({ status: next }).eq("id", t.id);
-    if (error) return toast.error("تعذر تحديث الطلب");
+    if (error) { toast.error("تعذر تحديث الطلب"); return; }
     await refresh();
   }
 
   async function cancel(t: Ticket) {
     const { error } = await supabase.from("kitchen_tickets").update({ status: "CANCELLED" }).eq("id", t.id);
-    if (error) return toast.error("تعذر إلغاء الطلب");
+    if (error) { toast.error("تعذر إلغاء الطلب"); return; }
     if (t.table_id && !(tickets.data ?? []).some((x) => x.id !== t.id && x.table_id === t.table_id)) {
       await supabase.from("dining_tables").update({ status: "FREE" }).eq("id", t.table_id);
     }
@@ -167,7 +167,7 @@ export function TablesBoard() {
 
   /** Hand the ticket to the cashier: create a held order on this device and open it in the POS. */
   async function bill(t: Ticket) {
-    if (!hasLocalDb()) return toast.error("هذا الجهاز لا يدعم التخزين المحلي");
+    if (!hasLocalDb()) { toast.error("هذا الجهاز لا يدعم التخزين المحلي"); return; }
     const heldId = crypto.randomUUID();
     const table = tables.data?.find((x) => x.id === t.table_id);
     await db().held_orders.put({
@@ -179,7 +179,8 @@ export function TablesBoard() {
     const { error } = await supabase.from("kitchen_tickets").update({ status: "BILLED" }).eq("id", t.id);
     if (error) {
       await db().held_orders.delete(heldId);
-      return toast.error("تعذر إرسال الطلب للتحصيل");
+      toast.error("تعذر إرسال الطلب للتحصيل");
+      return;
     }
     if (t.table_id && !(tickets.data ?? []).some((x) => x.id !== t.id && x.table_id === t.table_id)) {
       await supabase.from("dining_tables").update({ status: "FREE" }).eq("id", t.table_id);
@@ -431,7 +432,7 @@ function OrderDialog({
       await supabase.from("dining_tables").update({ status: "OCCUPIED" }).eq("id", target.table.id);
     }
     setBusy(false);
-    if (error) return toast.error("تعذر إرسال الطلب للمطبخ");
+    if (error) { toast.error("تعذر إرسال الطلب للمطبخ"); return; }
     toast.success("أُرسل الطلب للمطبخ");
     await onSent();
   }
