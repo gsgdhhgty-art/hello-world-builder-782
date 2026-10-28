@@ -30,7 +30,10 @@ import {
   Wallet,
   Tags,
   Sparkles,
+  ShieldCheck,
 } from "lucide-react";
+import { getMySubscription } from "@/lib/subscriptions.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/useAuth";
 import { OfflineProvider } from "@/hooks/useOffline";
 import { SyncBadge } from "@/components/SyncBadge";
@@ -210,6 +213,17 @@ function AppShellInner() {
   const [collapsed, setCollapsed] = useState(false);
   const [navigationSearch, setNavigationSearch] = useState("");
   const onOnboarding = location.pathname.startsWith("/onboarding");
+  const onSelectIndustry = location.pathname.startsWith("/select-industry");
+  const fetchSubscription = useServerFn(getMySubscription);
+  const subscriptionQuery = useQuery({
+    queryKey: ["my-subscription", profile?.org_id],
+    enabled: Boolean(profile?.org_id),
+    staleTime: 60_000,
+    refetchInterval: 120_000,
+    queryFn: () => fetchSubscription(),
+  });
+  const subscription = subscriptionQuery.data ?? null;
+  const isPlatformAdmin = subscription?.isPlatformAdmin === true;
   const lowStock = useQuery({
     queryKey: ["header-low-stock", org?.id],
     enabled: Boolean(org?.id && org?.low_stock_alerts_enabled && can("inventory.view")),
