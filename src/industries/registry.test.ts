@@ -32,8 +32,8 @@ describe("industry registry", () => {
   });
 
   it("super market default settings demand expiry blocking, clothing does not", () => {
-    expect(getIndustryModule("supermarket").defaultSettings.block_expired_sales).toBe(true);
-    expect(getIndustryModule("clothing").defaultSettings.block_expired_sales).toBe(false);
+    expect(getIndustryModule("supermarket").defaultSettings["block_expired_sales"]).toBe(true);
+    expect(getIndustryModule("clothing").defaultSettings["block_expired_sales"]).toBe(false);
   });
 
   it("every module has a unique slug and a theme color", () => {

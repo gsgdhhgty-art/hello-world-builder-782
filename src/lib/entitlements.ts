@@ -58,7 +58,10 @@ export function daysLeft(expiresAt: string, now: Date = new Date()): number {
 }
 
 /** Can the organization use the system right now? */
-export function isOperational(sub: SubscriptionInfo, now: Date = new Date()): boolean {
+export function isOperational(
+  sub: Pick<SubscriptionInfo, "status" | "expiresAt">,
+  now: Date = new Date(),
+): boolean {
   const status = computeEffectiveStatus(sub, now);
   return status === "TRIAL" || status === "ACTIVE";
 }

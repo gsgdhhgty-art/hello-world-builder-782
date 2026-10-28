@@ -243,9 +243,11 @@ export const updateSubscription = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => updateSubSchema.parse(data))
   .handler(async ({ data, context }) => {
     const admin = await assertPlatformAdmin(context);
-    const patch: Record<string, unknown> = { status: data.status };
-    if (data.expiresAt) patch.expires_at = data.expiresAt;
-    if (data.note !== undefined) patch.note = data.note;
+    const patch = {
+      status: data.status,
+      ...(data.expiresAt ? { expires_at: data.expiresAt } : {}),
+      ...(data.note !== undefined ? { note: data.note } : {}),
+    };
     const { error } = await admin.from("subscriptions").update(patch).eq("id", data.subscriptionId);
     if (error) throw new Error(error.message);
     await writePlatformAudit(admin, context.userId, "SUBSCRIPTION_UPDATED", "subscriptions", data.subscriptionId, patch);

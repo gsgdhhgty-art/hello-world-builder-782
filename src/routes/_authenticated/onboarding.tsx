@@ -17,9 +17,8 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
-  validateSearch: (search: Record<string, unknown>): { industry?: string } => ({
-    industry: typeof search.industry === "string" ? search.industry : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { industry?: string } =>
+    typeof search["industry"] === "string" ? { industry: search["industry"] as string } : {},
   head: () => ({
     meta: [
       { title: "إعداد المتجر — SmartPOS" },
