@@ -414,6 +414,22 @@ function AppShellInner() {
       </nav>
 
       <div className="border-t border-sidebar-border p-3">
+        {!collapsed && subscription?.hasSubscription && (
+          <Link
+            to={isPlatformAdmin ? "/super-admin" : "/settings"}
+            className={cn(
+              "mb-2 flex items-center justify-center gap-1.5 rounded-md border px-2 py-1.5 text-[11px] font-bold",
+              subscription.operational
+                ? "border-sidebar-border bg-sidebar-accent text-sidebar-foreground/80"
+                : "border-destructive/40 bg-destructive/15 text-destructive",
+            )}
+          >
+            {subscription.planName} · {subscription.statusLabel}
+            {subscription.daysLeft != null && subscription.operational
+              ? ` · ${subscription.daysLeft} يوم`
+              : ""}
+          </Link>
+        )}
         {!collapsed && <SyncBadge className="mb-2 w-full justify-center" />}
         <div
           className={cn(
