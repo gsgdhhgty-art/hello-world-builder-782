@@ -69,19 +69,21 @@ export interface MyIndustry {
 export const getMyIndustry = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<MyIndustry> => {
-    const { data: me } = await context.supabase
+    const { data: me, error: profileError } = await context.supabase
       .from("profiles")
       .select("org_id")
       .eq("id", context.userId)
       .maybeSingle();
+    if (profileError) throw new Error("Unable to resolve organization");
     if (!me?.org_id) {
       return { slug: null, name: "بدون نشاط", theme: { primary: "#0E7490", accent: "#F59E0B" }, features: [], posMode: "retail", weight: false };
     }
-    const { data: org } = await context.supabase
+    const { data: org, error: organizationError } = await context.supabase
       .from("organizations")
       .select("industry_id, industries(slug, name, theme, features)")
       .eq("id", me.org_id)
       .maybeSingle();
+    if (organizationError) throw new Error("Unable to resolve industry");
     const ind = (org?.industries ?? null) as { slug: string; name: string; theme: unknown; features: string[] } | null;
     if (!ind) {
       const generic = getIndustryModule(null);
@@ -92,7 +94,7 @@ export const getMyIndustry = createServerFn({ method: "GET" })
       slug: ind.slug,
       name: ind.name,
       theme: module.theme,
-      features: module.features,
+      features: ind.features ?? [],
       posMode: module.pos.mode,
       weight: module.pos.weight,
     };

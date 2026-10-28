@@ -1,0 +1,16 @@
+.supermarket-checkout {
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+  --ring: #0f766e;
+  --accent: #e1f3ed;
+  --accent-foreground: #164b41;
+  --background: #f4f7f5;
+}
+.dark .supermarket-checkout {
+  --primary: #63cbb5;
+  --primary-foreground: #092822;
+  --ring: #63cbb5;
+  --accent: #1a3932;
+  --accent-foreground: #def6ee;
+  --background: #101b18;
+}
