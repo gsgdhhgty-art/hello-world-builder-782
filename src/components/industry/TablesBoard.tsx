@@ -185,7 +185,7 @@ export function TablesBoard() {
       await supabase.from("dining_tables").update({ status: "FREE" }).eq("id", t.table_id);
     }
     await qc.invalidateQueries({ queryKey: ["held-orders"] });
-    navigate({ to: "/pos", search: { resume: heldId } as never });
+    navigate({ to: "/pos", search: { resume: heldId } });
   }
 
   const list = tickets.data ?? [];

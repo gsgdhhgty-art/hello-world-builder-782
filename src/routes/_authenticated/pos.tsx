@@ -73,6 +73,8 @@ export const Route = createFileRoute("/_authenticated/pos")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { resume?: string } =>
+    typeof search.resume === "string" && search.resume ? { resume: search.resume } : {},
   component: PosPage,
 });
 
@@ -624,6 +626,20 @@ function PosPage() {
     await qc.invalidateQueries({ queryKey: ["held-orders"] });
     setHeldOpen(false);
   }
+
+  // Orders handed over from the table/kitchen board arrive as ?resume=<held order id>.
+  const { resume } = Route.useSearch();
+  const navigateTo = Route.useNavigate();
+  useEffect(() => {
+    if (!resume || !productsQuery.data || !heldQuery.data) return;
+    const order = heldQuery.data.find((o) => o.id === resume);
+    void navigateTo({ search: {}, replace: true });
+    if (order) {
+      void resumeOrder(order);
+      toast.success("تم تحميل طلب الطاولة في السلة");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resume, productsQuery.data, heldQuery.data]);
 
   const filtered = useMemo(() => {
     const list = productsQuery.data ?? [];
