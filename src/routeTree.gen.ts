@@ -35,6 +35,7 @@ import { Route as AuthenticatedSelectIndustryRouteImport } from './routes/_authe
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedStockCountRouteImport } from './routes/_authenticated/stock-count'
+import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedSuppliersRouteImport } from './routes/_authenticated/suppliers'
 import { Route as AuthenticatedSyncRouteImport } from './routes/_authenticated/sync'
 
@@ -170,6 +171,11 @@ const AuthenticatedStockCountRoute = AuthenticatedStockCountRouteImport.update({
   path: '/stock-count',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSuperAdminRoute = AuthenticatedSuperAdminRouteImport.update({
+  id: '/super-admin',
+  path: '/super-admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSuppliersRoute = AuthenticatedSuppliersRouteImport.update({
   id: '/suppliers',
   path: '/suppliers',
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/stock-count': typeof AuthenticatedStockCountRoute
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/suppliers': typeof AuthenticatedSuppliersRoute
   '/sync': typeof AuthenticatedSyncRoute
 }
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/stock-count': typeof AuthenticatedStockCountRoute
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/suppliers': typeof AuthenticatedSuppliersRoute
   '/sync': typeof AuthenticatedSyncRoute
 }
@@ -267,6 +275,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/stock-count': typeof AuthenticatedStockCountRoute
+  '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
   '/_authenticated/suppliers': typeof AuthenticatedSuppliersRoute
   '/_authenticated/sync': typeof AuthenticatedSyncRoute
 }
@@ -298,6 +307,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shifts'
     | '/stock-count'
+    | '/super-admin'
     | '/suppliers'
     | '/sync'
   fileRoutesByTo: FileRoutesByTo
@@ -327,6 +337,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shifts'
     | '/stock-count'
+    | '/super-admin'
     | '/suppliers'
     | '/sync'
   id:
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/shifts'
     | '/_authenticated/stock-count'
+    | '/_authenticated/super-admin'
     | '/_authenticated/suppliers'
     | '/_authenticated/sync'
   fileRoutesById: FileRoutesById
@@ -552,6 +564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStockCountRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/super-admin': {
+      id: '/_authenticated/super-admin'
+      path: '/super-admin'
+      fullPath: '/super-admin'
+      preLoaderRoute: typeof AuthenticatedSuperAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/suppliers': {
       id: '/_authenticated/suppliers'
       path: '/suppliers'
@@ -592,6 +611,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedStockCountRoute: typeof AuthenticatedStockCountRoute
+  AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
   AuthenticatedSuppliersRoute: typeof AuthenticatedSuppliersRoute
   AuthenticatedSyncRoute: typeof AuthenticatedSyncRoute
 }
@@ -619,6 +639,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedStockCountRoute: AuthenticatedStockCountRoute,
+  AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
   AuthenticatedSuppliersRoute: AuthenticatedSuppliersRoute,
   AuthenticatedSyncRoute: AuthenticatedSyncRoute,
 }
