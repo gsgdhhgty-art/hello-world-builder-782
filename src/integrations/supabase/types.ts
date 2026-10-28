@@ -299,6 +299,53 @@ export type Database = {
           },
         ]
       }
+      dining_tables: {
+        Row: {
+          branch_id: string | null
+          created_at: string
+          id: string
+          name: string
+          org_id: string
+          seats: number
+          sort_order: number
+          status: string
+          updated_at: string
+          zone: string
+        }
+        Insert: {
+          branch_id?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          org_id: string
+          seats?: number
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          zone?: string
+        }
+        Update: {
+          branch_id?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          org_id?: string
+          seats?: number
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          zone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dining_tables_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expenses: {
         Row: {
           amount: number
@@ -459,6 +506,69 @@ export type Database = {
             columns: ["warehouse_id"]
             isOneToOne: false
             referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kitchen_tickets: {
+        Row: {
+          branch_id: string | null
+          created_at: string
+          created_by: string | null
+          customer_name: string | null
+          id: string
+          items: Json
+          note: string | null
+          order_type: string
+          org_id: string
+          status: string
+          table_id: string | null
+          ticket_no: number
+          updated_at: string
+        }
+        Insert: {
+          branch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string | null
+          id?: string
+          items?: Json
+          note?: string | null
+          order_type?: string
+          org_id: string
+          status?: string
+          table_id?: string | null
+          ticket_no?: number
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string | null
+          id?: string
+          items?: Json
+          note?: string | null
+          order_type?: string
+          org_id?: string
+          status?: string
+          table_id?: string | null
+          ticket_no?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kitchen_tickets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kitchen_tickets_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "dining_tables"
             referencedColumns: ["id"]
           },
         ]
