@@ -256,10 +256,10 @@ function AppShellInner() {
 
   useEffect(() => {
     if (loading) return;
-    if (!profile?.org_id && !onOnboarding) {
-      navigate({ to: "/onboarding", replace: true });
+    if (!profile?.org_id && !onOnboarding && !onSelectIndustry) {
+      navigate({ to: "/select-industry", replace: true });
     }
-    if (profile?.org_id && onOnboarding) {
+    if (profile?.org_id && (onOnboarding || onSelectIndustry)) {
       navigate({ to: CASHIER_APP ? "/pos" : "/dashboard", replace: true });
     }
     if (
@@ -270,7 +270,7 @@ function AppShellInner() {
     ) {
       navigate({ to: "/pos", replace: true });
     }
-  }, [loading, profile, onOnboarding, navigate, location.pathname]);
+  }, [loading, profile, onOnboarding, onSelectIndustry, navigate, location.pathname]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -289,7 +289,7 @@ function AppShellInner() {
     );
   }
 
-  if (onOnboarding || !profile?.org_id) {
+  if (onOnboarding || onSelectIndustry || !profile?.org_id) {
     return (
       <main className="min-h-screen bg-background">
         <Outlet />
@@ -322,6 +322,17 @@ function AppShellInner() {
       items: g.items.filter((i) => !i.perm || (i.perm === "*" ? permissions["*"] : can(i.perm))),
     }))
     .filter((g) => g.items.length);
+
+  // Platform (Super Admin) console — visible only to verified platform admins.
+  // The server re-verifies on every call; this only controls the menu entry.
+  if (isPlatformAdmin) {
+    groups.push({
+      title: "المنصة",
+      items: [
+        { to: "/super-admin", label: "لوحة المنصة", icon: ShieldCheck, tone: TONE.rose },
+      ],
+    });
+  }
 
   const current = groups.flatMap((g) => g.items).find((i) => i.to === location.pathname);
   const searchableItems = groups
